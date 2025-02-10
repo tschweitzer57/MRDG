@@ -14,7 +14,11 @@
 		"source=${localWorkspaceFolder}/01_Generator/output,target=/home/workspace/output,type=bind",
 		"source=${localWorkspaceFolder}/02_Configurations,target=/home/workspace/configs,type=bind",
 		"source=${localWorkspaceFolder}/03_Datasets,target=/home/workspace/saved_outputs,type=bind"
-	]
+	],
+
+	"containerEnv": {
+    	"PYTHONPATH": "/home/workspace/helpers:$PYTHONPATH"
+	}
 	
 	//"workspaceFolder": "/workspaces/",
 	//"workspaceMount": "source=c:/Users/thiba/Documents/01_SyLRED/01_CARLoS/01_Tests/MESA/workspace,target=/home/mesa_workspace/wksp,type=bind"

@@ -13,11 +13,11 @@
 		"source=${localWorkspaceFolder}/04_Metrics/helpers,target=/home/workspace/helpers,type=bind",
 		"source=${localWorkspaceFolder}/06_Results/Computed,target=/home/workspace/input,type=bind",
 		"source=${localWorkspaceFolder}/06_Results/Metrics,target=/home/workspace/saved_output,type=bind"
-	]
+	],
 	
-	// "containerEnv": {
-    // "PYTHONPATH": "/workspace/my_lib:$PYTHONPATH"
-	// }
+	"containerEnv": {
+    	"PYTHONPATH": "/home/workspace/helpers:$PYTHONPATH"
+	}
 
 	//"workspaceFolder": "/workspaces/",
 	//"workspaceMount": "source=c:/Users/thiba/Documents/01_SyLRED/01_CARLoS/01_Tests/MESA/workspace,target=/home/mesa_workspace/wksp,type=bind"

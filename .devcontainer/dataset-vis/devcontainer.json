@@ -14,7 +14,11 @@
 		"source=${localWorkspaceFolder}/03_Datasets,target=/home/workspace/datasets,type=bind",
 		"source=${localWorkspaceFolder}/06_Results/Computed,target=/home/workspace/input,type=bind",
 		"source=${localWorkspaceFolder}/06_Results/Display,target=/home/workspace/saved_output,type=bind"
-	]
+	],
+
+	"containerEnv": {
+    	"PYTHONPATH": "/home/workspace/helpers:$PYTHONPATH"
+	}
 	
 	//"workspaceFolder": "/workspaces/",
 	//"workspaceMount": "source=c:/Users/thiba/Documents/01_SyLRED/01_CARLoS/01_Tests/MESA/workspace,target=/home/mesa_workspace/wksp,type=bind"
