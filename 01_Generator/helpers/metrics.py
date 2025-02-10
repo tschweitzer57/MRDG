@@ -65,17 +65,17 @@ class Metrics():
         self.ape_settings.use_aligned_trajectories = use_aligned_trajectories
 
     def set_poseRelation(self, pose_rel):
-        if pose_rel = 'translation':
+        if pose_rel == 'translation':
             self.pose_relation = metrics.PoseRelation.translation_part
-        elif pose_rel = 'transformation':
+        elif pose_rel == 'transformation':
             self.pose_relation = metrics.PoseRelation.full_transformation
-        elif pose_rel = 'rotation':
+        elif pose_rel == 'rotation':
             self.pose_relation = metrics.PoseRelation.rotation_part
-        elif pose_rel = 'rot_angle_deg':
+        elif pose_rel == 'rot_angle_deg':
             self.pose_relation = metrics.PoseRelation.rotation_angle_deg
-        elif pose_rel = 'rot_angle_rad':
+        elif pose_rel == 'rot_angle_rad':
             self.pose_relation = metrics.PoseRelation.rotation_angle_rad
-        elif pose_rel = 'point_distance':
+        elif pose_rel == 'point_distance':
             self.pose_relation = metrics.PoseRelation.point_distance
         else:
             raise ValueError("Unknown pose_relation argument")

@@ -8,7 +8,7 @@
 
 	// Setup the workspace and mount on docker:
 	"workspaceFolder": "/home/workspace",
-	"workspaceMount": "source=${localWorkspaceFolder}/04_Datasetgen,target=/home/workspace,type=bind"
+	"workspaceMount": "source=${localWorkspaceFolder}/01_Datasetgen,target=/home/workspace,type=bind"
 	
 	//"workspaceFolder": "/workspaces/",
 	//"workspaceMount": "source=c:/Users/thiba/Documents/01_SyLRED/01_CARLoS/01_Tests/MESA/workspace,target=/home/mesa_workspace/wksp,type=bind"
