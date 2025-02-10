@@ -9,7 +9,8 @@
 	// Setup the workspace and mount on docker:
 	"workspaceFolder": "/home/workspace",
 	"mounts": [
-		"source=${localWorkspaceFolder}/05_Display,target=/home/workspace,type=bind",
+		"source=${localWorkspaceFolder}/05_Display/helpers,target=/home/workspace/helpers,type=bind",
+		"source=${localWorkspaceFolder}/05_Display/scripts,target=/home/workspace/scripts,type=bind",
 		"source=${localWorkspaceFolder}/03_Datasets,target=/home/workspace/datasets,type=bind",
 		"source=${localWorkspaceFolder}/06_Results/Computed,target=/home/workspace/input,type=bind",
 		"source=${localWorkspaceFolder}/06_Results/Display,target=/home/workspace/saved_output,type=bind"

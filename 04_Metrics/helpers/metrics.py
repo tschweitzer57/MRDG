@@ -35,7 +35,7 @@ class rpeSettings():
         self.all_pairs = all_pairs
 
 class apeSettings():
-    def __init__(self, use_aligned_trajectories = False)
+    def __init__(self, use_aligned_trajectories = False):
         self.use_aligned_trajectories = use_aligned_trajectories
 
 class Metrics():
