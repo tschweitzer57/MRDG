@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
-	"name": "dataset-gen",
+	"name": "metrics",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	//	"image": "tschweitzer57/gtsam:ros2-humble", TODO: debuggen folgende Anweisung: odom_noise_model = gtsam.noiseModel.Diagonal.Sigmas([0.175, 0.175, 0.175, 0.05, 0.05, 0.05])
 	"image": "tschweitzer57/gtsam:base-20.04",
@@ -9,9 +9,9 @@
 	// Setup the workspace and mount on docker:
 	"workspaceFolder": "/home/workspace",
 	"mounts": [
-		"source=${localWorkspaceFolder}/01_Generator,target=/home/workspace,type=bind",
-		"source=${localWorkspaceFolder}/02_Configurations,target=/home/workspace/configs,type=bind",
-		"source=${localWorkspaceFolder}/03_Datasets,target=/home/workspace/saved_outputs,type=bind"
+		"source=${localWorkspaceFolder}/05_Metrics,target=/home/workspace,type=bind",
+		"source=${localWorkspaceFolder}/06_Results/Computed,target=/home/workspace/input,type=bind",
+		"source=${localWorkspaceFolder}/06_Results/Metrics,target=/home/workspace/saved_output,type=bind"
 	]
 	
 	//"workspaceFolder": "/workspaces/",
