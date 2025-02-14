@@ -78,3 +78,21 @@ class Metrics():
             self.pose_relation = metrics.PoseRelation.point_distance
         else:
             raise ValueError("Unknown pose_relation argument")
+
+    def compute_rpe_rmse(self):
+        data = (self.traj_gt, self.traj_est)
+        rpe_metric = metrics.RPE(pose_relation=self.pose_relation, delta=self.rpe_settings.delta, delta_unit=self.rpe_settings.delta_unit, all_pairs=self.rpe_settings.all_pairs)
+        rpe_metric.process_data(data)
+        rpe_stat = rpe_metric.get_statistic(metrics.StatisticsType.rmse)
+        print('RPE: ',rpe_stat)
+
+    def compute_ape_rmse(self):
+        data = (self.traj_gt, self.traj_est)
+        ape_metric = metrics.APE(self.pose_relation)
+        ape_metric.process_data(data)
+        ape_stat = ape_metric.get_statistic(metrics.StatisticsType.rmse)
+        print('APE: ',ape_stat)
+
+    def compute_stats(self):
+        rpe_stats = rpe_metric.get_all_statistics()
+        ape_stats = rpe_metric.get_all_statistics()
