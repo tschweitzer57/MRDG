@@ -40,7 +40,6 @@ class apeSettings():
 
 class Metrics():
     def __init__(self, est_path, gt_path):
-
         self.traj_gt = file_interface.read_tum_trajectory_file(gt_path)
         self.traj_est = file_interface.read_tum_trajectory_file(est_path)
         self.traj_est_aligned = copy.deepcopy(self.traj_est)
