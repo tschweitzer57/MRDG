@@ -1,4 +1,4 @@
-DISPALAY
+DISPLAY
 [ ] Add visualization tools for error display
 
 METRICS
