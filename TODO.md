@@ -7,6 +7,9 @@
 ---
 
 ## 3. Datasets
+- [ ] Meilleure solution de configuration et génération des datasets
+- [ ] Générer dataset avec landmarks 2 - 2
+- [ ] Vérifier la répartition des landmarks
 
 ---
 
@@ -21,3 +24,9 @@
 ---
 
 ## 6. Results
+
+---
+
+## Ideas
+- [ ] Trouver une manière pour optimiser le workfow avec CSLAM
+- [ ] Ajouter un parser de dataset pour vérifier sa génération
