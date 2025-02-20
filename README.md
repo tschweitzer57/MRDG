@@ -5,14 +5,14 @@ Multi-Robots Dataset Generator is a generator of datasets for multi-robots scena
 
 ## Prerequisites
 
-- ** Operating System ** :
-  - ** Ubuntu 22.04 **
-  - ** Windows 10/11 **
+- **Operating System** :
+  - **Ubuntu 22.04**
+  - **Windows 10/11**
 
-- ** Required  ** :
-  - ** Docker **
+- **Required ** :
+  - **Docker**
   - [For windows users] ** WSL2 and X11 Server **
-  - ** Visual Studio Code (Plug in devcontainers) **
+  - **Visual Studio Code (Plug in devcontainers)**
 
 ---
 
