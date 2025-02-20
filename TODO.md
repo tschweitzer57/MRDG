@@ -30,3 +30,4 @@
 ## Ideas
 - [ ] Trouver une manière pour optimiser le workfow avec CSLAM
 - [ ] Ajouter un parser de dataset pour vérifier sa génération
+- [ ] Génération en C++ ?
