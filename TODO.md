@@ -15,11 +15,14 @@
 
 ## 4. Metrics
 - [ ] Script pour extraire dans Results l'ensemble des erreurs
+- [ ] Add Method to export all errors in a text file
+- [ ] Add Absolute Mean Square error computation
 
 ---
 
 ## 5. Display
 - [ ] Scripts pour afficher de différentes manières les erreurs (Stats, 3D, ..)
+- [ ] Add visualization tools for error display
 
 ---
 
