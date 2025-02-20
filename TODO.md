@@ -1,8 +1,17 @@
+## devcontainers
+- [ ] fusionner metrics et display
+
+---
+
 ## 1. Generator
+- [ ] Ajouter différents patterns de trajectoires
+- [ ] Ajouter des outliers
 
 ---
 
 ## 2. Configurations
+- [ ] Ajouter une section pour les patterns de trajectoire 
+- [ ] Ajouter section pour les outliers
 
 ---
 
@@ -31,6 +40,6 @@
 ---
 
 ## Ideas
-- [ ] Trouver une manière pour optimiser le workfow avec CSLAM
-- [ ] Ajouter un parser de dataset pour vérifier sa génération
-- [ ] Génération en C++ ?
+- Trouver une manière pour optimiser le workfow avec CSLAM
+- Ajouter un parser de dataset pour vérifier sa génération
+- Génération en C++ ?
