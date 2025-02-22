@@ -1,5 +1,7 @@
 ## 1. Generator
-
+- [ ] Générer dataset avec landmarks 2 - 2
+- [ ] Meilleure solution de configuration et génération des datasets
+- [ ] Vérifier la répartition des landmarks
 ---
 
 ## 2. Configurations
@@ -7,9 +9,6 @@
 ---
 
 ## 3. Datasets
-- [ ] Meilleure solution de configuration et génération des datasets
-- [ ] Générer dataset avec landmarks 2 - 2
-- [ ] Vérifier la répartition des landmarks
 
 ---
 
@@ -23,11 +22,12 @@
 ## 5. Display
 - [ ] Scripts pour afficher de différentes manières les erreurs (Stats, 3D, ..)
 - [ ] Add visualization tools for error display
+- [ ] Merge devcontainer with metrics to get errors data
 
 ---
 
 ## 6. Results
-
+- [ ] Définir une structure de résultats
 ---
 
 ## Ideas
