@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
-	"name": "metrics",
+	"name": "error-vis",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	//	"image": "tschweitzer57/gtsam:ros2-humble", TODO: debuggen folgende Anweisung: odom_noise_model = gtsam.noiseModel.Diagonal.Sigmas([0.175, 0.175, 0.175, 0.05, 0.05, 0.05])
 	"image": "tschweitzer57/gtsam:base-20.04",
