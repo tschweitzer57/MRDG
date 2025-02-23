@@ -1,4 +1,4 @@
-from helpers.parser import DatasetParser
+from parser import DatasetParser
 import os
 
 if __name__ == "__main__":
