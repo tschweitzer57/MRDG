@@ -26,6 +26,8 @@ class DatasetParser():
             output += self.get_lc_inter_direct(rid)
             output += self.get_lc_inter_indirect(rid)
             output += "\n"
+        self.get_landmarks()
+        #output += self.get_landmarks()
         if verbose:
             print(output)
 
@@ -192,6 +194,28 @@ class DatasetParser():
                             has_comm_edge = True
 
         return has_comm_edge
+
+    def get_landmarks(self):
+        self.landmarks = defaultdict(set)
+        for rid in self.dataset.robots():
+            for entry in self.dataset.measurements(rid):
+                for i in range(entry.measurements.nrFactors()):
+                    factor = entry.measurements.at(i)
+                    if len(factor.keys()) > 1:
+                        key1 = factor.keys()[0]
+                        key2 = factor.keys()[1]
+                        if chr(gtsam.Symbol(key1).chr()) == 'l':
+                            self.landmarks[key1].add(key2)
+                        elif chr(gtsam.Symbol(key2).chr()) == 'l':
+                            self.landmarks[key2].add(key1)
+
+        for key in self.landmarks.keys():
+            print(key)
+            output += f"{chr(gtsam.Symbol(key1).chr())}{gtsam.Symbol(key1).index()}"
+            output += f" - {chr(gtsam.Symbol(key2).chr())}{gtsam.Symbol(key2).index()}\n"
+
+        
+
 
 
 def display_factor(factor, key1, key2=None):
