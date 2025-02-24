@@ -6,7 +6,7 @@
 ## 1. Generator
 - [ ] Ajouter différents patterns de trajectoires
 - [ ] Ajouter des outliers
-- [ ] Générer dataset avec landmarks 2 - 2
+- [x] Générer dataset avec landmarks 2 - 2
 - [ ] Meilleure solution de configuration et génération des datasets
 - [ ] Vérifier la répartition des landmarks
 - [ ] définir le nom du dataset d'après le nom du fichier de configuration
