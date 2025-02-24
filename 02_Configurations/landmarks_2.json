@@ -13,7 +13,7 @@
     },
     "landmarks": {
         "number": 20,
-        "seed": 32,
+        "seed": 70,
         "probability": 0.5
     },
     "sigmas": {

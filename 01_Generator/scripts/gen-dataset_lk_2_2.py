@@ -19,6 +19,27 @@ from itertools import combinations
 from parameters import DatasetParameters
 from generator import DatasetGenerator
 
+def get_all_edges(robots):
+    edges = set()
+    for rid in robots:
+        for oid in robots:
+            if rid != oid:
+                edge = (min(rid,oid),max(rid,oid))
+                edges.add(edge)
+    return edges
+
+def associate_lid_edges(edges):
+    index = 1
+    lid_per_edge = {}
+    for edge in edges:
+        lid = gtsam.symbol('l', index)
+        lid_per_edge[edge] = lid
+        index += 1
+    return lid_per_edge
+        
+
+
+
 def get_close_pose_keys(vals, rid, pose_index, index_tresh, dist_thresh):
     current_pose = vals[rid].atPose3(gtsam.symbol(rid, pose_index))
     close_pose_keys = []
@@ -84,8 +105,8 @@ if __name__ == "__main__":
 
     # Setup the Dataset Builder
     input_dir = './configs'
-    output_dir = './output_debug'
-    config_name = 'landmarks'
+    output_dir = './output'
+    config_name = 'landmarks_2'
     builder = DatasetGenerator(os.path.join(input_dir, config_name + ".json"))
     if builder.params.lc_inter_direct is not None:
         if builder.params.lc_inter_direct.get('range') is not None:
@@ -100,6 +121,10 @@ if __name__ == "__main__":
     if builder.params.landmarks is not None:
         # Generate landmarks
         builder.gen_lk_amers()
+
+        # Define edges
+        edges = get_all_edges(builder.robots)
+        lid_per_edge = associate_lid_edges(edges)
 
     # Setup com_map
     com_map = list(combinations(builder.robots, 2))
@@ -161,9 +186,10 @@ if __name__ == "__main__":
         if builder.params.landmarks is not None:
 
             # Add landmark measurement
-            if np.random.rand() < builder.params.landmarks['probability']:
-                for rid in builder.robots:
-                    lid = builder.get_closest_lk(rid, pose_num)
+            for rid in builder.robots:
+                if np.random.rand() < builder.params.landmarks['probability']:
+                    random_edge = random.choice(tuple(edges))
+                    lid = lid_per_edge[random_edge]
                     builder.add_lk(lid, rid, pose_num)
 
     dataset = builder.build()

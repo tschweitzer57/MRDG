@@ -5,7 +5,7 @@ import numpy as np
 from collections import defaultdict
 from string import ascii_letters
 #from helpers.parameters import DatasetParameters
-from helpers.parameters import DatasetParameters
+from parameters import DatasetParameters
 
 from collections import defaultdict
 
