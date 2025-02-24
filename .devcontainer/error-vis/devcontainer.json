@@ -32,7 +32,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "pip install -y evo"
+	"postCreateCommand": "pip install evo"
 	//
 	// DISPLAY=192.168.14.255:0
 
