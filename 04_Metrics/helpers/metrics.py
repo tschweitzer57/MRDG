@@ -137,7 +137,6 @@ class Results():
         parser = jrl.Parser()
         results_path = os.path.join(self.input_path, 'final_results.jrr.cbor')
         self.results = parser.parseResults(results_path, True)
-        help(self.results.robot_solutions['a'])
         # print(results.dataset_name)
         # print(results.method_name)
 

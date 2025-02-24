@@ -1,5 +1,5 @@
 ## devcontainers
-- [ ] fusionner metrics et display
+- [x] fusionner metrics et display
 
 ---
 
@@ -9,6 +9,8 @@
 - [ ] Générer dataset avec landmarks 2 - 2
 - [ ] Meilleure solution de configuration et génération des datasets
 - [ ] Vérifier la répartition des landmarks
+- [ ] définir le nom du dataset d'après le nom du fichier de configuration
+- [ ] si repeats > 1 ajouter num au nom du dataset
 
 ---
 
