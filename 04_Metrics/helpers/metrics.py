@@ -27,6 +27,8 @@ import os
 from os.path import basename, dirname, split
 from collections import defaultdict
 import copy
+import json
+import jrl
 
 class rpeSettings():
     def __init__(self, delta = 1, delta_unit = Unit.frames, all_pairs = False):
@@ -124,12 +126,36 @@ class Metrics():
         print('RPE: ', self.rpe_stats)
         print('APE: ', self.ape_stats)
 
-    # def export(self, path):
-    #     print(path)
-    #     for
-    #     print()
+class Results():
+    def __init__(self, data_path, export_path):
+        # Define paths
+        self.input_path = data_path
+        self.output_path = os.path.join(export_path, os.path.basename(self.input_path))
+        os.makedirs(self.output_path , exist_ok=True)
+        
+        # Get results data
+        parser = jrl.Parser()
+        results_path = os.path.join(self.input_path, 'final_results.jrr.cbor')
+        self.results = parser.parseResults(results_path, True)
+        # print(results.dataset_name)
+        # print(results.method_name)
 
-        #os.makedirs(raw_path, exist_ok=True)
+    def generate_intermediate_results(self):
+        # Generate folder
+        folder = 'intermediate'
+        self.intermediate_path = os.path.join(self.output_path, folder)
+
+
+        # Save grountruth and estimates data
+        for rid in self.results.robots:
+            path_rid = os.path.join(self.intermediate_path, rid)
+            os.makedirs(path_rid , exist_ok=True)
+
+            gt_fname = os.path.join(path_rid, 'groundtruth.txt')
+            estf_fname = os.path.join(path_rid, 'estimates.txt')
+            init_fname = os.path.join(path_rid, 'initialization.txt')
+
+
 
     # Error numbers
     # print(self.ape_metric.error)
