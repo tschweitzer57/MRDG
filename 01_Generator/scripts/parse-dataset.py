@@ -3,8 +3,8 @@ import os
 
 if __name__ == "__main__":
 
-    dataset_folder = "./output/dataset/exp/lc_direct/pose"
-    dataset_name = 'pose6'
+    dataset_folder = "./saved_outputs"
+    dataset_name = 'landmarks_2'
     output_path = os.path.join(dataset_folder, dataset_name + "_parsed.txt")
     dataset_path = os.path.join(dataset_folder, dataset_name + ".jrl")
     

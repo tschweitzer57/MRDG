@@ -41,6 +41,7 @@ class DatasetParser():
     def get_general(self, rid):
         nr_poses = 0
         nr_prior = 0
+        nr_landmarks = 0
         nr_lc_intra = 0
         nr_lc_inter_direct_range = {}
         nr_lc_inter_direct_pose = {}
@@ -67,15 +68,19 @@ class DatasetParser():
 
                     is_key1_rid = chr(gtsam.Symbol(key1).chr()) == rid
                     is_key2_rid = chr(gtsam.Symbol(key2).chr()) == rid
+                    is_lk = (chr(gtsam.Symbol(key1).chr()) == 'l' or chr(gtsam.Symbol(key2).chr()) == 'l')
                     are_consecutive = gtsam.Symbol(key1).index() + 1 == gtsam.Symbol(key2).index()
                     is_inter = chr(gtsam.Symbol(key1).chr()) != chr(gtsam.Symbol(key2).chr())
                     is_direct = gtsam.Symbol(key1).index() == gtsam.Symbol(key2).index()
 
+                    # Detecting landmark
+                    if is_lk:
+                        nr_landmarks += 1
                     # Detecting lc intra
                     if is_key1_rid and is_key2_rid and not are_consecutive:
                         nr_lc_intra += 1
                     # Detecting lc inter direct
-                    if is_inter and is_direct:
+                    if is_inter and is_direct and not is_lk:
                         if isinstance(factor, gtsam.RangeFactorPose3):
                             if is_key1_rid:
                                 nr_lc_inter_direct_range[chr(gtsam.Symbol(key2).chr())] += 1
@@ -88,14 +93,15 @@ class DatasetParser():
                                 nr_lc_inter_direct_pose[chr(gtsam.Symbol(key1).chr())] += 1
                             
                     # Detecting lc inter indirect
-                    if is_inter and not is_direct:
+                    if is_inter and not is_direct and not is_lk:
                         if is_key1_rid:
                             nr_lc_inter_indirect[chr(gtsam.Symbol(key2).chr())] += 1
                         else:
                             nr_lc_inter_indirect[chr(gtsam.Symbol(key1).chr())] += 1
 
         output  = f'Number of poses : {nr_poses}\n'
-        output += f'Number of priors : {nr_prior}\n\n'
+        output += f'Number of priors : {nr_prior}\n'
+        output += f'Number of landmarks : {nr_landmarks}\n\n'
         output += '----- Loop closures -----\n'
         output += f'Intra : {nr_lc_intra}\n'
         for key in nr_lc_inter_direct_range.keys():
@@ -107,7 +113,7 @@ class DatasetParser():
 
         return output
 
-    
+    # TODO Merge parsers for a same robot
     def get_odometry(self, rid):
         output = f"--ODOMETRY--\n"
         for entry in self.dataset.measurements(rid):
@@ -148,9 +154,10 @@ class DatasetParser():
                 if len(factor.keys()) > 1:
                     key1 = factor.keys()[0]
                     key2 = factor.keys()[1]
+                    is_lk = (chr(gtsam.Symbol(key1).chr()) == 'l' or chr(gtsam.Symbol(key2).chr()) == 'l')
                     is_inter = chr(gtsam.Symbol(key1).chr()) != chr(gtsam.Symbol(key2).chr())
                     is_direct = gtsam.Symbol(key1).index() == gtsam.Symbol(key2).index()
-                    if (is_inter and is_direct):
+                    if (is_inter and is_direct and not is_lk):
                         output += f"{chr(gtsam.Symbol(key1).chr())}{gtsam.Symbol(key1).index()}"
                         output += f" - {chr(gtsam.Symbol(key2).chr())}{gtsam.Symbol(key2).index()}\n"
         return output
@@ -163,9 +170,10 @@ class DatasetParser():
                 if len(factor.keys()) > 1:
                     key1 = factor.keys()[0]
                     key2 = factor.keys()[1]
+                    is_lk = (chr(gtsam.Symbol(key1).chr()) == 'l' or chr(gtsam.Symbol(key2).chr()) == 'l')
                     is_inter = chr(gtsam.Symbol(key1).chr()) != chr(gtsam.Symbol(key2).chr())
                     is_indirect = gtsam.Symbol(key1).index() != gtsam.Symbol(key2).index()
-                    if (is_inter and is_indirect):
+                    if (is_inter and is_indirect and not is_lk):
                         output += f"{chr(gtsam.Symbol(key1).chr())}{gtsam.Symbol(key1).index()}"
                         output += f" - {chr(gtsam.Symbol(key2).chr())}{gtsam.Symbol(key2).index()}\n"
         return output
