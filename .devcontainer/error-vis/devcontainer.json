@@ -9,6 +9,7 @@
 	// Setup the workspace and mount on docker:
 	"workspaceFolder": "/home/workspace",
 	"mounts": [
+		"source=${localWorkspaceFolder}/03_Datasets,target=/home/workspace/datasets,type=bind", // mandatory to get groundtruths
 		"source=${localWorkspaceFolder}/04_Metrics/scripts,target=/home/workspace/scripts/metrics,type=bind",
 		"source=${localWorkspaceFolder}/04_Metrics/helpers,target=/home/workspace/helpers/metrics,type=bind",
 		"source=${localWorkspaceFolder}/05_Display/scripts,target=/home/workspace/scripts/display,type=bind",
@@ -19,7 +20,7 @@
 	
 	"containerEnv": {
     	"PYTHONPATH": "/home/workspace/helpers/display:/home/workspace/helpers/metrics:$PYTHONPATH"
-	}
+	},
 
 	//"workspaceFolder": "/workspaces/",
 	//"workspaceMount": "source=c:/Users/thiba/Documents/01_SyLRED/01_CARLoS/01_Tests/MESA/workspace,target=/home/mesa_workspace/wksp,type=bind"
@@ -31,7 +32,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "uname -a",
+	"postCreateCommand": "pip install -y evo"
 	//
 	// DISPLAY=192.168.14.255:0
 

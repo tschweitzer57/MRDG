@@ -18,7 +18,7 @@
 
 	"containerEnv": {
     	"PYTHONPATH": "/home/workspace/helpers:$PYTHONPATH"
-	}
+	},
 	
 	//"workspaceFolder": "/workspaces/",
 	//"workspaceMount": "source=c:/Users/thiba/Documents/01_SyLRED/01_CARLoS/01_Tests/MESA/workspace,target=/home/mesa_workspace/wksp,type=bind"
@@ -30,7 +30,7 @@
 	// "forwardPorts": [],
 
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "uname -a",
+	//"postCreateCommand": "pip install -y evo"
 	//
 	// DISPLAY=192.168.14.255:0
 
