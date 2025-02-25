@@ -189,8 +189,9 @@ if __name__ == "__main__":
             for rid in builder.robots:
                 if np.random.rand() < builder.params.landmarks['probability']:
                     random_edge = random.choice(tuple(edges))
+                    oid = random.choice(random_edge)
                     lid = lid_per_edge[random_edge]
-                    builder.add_lk(lid, rid, pose_num)
+                    builder.add_lk(lid, oid, pose_num)
 
     dataset = builder.build()
     writer = jrl.Writer()
