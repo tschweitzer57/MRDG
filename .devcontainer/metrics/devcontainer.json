@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
-	"name": "error-vis",
+	"name": "error-metrics",
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	//	"image": "tschweitzer57/gtsam:ros2-humble", TODO: debuggen folgende Anweisung: odom_noise_model = gtsam.noiseModel.Diagonal.Sigmas([0.175, 0.175, 0.175, 0.05, 0.05, 0.05])
 	"image": "tschweitzer57/gtsam:base-20.04",
@@ -9,17 +9,15 @@
 	// Setup the workspace and mount on docker:
 	"workspaceFolder": "/home/workspace",
 	"mounts": [
-		"source=${localWorkspaceFolder}/03_Datasets,target=/home/workspace/datasets,type=bind", // mandatory to get groundtruths
-		"source=${localWorkspaceFolder}/04_Metrics/scripts,target=/home/workspace/scripts/metrics,type=bind",
-		"source=${localWorkspaceFolder}/04_Metrics/helpers,target=/home/workspace/helpers/metrics,type=bind",
-		"source=${localWorkspaceFolder}/05_Display/scripts,target=/home/workspace/scripts/display,type=bind",
-		"source=${localWorkspaceFolder}/05_Display/helpers,target=/home/workspace/helpers/display,type=bind",
-		"source=${localWorkspaceFolder}/06_Results/Computed,target=/home/workspace/input,type=bind",
-		"source=${localWorkspaceFolder}/06_Results/Metrics,target=/home/workspace/saved_output,type=bind"
+		"source=${localWorkspaceFolder}/03_Metrics/scripts,target=/home/workspace/scripts,type=bind",
+		"source=${localWorkspaceFolder}/03_Metrics/helpers,target=/home/workspace/helpers,type=bind",
+		"source=${localWorkspaceFolder}/04_Datasets,target=/home/workspace/datasets,type=bind", // mandatory to get groundtruths
+		"source=${localWorkspaceFolder}/05_Results/Computed,target=/home/workspace/input,type=bind",
+		"source=${localWorkspaceFolder}/05_Results/Metrics,target=/home/workspace/saved_output,type=bind"
 	],
 	
 	"containerEnv": {
-    	"PYTHONPATH": "/home/workspace/helpers/display:/home/workspace/helpers/metrics:$PYTHONPATH"
+    	"PYTHONPATH": "/home/workspace/helpers:$PYTHONPATH"
 	},
 
 	//"workspaceFolder": "/workspaces/",

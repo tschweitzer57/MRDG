@@ -20,10 +20,9 @@ Multi-Robots Dataset Generator is a generator of datasets for multi-robots scena
 
 - [Generator](./01_Generator) : Contient les scripts capables de générer les datasets selon les différents scénarios envisagés
 - [Configurations](./02_Configurations) : Contient les fichiers de configuration des datasets
-- [Datasets](./03_Datasets) : Contient les datasets ayant été générés
-- [Metrics](./04_Metrics) : Contient des scripts pour calculer les différentes erreurs
-- [Display](./05_Display) : Contient des scripts pour afficher/visualiser les erreurs
-- [Results](./06_Results) : Contient les résultats obtenus (erreurs et visualisations)
+- [Metrics](./03_Metrics) : Contient des scripts pour calculer les différentes erreurs et les afficher/visualiser
+- [Datasets](./04_Datasets) : Contient les datasets ayant été générés
+- [Results](./05_Results) : Contient les résultats obtenus (erreurs et visualisations)
 
 ---
 

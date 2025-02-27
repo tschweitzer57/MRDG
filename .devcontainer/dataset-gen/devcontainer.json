@@ -13,7 +13,7 @@
 		"source=${localWorkspaceFolder}/01_Generator/scripts,target=/home/workspace/scripts,type=bind",
 		"source=${localWorkspaceFolder}/01_Generator/output,target=/home/workspace/output,type=bind",
 		"source=${localWorkspaceFolder}/02_Configurations,target=/home/workspace/configs,type=bind",
-		"source=${localWorkspaceFolder}/03_Datasets,target=/home/workspace/saved_outputs,type=bind"
+		"source=${localWorkspaceFolder}/04_Datasets,target=/home/workspace/saved_outputs,type=bind"
 	],
 
 	"containerEnv": {
