@@ -127,18 +127,17 @@ class Metrics():
         print('APE: ', self.ape_stats)
 
 class Results():
-    def __init__(self, data_path, export_path):
+    def __init__(self, results_path, export_path, dataset_path):
         # Define paths
-        self.input_path = data_path
+        self.input_path = results_path
         self.output_path = os.path.join(export_path, os.path.basename(self.input_path))
+        self.dataset_path = dataset_path
         os.makedirs(self.output_path , exist_ok=True)
         
         # Get results data
         parser = jrl.Parser()
         results_path = os.path.join(self.input_path, 'final_results.jrr.cbor')
         self.results = parser.parseResults(results_path, True)
-        # print(results.dataset_name)
-        # print(results.method_name)
 
     def generate_intermediate_results(self):
         # Generate folder
@@ -151,9 +150,25 @@ class Results():
             path_rid = os.path.join(self.intermediate_path, rid)
             os.makedirs(path_rid , exist_ok=True)
 
-            gt_fname = os.path.join(path_rid, 'groundtruth.txt')
-            estf_fname = os.path.join(path_rid, 'estimates.txt')
-            init_fname = os.path.join(path_rid, 'initialization.txt')
+            gt_fname = os.path.join(path_rid, rid + '_groundtruth.txt')
+            estf_fname = os.path.join(path_rid, rid + '_estimates.txt')
+            init_fname = os.path.join(path_rid, rid + '_initialization.txt')
+
+    def generate_metrics_results(self):
+
+    def generate_summary_file(self):
+        print("not implemented")
+        # print(results.dataset_name)
+        # print(results.method_name)
+
+    def generate_raw_errors_file(file):
+        print("not implemented")
+    
+    # Should be temporary
+    # def get_groundtruth_data(self, f_name):
+
+    # def get_initialization_data(self, f_name):
+        
 
 
 
