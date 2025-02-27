@@ -15,7 +15,7 @@
 ---
 
 ## 2. Configurations
-- [ ] Ajouter une section pour les patterns de trajectoire 
+- [ ] Ajouter une section pour les patterns de trajectoire
 - [ ] Ajouter section pour les outliers
 - [ ] Retirer nom des paramètres de configuration
 
