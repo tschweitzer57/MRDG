@@ -149,9 +149,10 @@ class Results():
         self.intermediate_path = os.path.join(self.output_path, folder)
 
         # Get groundtruths
+        self.get_groundtruths()
 
         # Get initializations
-
+        self.get_initializations()
 
         # Save grountruth and estimates data
         for rid in self.results.robots:
@@ -212,10 +213,10 @@ class Results():
     
     # Should be temporary
     def get_groundtruths(self):
-        print(self.dataset.robots)
+        print(self.dataset.robots())
 
     def get_initializations(self):
-        print(self.dataset.robots)
+        print(self.dataset.robots())
         
     # Error numbers
     # print(self.ape_metric.error)
