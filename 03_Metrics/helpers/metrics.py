@@ -188,40 +188,35 @@ class Results():
                 # Next key
                 pose_num += 1
                 key = gtsam.symbol(rid, pose_num)
-
-    # for key in estimates.keys():
-    #     # Export groundtruth
-    #     # tr = self.groundtruths[rid].atPose3(key).translation()
-    #     # quat = self.groundtruths[rid].atPose3(key).rotation().toQuaternion()
-    #     # line = [stamp,tr.T[0],tr.T[1],tr.T[2],quat.x(),quat.y(),quat.z(),quat.w()]
-    #     # f_gt.write(' '.join(map(str, line)) + '\n')
-
-    #     # Export estimates
-    #     s = chr(gtsam.Symbol(key).chr())
-    #     #id = gtsam.Symbol(key).index()
-    #     if s != 'l':
-    #         tr = estimates.atPose3(key).translation()
-    #         quat = estimates.atPose3(key).rotation().toQuaternion()
-    #         line = [stamp,tr.T[0],tr.T[1],tr.T[2],quat.x(),quat.y(),quat.z(),quat.w()]
-    #         f_es.write(' '.join(map(str, line)) + '\n')
-    #         stamp += 1
-
-        # Export initilizations
-        # tr = self.initializations[rid].atPose3(key).translation()
-        # quat = self.initializations[rid].atPose3(key).rotation().toQuaternion()
-        # line = [stamp,tr.T[0],tr.T[1],tr.T[2],quat.x(),quat.y(),quat.z(),quat.w()]
-        # f_init.write(' '.join(map(str, line)) + '\n')
+        
+        # Print generated intermediate results
     
     def generate_metrics_results(self):
-        
+
         # Generate folder
-        folder = 'intermediate'
-        self.intermediate_path = os.path.join(self.output_path, folder)
+        folder = 'metrics'
+        self.metrics_path = os.path.join(self.output_path, folder)
+        os.makedirs(self.metrics_path , exist_ok=True)
+
+        # Chemin du fichier JSON
+        metrics_path = os.path.join(self.metrics_path, 'metrics.json')
+        raw_errors_path = os.path.join(self.metrics_path, 'raw_errors.json')
+
+        data = self.__generate_example_dict()
+        # Enregistrer les données dans un fichier JSON
+        with open(metrics_path, 'w', encoding='utf-8') as json_file:
+            json.dump(data, json_file, ensure_ascii=False, indent=4)
+
+        # Enregistrer les données dans un fichier JSON
+        with open(raw_errors_path, 'w', encoding='utf-8') as json_file:
+            json.dump(data, json_file, ensure_ascii=False, indent=4)
 
     def generate_summary_file(self):
-        print("not implemented")
-        # print(results.dataset_name)
-        # print(results.method_name)
+        summary_path = os.path.join(self.output_path , 'summary.txt')
+        f_summary = open(summary_path,'w')
+
+        f_summary.write(f'Dataset name : {self.results.dataset_name}\n')
+        f_summary.write(f'Solver method : {self.results.method_name}\n')
 
     def generate_raw_errors_file(self):
         print("not implemented")
@@ -230,6 +225,16 @@ class Results():
         tr = val.translation()
         quat = val.rotation().toQuaternion()
         return [pose_nr, tr.T[0], tr.T[1], tr.T[2], quat.x(), quat.y(),quat.z(), quat.w()]
+
+    def __generate_example_dict(self):
+        # Exemple de dictionnaire
+        data = {}
+        data['nom'] = 'Alice'
+        data['âge'] = 30
+        data['ville'] = 'Paris'
+        data['hobbies'] = ['lecture', 'randonnée', 'cuisine']
+
+        return data
 
         
     # Error numbers
