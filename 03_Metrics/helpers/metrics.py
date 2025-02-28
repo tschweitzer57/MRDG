@@ -142,17 +142,10 @@ class Results():
         # Should be temporary
         self.dataset = parser.parseDataset(dataset_path, False)
 
-
     def generate_intermediate_results(self):
         # Generate folder
         folder = 'intermediate'
         self.intermediate_path = os.path.join(self.output_path, folder)
-
-        # Get groundtruths
-        self.get_groundtruths()
-
-        # Get initializations
-        self.get_initializations()
 
         # Save grountruth and estimates data
         for rid in self.results.robots:
@@ -171,8 +164,30 @@ class Results():
             f_gt.write("# time x y z qx qy qz qw\n")
             f_init.write("# time x y z qx qy qz qw\n")
             
-            # estimates = results.robot_solutions[rid].values
-            # stamp = 0
+            estimates = self.results.robot_solutions[rid].values
+            groundtruths = self.dataset.groundTruth(rid)
+            initializations = self.dataset.initialization(rid)
+            
+            pose_num = 0
+            key = gtsam.symbol(rid, pose_num)
+
+            while key in estimates.keys() and key in groundtruths.keys() and key in initializations.keys():
+
+                # Export estimates
+                line = self.__format_dataline(pose_num, estimates.atPose3(key))
+                f_es.write(' '.join(map(str, line)) + '\n')
+
+                # Export groundtruth
+                line = self.__format_dataline(pose_num, groundtruths.atPose3(key))
+                f_gt.write(' '.join(map(str, line)) + '\n')
+                
+                # Export initialization
+                line = self.__format_dataline(pose_num, initializations.atPose3(key))
+                f_init.write(' '.join(map(str, line)) + '\n')
+            
+                # Next key
+                pose_num += 1
+                key = gtsam.symbol(rid, pose_num)
 
     # for key in estimates.keys():
     #     # Export groundtruth
@@ -196,7 +211,7 @@ class Results():
         # quat = self.initializations[rid].atPose3(key).rotation().toQuaternion()
         # line = [stamp,tr.T[0],tr.T[1],tr.T[2],quat.x(),quat.y(),quat.z(),quat.w()]
         # f_init.write(' '.join(map(str, line)) + '\n')
-
+    
     def generate_metrics_results(self):
         
         # Generate folder
@@ -208,15 +223,14 @@ class Results():
         # print(results.dataset_name)
         # print(results.method_name)
 
-    def generate_raw_errors_file(file):
+    def generate_raw_errors_file(self):
         print("not implemented")
-    
-    # Should be temporary
-    def get_groundtruths(self):
-        print(self.dataset.robots())
 
-    def get_initializations(self):
-        print(self.dataset.robots())
+    def __format_dataline(self, pose_nr, val):
+        tr = val.translation()
+        quat = val.rotation().toQuaternion()
+        return [pose_nr, tr.T[0], tr.T[1], tr.T[2], quat.x(), quat.y(),quat.z(), quat.w()]
+
         
     # Error numbers
     # print(self.ape_metric.error)
