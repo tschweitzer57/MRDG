@@ -29,6 +29,7 @@ from collections import defaultdict
 import copy
 import json
 import jrl
+import gtsam
 
 class rpeSettings():
     def __init__(self, delta = 1, delta_unit = Unit.frames, all_pairs = False):
@@ -131,7 +132,6 @@ class Results():
         # Define paths
         self.input_path = results_path
         self.output_path = os.path.join(export_path, os.path.basename(self.input_path))
-        self.dataset_path = dataset_path
         os.makedirs(self.output_path , exist_ok=True)
         
         # Get results data
@@ -139,10 +139,18 @@ class Results():
         results_path = os.path.join(self.input_path, 'final_results.jrr.cbor')
         self.results = parser.parseResults(results_path, True)
 
+        # Should be temporary
+        self.dataset = parser.parseDataset(dataset_path, False)
+
+
     def generate_intermediate_results(self):
         # Generate folder
         folder = 'intermediate'
         self.intermediate_path = os.path.join(self.output_path, folder)
+
+        # Get groundtruths
+
+        # Get initializations
 
 
         # Save grountruth and estimates data
@@ -151,10 +159,48 @@ class Results():
             os.makedirs(path_rid , exist_ok=True)
 
             gt_fname = os.path.join(path_rid, rid + '_groundtruth.txt')
-            estf_fname = os.path.join(path_rid, rid + '_estimates.txt')
+            est_fname = os.path.join(path_rid, rid + '_estimates.txt')
             init_fname = os.path.join(path_rid, rid + '_initialization.txt')
 
+            f_es = open(est_fname,'w')
+            f_gt = open(gt_fname,'w')
+            f_init = open(init_fname,'w')
+
+            f_es.write("# time x y z qx qy qz qw\n")
+            f_gt.write("# time x y z qx qy qz qw\n")
+            f_init.write("# time x y z qx qy qz qw\n")
+            
+            # estimates = results.robot_solutions[rid].values
+            # stamp = 0
+
+    # for key in estimates.keys():
+    #     # Export groundtruth
+    #     # tr = self.groundtruths[rid].atPose3(key).translation()
+    #     # quat = self.groundtruths[rid].atPose3(key).rotation().toQuaternion()
+    #     # line = [stamp,tr.T[0],tr.T[1],tr.T[2],quat.x(),quat.y(),quat.z(),quat.w()]
+    #     # f_gt.write(' '.join(map(str, line)) + '\n')
+
+    #     # Export estimates
+    #     s = chr(gtsam.Symbol(key).chr())
+    #     #id = gtsam.Symbol(key).index()
+    #     if s != 'l':
+    #         tr = estimates.atPose3(key).translation()
+    #         quat = estimates.atPose3(key).rotation().toQuaternion()
+    #         line = [stamp,tr.T[0],tr.T[1],tr.T[2],quat.x(),quat.y(),quat.z(),quat.w()]
+    #         f_es.write(' '.join(map(str, line)) + '\n')
+    #         stamp += 1
+
+        # Export initilizations
+        # tr = self.initializations[rid].atPose3(key).translation()
+        # quat = self.initializations[rid].atPose3(key).rotation().toQuaternion()
+        # line = [stamp,tr.T[0],tr.T[1],tr.T[2],quat.x(),quat.y(),quat.z(),quat.w()]
+        # f_init.write(' '.join(map(str, line)) + '\n')
+
     def generate_metrics_results(self):
+        
+        # Generate folder
+        folder = 'intermediate'
+        self.intermediate_path = os.path.join(self.output_path, folder)
 
     def generate_summary_file(self):
         print("not implemented")
@@ -165,13 +211,12 @@ class Results():
         print("not implemented")
     
     # Should be temporary
-    # def get_groundtruth_data(self, f_name):
+    def get_groundtruths(self):
+        print(self.dataset.robots)
 
-    # def get_initialization_data(self, f_name):
+    def get_initializations(self):
+        print(self.dataset.robots)
         
-
-
-
     # Error numbers
     # print(self.ape_metric.error)
     # print(self.rpe_metric.error)
