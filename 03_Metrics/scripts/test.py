@@ -1,6 +1,6 @@
 from metrics import Results
 
-test = Results('./input/landmarks_geodesic-mesa_2025-02-13_09-21-15', './saved_output', './datasets/landmarks.jrl')
+test = Results('./input/landmarks_2_geodesic-mesa_2025-03-01_01-21-08', './saved_output', './datasets/landmarks_2.jrl')
 
 # Generate results folder
 test.generate_summary_file()
