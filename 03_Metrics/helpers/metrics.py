@@ -199,10 +199,10 @@ class Results():
         os.makedirs(self.metrics_path , exist_ok=True)
 
         # Chemin du fichier JSON
-        metrics_path = os.path.join(self.metrics_path, 'metrics.json')
+        metrics_path = os.path.join(self.metrics_path, 'translation_ape.json')
         raw_errors_path = os.path.join(self.metrics_path, 'raw_errors.json')
 
-        data = self.__get_metrics()
+        data = self.__get_metrics('translation', 'APE')
         # Enregistrer les données dans un fichier JSON
         with open(metrics_path, 'w', encoding='utf-8') as json_file:
             json.dump(data, json_file, ensure_ascii=False, indent=4)
@@ -226,73 +226,70 @@ class Results():
         quat = val.rotation().toQuaternion()
         return [pose_nr, tr.T[0], tr.T[1], tr.T[2], quat.x(), quat.y(),quat.z(), quat.w()]
 
-    def __get_metrics(self):
-        # Exemple de dictionnaire
+    def __get_metrics(self, pose_type, error_type, init=False):
         data = {}
 
         for rid in self.results.robots:
             
+            if init:
+                input_path = os.path.join(self.intermediate_path, rid, rid + '_initialization.txt')
+            else:
+                input_path = os.path.join(self.intermediate_path, rid, rid + '_estimates.txt')
             gt_path = os.path.join(self.intermediate_path, rid, rid + '_groundtruth.txt')
-            est_path = os.path.join(self.intermediate_path, rid, rid + '_estimates.txt')
-            init_path = os.path.join(self.intermediate_path, rid, rid + '_initialization.txt')
             
-            mtr = {}
-
-            # translation
-            translation = {}
-            metrics = Metrics(est_path, gt_path)
-            metrics.set_poseRelation('translation')
+            index = 'Robot ' + rid
+            
+            # Get pose errors
+            metrics = Metrics(input_path, gt_path)
+            metrics.set_poseRelation(pose_type)
             metrics.compute_stats()
-            translation['APE'] = metrics.ape_stats
-            translation['RPE'] = metrics.rpe_stats
-            mtr['TRANSLATION'] = translation
+            if error_type == 'APE':
+                data[index] = metrics.ape_stats
+            elif error_type == 'RPE':
+                data[index] = metrics.rpe_stats
+            else:
+                raise ValueError("Unknown error type")
+            # translation
             
             # transformation
-            transformation = {}
-            metrics = Metrics(est_path, gt_path)
-            metrics.set_poseRelation('transformation')
-            metrics.compute_stats()
-            transformation['APE'] = metrics.ape_stats
-            transformation['RPE'] = metrics.rpe_stats
-            mtr['TRANSFORMATION'] = transformation
+            # transformation = {}
+            # metrics = Metrics(est_path, gt_path)
+            # metrics.set_poseRelation('transformation')
+            # metrics.compute_stats()
+            # transformation['APE'] = metrics.ape_stats
+            # transformation['RPE'] = metrics.rpe_stats
 
-            # rotation
-            rotation = {}
-            metrics = Metrics(est_path, gt_path)
-            metrics.set_poseRelation('rotation')
-            metrics.compute_stats()
-            rotation['APE'] = metrics.ape_stats
-            rotation['RPE'] = metrics.rpe_stats
-            mtr['ROTATION'] = rotation
+            # # rotation
+            # rotation = {}
+            # metrics = Metrics(est_path, gt_path)
+            # metrics.set_poseRelation('rotation')
+            # metrics.compute_stats()
+            # rotation['APE'] = metrics.ape_stats
+            # rotation['RPE'] = metrics.rpe_stats
 
-            # rot_angle_deg
-            rot_angle_deg = {}
-            metrics = Metrics(est_path, gt_path)
-            metrics.set_poseRelation('rot_angle_deg')
-            metrics.compute_stats()
-            rot_angle_deg['APE'] = metrics.ape_stats
-            rot_angle_deg['RPE'] = metrics.rpe_stats
-            mtr['ROT_ANGLE_DEG'] = rot_angle_deg
+            # # rot_angle_deg
+            # rot_angle_deg = {}
+            # metrics = Metrics(est_path, gt_path)
+            # metrics.set_poseRelation('rot_angle_deg')
+            # metrics.compute_stats()
+            # rot_angle_deg['APE'] = metrics.ape_stats
+            # rot_angle_deg['RPE'] = metrics.rpe_stats
 
-            # rot_angle_rad
-            rot_angle_rad = {}
-            metrics = Metrics(est_path, gt_path)
-            metrics.set_poseRelation('rot_angle_rad')
-            metrics.compute_stats()
-            rot_angle_rad['APE'] = metrics.ape_stats
-            rot_angle_rad['RPE'] = metrics.rpe_stats
-            mtr['ROT_ANGLE_RAD'] = rot_angle_rad
+            # # rot_angle_rad
+            # rot_angle_rad = {}
+            # metrics = Metrics(est_path, gt_path)
+            # metrics.set_poseRelation('rot_angle_rad')
+            # metrics.compute_stats()
+            # rot_angle_rad['APE'] = metrics.ape_stats
+            # rot_angle_rad['RPE'] = metrics.rpe_stats
 
-            # point_distance
-            point_distance = {}
-            metrics = Metrics(est_path, gt_path)
-            metrics.set_poseRelation('point_distance')
-            metrics.compute_stats()
-            point_distance['APE'] = metrics.ape_stats
-            point_distance['RPE'] = metrics.rpe_stats
-            mtr['POINT_DISTANCE'] = point_distance
-
-            data['Robot ' + rid] = mtr
+            # # point_distance
+            # point_distance = {}
+            # metrics = Metrics(est_path, gt_path)
+            # metrics.set_poseRelation('point_distance')
+            # metrics.compute_stats()
+            # point_distance['APE'] = metrics.ape_stats
+            # point_distance['RPE'] = metrics.rpe_stats
 
         return data
 
