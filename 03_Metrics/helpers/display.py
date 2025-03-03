@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import argparse
 import os
 import sys
@@ -12,6 +11,17 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
 import seaborn as sns
+
+class Display():
+
+    def __init__(self, Results):
+        rid = 'a'
+        self.groundtruths = Results.dataset.groundTruth(rid)
+        self.initializations = Results.dataset.initialization()
+        self.estimates = Results.results.robot_solutions
+
+        print(self.groundtruths[rid].values)
+
 
 def path_to_dataset(path):
     parser = jrl.Parser()
