@@ -190,6 +190,11 @@ class Results():
                 key = gtsam.symbol(rid, pose_num)
         
         # Print generated intermediate results
+
+    def compute_all_results(self):
+        self.generate_summary_file()
+        self.generate_intermediate_results()
+        self.generate_metrics_results()
     
     def generate_metrics_results(self):
 
