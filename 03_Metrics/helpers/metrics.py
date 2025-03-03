@@ -198,18 +198,26 @@ class Results():
         self.metrics_path = os.path.join(self.output_path, folder)
         os.makedirs(self.metrics_path , exist_ok=True)
 
-        # Chemin du fichier JSON
-        metrics_path = os.path.join(self.metrics_path, 'translation_ape.json')
-        raw_errors_path = os.path.join(self.metrics_path, 'raw_errors.json')
+        pose_types = ['translation','transformation','rotation','rot_angle_deg','point_distance','rot_angle_rad']
+        error_types = ['ape','rpe']
 
-        data = self.__get_metrics('translation', 'APE')
-        # Enregistrer les données dans un fichier JSON
-        with open(metrics_path, 'w', encoding='utf-8') as json_file:
-            json.dump(data, json_file, ensure_ascii=False, indent=4)
+        for pose_type in pose_types:
+            for error_type in error_types:
+                
+                # Chemin des fichiers JSON
+                file_name = pose_type + '_' + error_type
+                metrics_path = os.path.join(self.metrics_path, file_name + '.json')
+                raw_errors_path = os.path.join(self.metrics_path, file_name + '_raw.json')
 
-        # Enregistrer les données dans un fichier JSON
-        with open(raw_errors_path, 'w', encoding='utf-8') as json_file:
-            json.dump(data, json_file, ensure_ascii=False, indent=4)
+                metrics, errors = self.__get_metrics(pose_type, error_type)
+
+                # Export metrics in JSON file
+                with open(metrics_path, 'w', encoding='utf-8') as json_file:
+                    json.dump(metrics, json_file, ensure_ascii=False, indent=4)
+
+                # Export raw errors in JSON file
+                with open(raw_errors_path, 'w', encoding='utf-8') as json_file:
+                    json.dump(errors, json_file, ensure_ascii=False, indent=4)
 
     def generate_summary_file(self):
         summary_path = os.path.join(self.output_path , 'summary.txt')
@@ -218,16 +226,14 @@ class Results():
         f_summary.write(f'Dataset name : {self.results.dataset_name}\n')
         f_summary.write(f'Solver method : {self.results.method_name}\n')
 
-    def generate_raw_errors_file(self):
-        print("not implemented")
-
     def __format_dataline(self, pose_nr, val):
         tr = val.translation()
         quat = val.rotation().toQuaternion()
         return [pose_nr, tr.T[0], tr.T[1], tr.T[2], quat.x(), quat.y(),quat.z(), quat.w()]
 
     def __get_metrics(self, pose_type, error_type, init=False):
-        data = {}
+        statistics = {}
+        errors = {}
 
         for rid in self.results.robots:
             
@@ -243,57 +249,13 @@ class Results():
             metrics = Metrics(input_path, gt_path)
             metrics.set_poseRelation(pose_type)
             metrics.compute_stats()
-            if error_type == 'APE':
-                data[index] = metrics.ape_stats
-            elif error_type == 'RPE':
-                data[index] = metrics.rpe_stats
+            if error_type == 'ape':
+                statistics[index] = metrics.ape_stats
+                errors[index] = metrics.ape_metric.error.tolist()
+            elif error_type == 'rpe':
+                statistics[index] = metrics.rpe_stats
+                errors[index] = metrics.rpe_metric.error.tolist()
             else:
                 raise ValueError("Unknown error type")
-            # translation
-            
-            # transformation
-            # transformation = {}
-            # metrics = Metrics(est_path, gt_path)
-            # metrics.set_poseRelation('transformation')
-            # metrics.compute_stats()
-            # transformation['APE'] = metrics.ape_stats
-            # transformation['RPE'] = metrics.rpe_stats
 
-            # # rotation
-            # rotation = {}
-            # metrics = Metrics(est_path, gt_path)
-            # metrics.set_poseRelation('rotation')
-            # metrics.compute_stats()
-            # rotation['APE'] = metrics.ape_stats
-            # rotation['RPE'] = metrics.rpe_stats
-
-            # # rot_angle_deg
-            # rot_angle_deg = {}
-            # metrics = Metrics(est_path, gt_path)
-            # metrics.set_poseRelation('rot_angle_deg')
-            # metrics.compute_stats()
-            # rot_angle_deg['APE'] = metrics.ape_stats
-            # rot_angle_deg['RPE'] = metrics.rpe_stats
-
-            # # rot_angle_rad
-            # rot_angle_rad = {}
-            # metrics = Metrics(est_path, gt_path)
-            # metrics.set_poseRelation('rot_angle_rad')
-            # metrics.compute_stats()
-            # rot_angle_rad['APE'] = metrics.ape_stats
-            # rot_angle_rad['RPE'] = metrics.rpe_stats
-
-            # # point_distance
-            # point_distance = {}
-            # metrics = Metrics(est_path, gt_path)
-            # metrics.set_poseRelation('point_distance')
-            # metrics.compute_stats()
-            # point_distance['APE'] = metrics.ape_stats
-            # point_distance['RPE'] = metrics.rpe_stats
-
-        return data
-
-        
-    # Error numbers
-    # print(self.ape_metric.error)
-    # print(self.rpe_metric.error)
+        return statistics, errors
