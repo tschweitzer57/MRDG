@@ -13,7 +13,7 @@ from collections import defaultdict
 import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
-#import seaborn as sns
+# import seaborn as sns
 
 #TODO transform gt var into simple gtsam.Values (dont require rid since there is a key)
 #TODO init start point

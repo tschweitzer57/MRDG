@@ -15,12 +15,22 @@ import seaborn as sns
 class Display():
 
     def __init__(self, Results):
-        rid = 'a'
-        self.groundtruths = Results.dataset.groundTruth(rid)
-        self.initializations = Results.dataset.initialization()
-        self.estimates = Results.results.robot_solutions
+        # initialize structure 
+        self.groundtruths = {}
+        self.initializations = {}
+        self.estimates = {}
 
-        print(self.groundtruths[rid].values)
+        for rid in Results.dataset.robots():
+            self.groundtruths[rid] = Results.dataset.groundTruth(rid)
+            self.initializations[rid] = Results.dataset.initialization(rid)
+            self.estimates[rid] = Results.results.robot_solutions[rid]
+
+        # rid = 'a'
+        # self.groundtruths = Results.dataset.groundTruth(rid)
+        # self.initializations = Results.dataset.initialization()
+        # self.estimates = Results.results.robot_solutions
+
+        # print(self.groundtruths[rid].values)
 
 
 def path_to_dataset(path):

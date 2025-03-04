@@ -4,5 +4,6 @@ from display import Display
 test = Results('./input/landmarks_2_geodesic-mesa_2025-03-01_01-21-08', './saved_output', './datasets/landmarks_2.jrl')
 
 # Generate results folder
+# TODO: add possibility to load data from generated results
 test.compute_all_results()
 dsp = Display(test)
