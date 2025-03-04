@@ -52,8 +52,10 @@ class Test():
             data = self.groundtruths
         elif data_type == 'init':
             data = self.initializations
-        elif 
+        elif data_type == 'est':
+            data = self.initializations
         else:
+            raise ValueError("Unknown error type")
             
         colors = sns.color_palette("colorblind", len(self.robots))
         for idx, rid in enumerate(self.robots):
@@ -76,15 +78,26 @@ class Test():
         plt.axis('equal')
         plt.show()
 
-    def plot_trajectories_all(self):
+    def plot_trajectories_all(self, data_type=None):
+        if data_type is None:
+            data = self.groundtruths
+        elif data_type == 'gt':
+            data = self.groundtruths
+        elif data_type == 'init':
+            data = self.initializations
+        elif data_type == 'est':
+            data = self.initializations
+        else:
+            raise ValueError("Unknown error type")
+
         colors = sns.color_palette("colorblind", len(self.robots))
         ax = plt.figure().add_subplot(111,projection='3d')
         for idx, rid in enumerate(self.robots):
             positions = []
-            for k in self.groundtruths[rid].keys():
+            for k in data[rid].keys():
                 s = gtsam.Symbol(k)
                 if chr(s.chr()) == rid:
-                    positions.append(self.getPoint(k, self.groundtruths[rid]))
+                    positions.append(self.getPoint(k, data[rid]))
             positions = np.stack(positions)
             plt.plot(
                 positions.T[0],
@@ -98,6 +111,18 @@ class Test():
         plt.axis('equal')
         plt.show()
 
+    
+
+    def boxplot(self, err_type=None):
+        print('not implemented')
+
+    def errorbar(self, err_type=None):
+        print('not implemented')
+
+    def violin(self, err_type=None):
+        print('not implemented')
+
+    ## HELPERS section
     def getPoint(self, key, values):
         return values.atPose3(key).translation()
 
