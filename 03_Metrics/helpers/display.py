@@ -25,12 +25,22 @@ class Display():
             self.initializations[rid] = Results.dataset.initialization(rid)
             self.estimates[rid] = Results.results.robot_solutions[rid]
 
-        # rid = 'a'
-        # self.groundtruths = Results.dataset.groundTruth(rid)
-        # self.initializations = Results.dataset.initialization()
-        # self.estimates = Results.results.robot_solutions
+    def plot_trajectories(self):
 
-        # print(self.groundtruths[rid].values)
+class Test():
+    def __init__(self, dataset_path):
+        parser = jrl.Parser()
+        dataset = parser.parseDataset(dataset_path, False)
+
+        # initialize structure 
+        self.groundtruths = {}
+        self.initializations = {}
+        # self.estimates = {}
+
+        for rid in dataset.robots():
+            self.groundtruths[rid] = dataset.groundTruth(rid)
+            self.initializations[rid] = dataset.initialization(rid)
+            # self.estimates[rid] = Results.results.robot_solutions[rid]
 
 
 def path_to_dataset(path):
