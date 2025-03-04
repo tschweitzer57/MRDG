@@ -26,30 +26,87 @@ class Display():
             self.estimates[rid] = Results.results.robot_solutions[rid]
 
     def plot_trajectories(self):
+        print('not implemented')
 
 class Test():
     def __init__(self, dataset_path):
         parser = jrl.Parser()
         dataset = parser.parseDataset(dataset_path, False)
 
-        # initialize structure 
+        self.robots = dataset.robots()
+
+        # initialize structure
         self.groundtruths = {}
         self.initializations = {}
         # self.estimates = {}
 
-        for rid in dataset.robots():
+        for rid in self.robots:
             self.groundtruths[rid] = dataset.groundTruth(rid)
             self.initializations[rid] = dataset.initialization(rid)
             # self.estimates[rid] = Results.results.robot_solutions[rid]
 
+    def plot_trajectories(self, data_type=None):
+        if data_type is None:
+            data = self.groundtruths
+        elif data_type == 'gt':
+            data = self.groundtruths
+        elif data_type == 'init':
+            data = self.initializations
+        elif 
+        else:
+            
+        colors = sns.color_palette("colorblind", len(self.robots))
+        for idx, rid in enumerate(self.robots):
+            positions = []
+            for k in data[rid].keys():
+                s = gtsam.Symbol(k)
+                if chr(s.chr()) == rid:
+                    positions.append(self.getPoint(k, data[rid]))
+            positions = np.stack(positions)
+            ax = plt.figure().add_subplot(projection='3d')
+            plt.plot(
+                positions.T[0],
+                positions.T[1],
+                positions.T[2],
+                alpha=1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+            ax.legend()
+        plt.axis('equal')
+        plt.show()
+
+    def plot_trajectories_all(self):
+        colors = sns.color_palette("colorblind", len(self.robots))
+        ax = plt.figure().add_subplot(111,projection='3d')
+        for idx, rid in enumerate(self.robots):
+            positions = []
+            for k in self.groundtruths[rid].keys():
+                s = gtsam.Symbol(k)
+                if chr(s.chr()) == rid:
+                    positions.append(self.getPoint(k, self.groundtruths[rid]))
+            positions = np.stack(positions)
+            plt.plot(
+                positions.T[0],
+                positions.T[1],
+                positions.T[2],
+                alpha=1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+        ax.legend()
+        plt.axis('equal')
+        plt.show()
+
+    def getPoint(self, key, values):
+        return values.atPose3(key).translation()
 
 def path_to_dataset(path):
     parser = jrl.Parser()
     dataset = parser.parseDataset(path, False)
     return dataset
 
-def getPoint(key, values):
-    return values.atPose3(key).translation()
+
 
 def plot_groundtruth(path):
     if path[-4:] == '.jrl':
@@ -239,9 +296,3 @@ def main():
                                
                 #if chr(s1.chr()) != chr(s2.chr()) and args.plot_comms:
                 #    pass
-
-
-if __name__ == "__main__":
-    #main()
-    plot_groundtruth('output/datasets/syscon25/pose_nb/pose_nb_6_0000.jrl')
-    #plot_groundtruth('output/datasets/syscon25/dataset_4R_0000.jrl')

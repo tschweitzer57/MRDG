@@ -8,3 +8,6 @@ from display import Display, Test
 
 # test.compute_all_results()
 # dsp = Display(test)
+dsp_test = Test('./datasets/landmarks_2.jrl')
+dsp_test.plot_trajectories()
+dsp_test.plot_trajectories_all()
