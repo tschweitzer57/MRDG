@@ -15,18 +15,132 @@ import seaborn as sns
 class Display():
 
     def __init__(self, Results):
-        # initialize structure 
+        # initialize structure
         self.groundtruths = {}
         self.initializations = {}
         self.estimates = {}
+        self.robots = Results.dataset.robots()
 
-        for rid in Results.dataset.robots():
+        for rid in self.robots:
             self.groundtruths[rid] = Results.dataset.groundTruth(rid)
             self.initializations[rid] = Results.dataset.initialization(rid)
-            self.estimates[rid] = Results.results.robot_solutions[rid]
+            self.estimates[rid] = Results.results.robot_solutions[rid].values
 
-    def plot_trajectories(self):
+    def plot_trajectories(self, data_type=None):
+        if data_type is None:
+            data = self.groundtruths
+        elif data_type == 'gt':
+            data = self.groundtruths
+        elif data_type == 'init':
+            data = self.initializations
+        elif data_type == 'est':
+            data = self.estimates
+        else:
+            raise ValueError("Unknown error type")
+
+        colors = sns.color_palette("colorblind", len(self.robots))
+        for idx, rid in enumerate(self.robots):
+            positions = []
+            for k in data[rid].keys():
+                s = gtsam.Symbol(k)
+                if chr(s.chr()) == rid:
+                    positions.append(self.getPoint(k, data[rid]))
+            positions = np.stack(positions)
+            ax = plt.figure().add_subplot(projection='3d')
+            plt.plot(
+                positions.T[0],
+                positions.T[1],
+                positions.T[2],
+                alpha=1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+            ax.legend()
+        plt.axis('equal')
+        plt.show()
+    
+    def plot_trajectories_all(self, data_type=None):
+        if data_type is None:
+            data = self.groundtruths
+        elif data_type == 'gt':
+            data = self.groundtruths
+        elif data_type == 'init':
+            data = self.initializations
+        elif data_type == 'est':
+            data = self.estimates
+        else:
+            raise ValueError("Unknown error type")
+
+        colors = sns.color_palette("colorblind", len(self.robots))
+        ax = plt.figure().add_subplot(111,projection='3d')
+        for idx, rid in enumerate(self.robots):
+            positions = []
+            for k in data[rid].keys():
+                s = gtsam.Symbol(k)
+                if chr(s.chr()) == rid:
+                    positions.append(self.getPoint(k, data[rid]))
+            positions = np.stack(positions)
+            plt.plot(
+                positions.T[0],
+                positions.T[1],
+                positions.T[2],
+                alpha=1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+        ax.legend()
+        plt.axis('equal')
+        plt.show()
+
+    def boxplot(self, err_type=None):
+        #style = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh', 'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot', 'grayscale', 'seaborn-v0_8', 'seaborn-v0_8-bright', 'seaborn-v0_8-colorblind', 'seaborn-v0_8-dark', 'seaborn-v0_8-dark-palette', 'seaborn-v0_8-darkgrid', 'seaborn-v0_8-deep', 'seaborn-v0_8-muted', 'seaborn-v0_8-notebook', 'seaborn-v0_8-paper', 'seaborn-v0_8-pastel', 'seaborn-v0_8-poster', 'seaborn-v0_8-talk', 'seaborn-v0_8-ticks', 'seaborn-v0_8-white', 'seaborn-v0_8-whitegrid', 'tableau-colorblind10']
+        #plt.style.use('_mpl-gallery')
+        plt.style.use('bmh')
+
+        # make data:
+        np.random.seed(10)
+        D = np.random.normal((3, 5, 4), (1.25, 1.00, 1.25), (100, 3))
+        print(D)
+
+        # plot
+        fig, ax = plt.subplots()
+        VP = ax.boxplot(D, positions=[2, 4, 6], widths=1, patch_artist=True,
+                        showmeans=False, showfliers=False,
+                        medianprops={"color": "red", "linewidth": 1},
+                        boxprops={"facecolor": "white", "edgecolor": "black",
+                                "linewidth": 0.5},
+                        whiskerprops={"color": "black", "linewidth": 1.5},
+                        capprops={"color": "black", "linewidth": 1.5})
+        # VP = ax.boxplot(D, positions=[2, 4, 6], widths=1, patch_artist=True,
+        #                 showmeans=False, showfliers=False,
+        #                 medianprops={"color": "white", "linewidth": 0.5},
+        #                 boxprops={"facecolor": "C0", "edgecolor": "white",
+        #                         "linewidth": 0.5},
+        #                 whiskerprops={"color": "C0", "linewidth": 1.5},
+        #                 capprops={"color": "C0", "linewidth": 1.5})
+
+        # plt.setp(VP['boxes'], color='black')
+        # plt.setp(VP['whiskers'], color='black')
+        # plt.setp(VP['fliers'], color='red', marker='+')
+        ax.set_title('Erreurs')
+
+        ax.set_xticklabels(['label 1','label 2','label 3'],
+                           rotation=45, fontsize=8)
+        ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+            ylim=(0, 8), yticks=np.arange(1, 8))
+
+        plt.show()
+
+    def errorbar(self, err_type=None):
         print('not implemented')
+
+    def violin(self, err_type=None):
+        print('not implemented')
+
+    ## HELPERS section
+    def getPoint(self, key, values):
+        return values.atPose3(key).translation()
+    
 
 class Test():
     def __init__(self, dataset_path):
@@ -56,7 +170,7 @@ class Test():
             data = self.initializations
         else:
             raise ValueError("Unknown error type")
-            
+
         colors = sns.color_palette("colorblind", len(self.robots))
         for idx, rid in enumerate(self.robots):
             positions = []
@@ -111,8 +225,6 @@ class Test():
         plt.axis('equal')
         plt.show()
 
-    
-
     def boxplot(self, err_type=None):
         style = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh', 'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot', 'grayscale', 'seaborn-v0_8', 'seaborn-v0_8-bright', 'seaborn-v0_8-colorblind', 'seaborn-v0_8-dark', 'seaborn-v0_8-dark-palette', 'seaborn-v0_8-darkgrid', 'seaborn-v0_8-deep', 'seaborn-v0_8-muted', 'seaborn-v0_8-notebook', 'seaborn-v0_8-paper', 'seaborn-v0_8-pastel', 'seaborn-v0_8-poster', 'seaborn-v0_8-talk', 'seaborn-v0_8-ticks', 'seaborn-v0_8-white', 'seaborn-v0_8-whitegrid', 'tableau-colorblind10']
         #plt.style.use('_mpl-gallery')
@@ -121,17 +233,32 @@ class Test():
         # make data:
         np.random.seed(10)
         D = np.random.normal((3, 5, 4), (1.25, 1.00, 1.25), (100, 3))
+        print(D)
 
         # plot
         fig, ax = plt.subplots()
-        VP = ax.boxplot(D, positions=[2, 4, 6], widths=1.5, patch_artist=True,
+        VP = ax.boxplot(D, positions=[2, 4, 6], widths=1, patch_artist=True,
                         showmeans=False, showfliers=False,
-                        medianprops={"color": "white", "linewidth": 0.5},
-                        boxprops={"facecolor": "C0", "edgecolor": "white",
+                        medianprops={"color": "red", "linewidth": 1},
+                        boxprops={"facecolor": "white", "edgecolor": "black",
                                 "linewidth": 0.5},
-                        whiskerprops={"color": "C0", "linewidth": 1.5},
-                        capprops={"color": "C0", "linewidth": 1.5})
+                        whiskerprops={"color": "black", "linewidth": 1.5},
+                        capprops={"color": "black", "linewidth": 1.5})
+        # VP = ax.boxplot(D, positions=[2, 4, 6], widths=1, patch_artist=True,
+        #                 showmeans=False, showfliers=False,
+        #                 medianprops={"color": "white", "linewidth": 0.5},
+        #                 boxprops={"facecolor": "C0", "edgecolor": "white",
+        #                         "linewidth": 0.5},
+        #                 whiskerprops={"color": "C0", "linewidth": 1.5},
+        #                 capprops={"color": "C0", "linewidth": 1.5})
 
+        # plt.setp(VP['boxes'], color='black')
+        # plt.setp(VP['whiskers'], color='black')
+        # plt.setp(VP['fliers'], color='red', marker='+')
+        ax.set_title('Erreurs')
+
+        ax.set_xticklabels(['label 1','label 2','label 3'],
+                           rotation=45, fontsize=8)
         ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
             ylim=(0, 8), yticks=np.arange(1, 8))
 
@@ -212,7 +339,7 @@ def plot_odom(dataset, colors, args):
                 if chr(s.chr()) == robot:
                     init_positions.append(getPoint(k, initvals, args))
             init_positions = np.stack(init_positions)
-            
+
             if args.is3d:
                 plt.plot(
                     init_positions.T[0],
@@ -274,7 +401,7 @@ def plot_loops(dataset, colors, args):
 
 def main():
     args = handle_args()
-    
+
     colors = sns.color_palette("colorblind", len(dataset.robots()))
 
     print(dataset.robots())
@@ -298,7 +425,7 @@ def main():
     plt.tight_layout(pad=0.25)
     if args.save:
         plt.savefig("{}_fig.png".format(dataset.name()))
-    
+
     plt.show()
 
 # Tracer le graphe de facteurs
@@ -327,18 +454,18 @@ def main():
         #     if len(keys) > 1:
         #         k1, k2 = keys
         #         s1, s2 = gtsam.Symbol(k1), gtsam.Symbol(k2)
- 
+
         #         #pts = np.array([getPoint(k1, gtvals, args), getPoint(k2, gtvals, args)])
- 
+
         #         if chr(s1.chr()) == chr(s2.chr())  and chr(s1.chr()) == robot:
         #             graph.add(factor)
-                   
+
         #             if k1 not in allkeys:
         #                 initial_estimates.insert(k1, gtvals.atPose3(k1))
         #                 allkeys.append(k1)
         #             if k2 not in allkeys:
         #                 initial_estimates.insert(k2, gtvals.atPose3(k2))
         #                 allkeys.append(k2)
-                               
+
                 #if chr(s1.chr()) != chr(s2.chr()) and args.plot_comms:
                 #    pass
