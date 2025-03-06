@@ -20,6 +20,7 @@ class Display():
         self.initializations = {}
         self.estimates = {}
         self.robots = Results.dataset.robots()
+        self.errors = Results.errors
 
         for rid in self.robots:
             self.groundtruths[rid] = Results.dataset.groundTruth(rid)
@@ -92,44 +93,81 @@ class Display():
         plt.axis('equal')
         plt.show()
 
+    def plot_trajectories_comp(self, data_type=None):
+        if data_type is None:
+            data = self.groundtruths
+        elif data_type == 'gt':
+            data = self.groundtruths
+        elif data_type == 'init':
+            data = self.initializations
+        elif data_type == 'est':
+            data = self.estimates
+        else:
+            raise ValueError("Unknown error type")
+
+        colors = sns.color_palette("colorblind", len(self.robots))
+        ax = plt.figure().add_subplot(111,projection='3d')
+        for idx, rid in enumerate(self.robots):
+            positions = []
+            for k in data[rid].keys():
+                s = gtsam.Symbol(k)
+                if chr(s.chr()) == rid:
+                    positions.append(self.getPoint(k, data[rid]))
+            positions = np.stack(positions)
+            plt.plot(
+                positions.T[0],
+                positions.T[1],
+                positions.T[2],
+                alpha=1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+        ax.legend()
+        plt.axis('equal')
+        plt.show()
+
     def boxplot(self, err_type=None):
-        #style = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh', 'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot', 'grayscale', 'seaborn-v0_8', 'seaborn-v0_8-bright', 'seaborn-v0_8-colorblind', 'seaborn-v0_8-dark', 'seaborn-v0_8-dark-palette', 'seaborn-v0_8-darkgrid', 'seaborn-v0_8-deep', 'seaborn-v0_8-muted', 'seaborn-v0_8-notebook', 'seaborn-v0_8-paper', 'seaborn-v0_8-pastel', 'seaborn-v0_8-poster', 'seaborn-v0_8-talk', 'seaborn-v0_8-ticks', 'seaborn-v0_8-white', 'seaborn-v0_8-whitegrid', 'tableau-colorblind10']
-        #plt.style.use('_mpl-gallery')
-        plt.style.use('bmh')
+        for key in self.errors.keys():
+            for rid in self.errors[key].keys():
+                print(self.errors[key][rid])
 
-        # make data:
-        np.random.seed(10)
-        D = np.random.normal((3, 5, 4), (1.25, 1.00, 1.25), (100, 3))
-        print(D)
+        # #style = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh', 'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot', 'grayscale', 'seaborn-v0_8', 'seaborn-v0_8-bright', 'seaborn-v0_8-colorblind', 'seaborn-v0_8-dark', 'seaborn-v0_8-dark-palette', 'seaborn-v0_8-darkgrid', 'seaborn-v0_8-deep', 'seaborn-v0_8-muted', 'seaborn-v0_8-notebook', 'seaborn-v0_8-paper', 'seaborn-v0_8-pastel', 'seaborn-v0_8-poster', 'seaborn-v0_8-talk', 'seaborn-v0_8-ticks', 'seaborn-v0_8-white', 'seaborn-v0_8-whitegrid', 'tableau-colorblind10']
+        # #plt.style.use('_mpl-gallery')
+        # plt.style.use('bmh')
 
-        # plot
-        fig, ax = plt.subplots()
-        VP = ax.boxplot(D, positions=[2, 4, 6], widths=1, patch_artist=True,
-                        showmeans=False, showfliers=False,
-                        medianprops={"color": "red", "linewidth": 1},
-                        boxprops={"facecolor": "white", "edgecolor": "black",
-                                "linewidth": 0.5},
-                        whiskerprops={"color": "black", "linewidth": 1.5},
-                        capprops={"color": "black", "linewidth": 1.5})
+        # # make data:
+        # np.random.seed(10)
+        # D = np.random.normal((3, 5, 4), (1.25, 1.00, 1.25), (100, 3))
+        # print(D)
+
+        # # plot
+        # fig, ax = plt.subplots()
         # VP = ax.boxplot(D, positions=[2, 4, 6], widths=1, patch_artist=True,
         #                 showmeans=False, showfliers=False,
-        #                 medianprops={"color": "white", "linewidth": 0.5},
-        #                 boxprops={"facecolor": "C0", "edgecolor": "white",
+        #                 medianprops={"color": "red", "linewidth": 1},
+        #                 boxprops={"facecolor": "white", "edgecolor": "black",
         #                         "linewidth": 0.5},
-        #                 whiskerprops={"color": "C0", "linewidth": 1.5},
-        #                 capprops={"color": "C0", "linewidth": 1.5})
+        #                 whiskerprops={"color": "black", "linewidth": 1.5},
+        #                 capprops={"color": "black", "linewidth": 1.5})
+        # # VP = ax.boxplot(D, positions=[2, 4, 6], widths=1, patch_artist=True,
+        # #                 showmeans=False, showfliers=False,
+        # #                 medianprops={"color": "white", "linewidth": 0.5},
+        # #                 boxprops={"facecolor": "C0", "edgecolor": "white",
+        # #                         "linewidth": 0.5},
+        # #                 whiskerprops={"color": "C0", "linewidth": 1.5},
+        # #                 capprops={"color": "C0", "linewidth": 1.5})
 
-        # plt.setp(VP['boxes'], color='black')
-        # plt.setp(VP['whiskers'], color='black')
-        # plt.setp(VP['fliers'], color='red', marker='+')
-        ax.set_title('Erreurs')
+        # # plt.setp(VP['boxes'], color='black')
+        # # plt.setp(VP['whiskers'], color='black')
+        # # plt.setp(VP['fliers'], color='red', marker='+')
+        # ax.set_title('Erreurs')
 
-        ax.set_xticklabels(['label 1','label 2','label 3'],
-                           rotation=45, fontsize=8)
-        ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
-            ylim=(0, 8), yticks=np.arange(1, 8))
+        # ax.set_xticklabels(['label 1','label 2','label 3'],
+        #                    rotation=45, fontsize=8)
+        # ax.set(xlim=(0, 8), xticks=np.arange(1, 8),
+        #     ylim=(0, 8), yticks=np.arange(1, 8))
 
-        plt.show()
+        # plt.show()
 
     def errorbar(self, err_type=None):
         print('not implemented')

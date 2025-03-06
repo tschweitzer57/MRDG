@@ -203,6 +203,9 @@ class Results():
         self.metrics_path = os.path.join(self.output_path, folder)
         os.makedirs(self.metrics_path , exist_ok=True)
 
+        # generate dict to store errors
+        self.errors = {}
+
         pose_types = ['translation','transformation','rotation','rot_angle_deg','point_distance','rot_angle_rad']
         error_types = ['ape','rpe']
 
@@ -215,6 +218,7 @@ class Results():
                 raw_errors_path = os.path.join(self.metrics_path, file_name + '_raw.json')
 
                 metrics, errors = self.__get_metrics(pose_type, error_type)
+                self.errors[pose_type + '_' + error_type] = errors
 
                 # Export metrics in JSON file
                 with open(metrics_path, 'w', encoding='utf-8') as json_file:
