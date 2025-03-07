@@ -1,5 +1,6 @@
 from metrics import Results
 from display import Display, Test
+import numpy as np
 
 test = Results('./input/landmarks_2_geodesic-mesa_2025-03-01_01-21-08', './saved_output', './datasets/landmarks_2.jrl')
 
@@ -8,11 +9,13 @@ test = Results('./input/landmarks_2_geodesic-mesa_2025-03-01_01-21-08', './saved
 
 test.compute_all_results()
 dsp = Display(test)
+dsp.boxplot()
+
 # dsp.plot_trajectories('gt')
 # dsp.plot_trajectories_all('gt')
 # dsp.plot_trajectories('est')
 # dsp.plot_trajectories_all('est')
-dsp.boxplot()
+
 
 
 # dsp_test = Test('./datasets/landmarks_2.jrl')

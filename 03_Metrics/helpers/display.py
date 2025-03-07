@@ -96,8 +96,6 @@ class Display():
     def plot_trajectories_comp(self, data_type=None):
         if data_type is None:
             data = self.groundtruths
-        elif data_type == 'gt':
-            data = self.groundtruths
         elif data_type == 'init':
             data = self.initializations
         elif data_type == 'est':
@@ -127,18 +125,26 @@ class Display():
         plt.show()
 
     def boxplot(self, err_type=None):
+
         for key in self.errors.keys():
             for rid in self.errors[key].keys():
-                print(self.errors[key][rid])
+                errs = np.array(self.errors[key][rid])
+                break
+            break
 
-        # #style = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh', 'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot', 'grayscale', 'seaborn-v0_8', 'seaborn-v0_8-bright', 'seaborn-v0_8-colorblind', 'seaborn-v0_8-dark', 'seaborn-v0_8-dark-palette', 'seaborn-v0_8-darkgrid', 'seaborn-v0_8-deep', 'seaborn-v0_8-muted', 'seaborn-v0_8-notebook', 'seaborn-v0_8-paper', 'seaborn-v0_8-pastel', 'seaborn-v0_8-poster', 'seaborn-v0_8-talk', 'seaborn-v0_8-ticks', 'seaborn-v0_8-white', 'seaborn-v0_8-whitegrid', 'tableau-colorblind10']
-        # #plt.style.use('_mpl-gallery')
-        # plt.style.use('bmh')
-
-        # # make data:
-        # np.random.seed(10)
-        # D = np.random.normal((3, 5, 4), (1.25, 1.00, 1.25), (100, 3))
-        # print(D)
+        plt.style.use('bmh')
+        fig, ax = plt.subplots()
+        ax.boxplot(errs, positions=[2], widths=1, patch_artist=True,
+                   showmeans=False, showfliers=False,
+                   medianprops={"color": "red", "linewidth": 1},
+                   boxprops={"facecolor": "white", "edgecolor": "black",
+                             "linewidth": 0.5},
+                   whiskerprops={"color": "black", "linewidth": 1.5},
+                   capprops={"color": "black", "linewidth": 1.5})
+        plt.show()
+        #style = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh', 'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot', 'grayscale', 'seaborn-v0_8', 'seaborn-v0_8-bright', 'seaborn-v0_8-colorblind', 'seaborn-v0_8-dark', 'seaborn-v0_8-dark-palette', 'seaborn-v0_8-darkgrid', 'seaborn-v0_8-deep', 'seaborn-v0_8-muted', 'seaborn-v0_8-notebook', 'seaborn-v0_8-paper', 'seaborn-v0_8-pastel', 'seaborn-v0_8-poster', 'seaborn-v0_8-talk', 'seaborn-v0_8-ticks', 'seaborn-v0_8-white', 'seaborn-v0_8-whitegrid', 'tableau-colorblind10']
+        #plt.style.use('_mpl-gallery')
+        
 
         # # plot
         # fig, ax = plt.subplots()
