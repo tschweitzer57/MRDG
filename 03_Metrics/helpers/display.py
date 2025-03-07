@@ -124,23 +124,49 @@ class Display():
         plt.axis('equal')
         plt.show()
 
-    def boxplot(self, err_type=None):
-
-        for key in self.errors.keys():
-            for rid in self.errors[key].keys():
-                errs = np.array(self.errors[key][rid])
-                break
-            break
+    def boxplot(self, err_type):
+        
+        errs = self.errors[err_type]
+        colors = sns.color_palette("colorblind", len(self.robots))
 
         plt.style.use('bmh')
         fig, ax = plt.subplots()
-        ax.boxplot(errs, positions=[2], widths=1, patch_artist=True,
+        ax.boxplot(errs['Robot a'], positions=[1], widths=0.5, patch_artist=True,
                    showmeans=False, showfliers=False,
                    medianprops={"color": "red", "linewidth": 1},
-                   boxprops={"facecolor": "white", "edgecolor": "black",
-                             "linewidth": 0.5},
+                   boxprops={"facecolor": colors[0], "edgecolor": "black",
+                             "linewidth": 1.5},
                    whiskerprops={"color": "black", "linewidth": 1.5},
                    capprops={"color": "black", "linewidth": 1.5})
+
+        ax.boxplot(errs['Robot b'], positions=[2], widths=0.5, patch_artist=True,
+                   showmeans=False, showfliers=False,
+                   medianprops={"color": "red", "linewidth": 1},
+                   boxprops={"facecolor": colors[1], "edgecolor": "black",
+                             "linewidth": 1.5},
+                   whiskerprops={"color": "black", "linewidth": 1.5},
+                   capprops={"color": "black", "linewidth": 1.5})
+
+        ax.boxplot(errs['Robot c'], positions=[3], widths=0.5, patch_artist=True,
+                   showmeans=False, showfliers=False,
+                   medianprops={"color": "red", "linewidth": 1},
+                   boxprops={"facecolor": colors[2], "edgecolor": "black",
+                             "linewidth": 1.5},
+                   whiskerprops={"color": "black", "linewidth": 1.5},
+                   capprops={"color": "black", "linewidth": 1.5})
+        
+        ax.boxplot(errs['Robot d'], positions=[4], widths=0.5, patch_artist=True,
+                   showmeans=False, showfliers=False,
+                   medianprops={"color": "red", "linewidth": 1},
+                   boxprops={"facecolor": colors[3], "edgecolor": "black",
+                             "linewidth": 1.5},
+                   whiskerprops={"color": "black", "linewidth": 1.5},
+                   capprops={"color": "black", "linewidth": 1.5})
+
+        ax.set_xticklabels(['Robot a','Robot b','Robot c','Robot d'],
+                           rotation=45, fontsize=8)
+
+        ax.set_title(err_type)
         plt.show()
         #style = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh', 'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot', 'grayscale', 'seaborn-v0_8', 'seaborn-v0_8-bright', 'seaborn-v0_8-colorblind', 'seaborn-v0_8-dark', 'seaborn-v0_8-dark-palette', 'seaborn-v0_8-darkgrid', 'seaborn-v0_8-deep', 'seaborn-v0_8-muted', 'seaborn-v0_8-notebook', 'seaborn-v0_8-paper', 'seaborn-v0_8-pastel', 'seaborn-v0_8-poster', 'seaborn-v0_8-talk', 'seaborn-v0_8-ticks', 'seaborn-v0_8-white', 'seaborn-v0_8-whitegrid', 'tableau-colorblind10']
         #plt.style.use('_mpl-gallery')
@@ -166,7 +192,6 @@ class Display():
         # # plt.setp(VP['boxes'], color='black')
         # # plt.setp(VP['whiskers'], color='black')
         # # plt.setp(VP['fliers'], color='red', marker='+')
-        # ax.set_title('Erreurs')
 
         # ax.set_xticklabels(['label 1','label 2','label 3'],
         #                    rotation=45, fontsize=8)
