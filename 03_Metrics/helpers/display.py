@@ -95,32 +95,53 @@ class Display():
 
     def plot_trajectories_comp(self, data_type=None):
         if data_type is None:
-            data = self.groundtruths
-        elif data_type == 'init':
-            data = self.initializations
-        elif data_type == 'est':
-            data = self.estimates
+            data_ref = self.groundtruths
+            data_obs = self.estimates
+        elif 'gt' in data_type and 'init' in data_type:
+            data_ref = self.groundtruths
+            data_obs = self.initializations
+        elif 'gt' in data_type and 'est' in data_type:
+            data_ref = self.groundtruths
+            data_obs = self.estimates
+        elif 'init' in data_type and 'est' in data_type:
+            data_ref = self.initializations
+            data_obs = self.estimates
         else:
             raise ValueError("Unknown error type")
 
         colors = sns.color_palette("colorblind", len(self.robots))
-        ax = plt.figure().add_subplot(111,projection='3d')
         for idx, rid in enumerate(self.robots):
-            positions = []
-            for k in data[rid].keys():
+            ax = plt.figure().add_subplot(111,projection='3d')
+            
+            positions_ref = []
+            positions_obs = []
+
+            for k in data_ref[rid].keys():
                 s = gtsam.Symbol(k)
                 if chr(s.chr()) == rid:
-                    positions.append(self.getPoint(k, data[rid]))
-            positions = np.stack(positions)
+                    positions_ref.append(self.getPoint(k, data_ref[rid]))
+                    positions_obs.append(self.getPoint(k, data_obs[rid]))
+
+            positions_ref = np.stack(positions_ref)
+            positions_obs = np.stack(positions_obs)
+            
             plt.plot(
-                positions.T[0],
-                positions.T[1],
-                positions.T[2],
+                positions_obs.T[0],
+                positions_obs.T[1],
+                positions_obs.T[2],
                 alpha=1,
                 color=colors[idx],
                 label=f'Robot {rid}'
             )
-        ax.legend()
+            plt.plot(
+                positions_ref.T[0],
+                positions_ref.T[1],
+                positions_ref.T[2],
+                alpha=1,
+                color='black',
+                label=f'Robot {rid} gt'
+            )
+            ax.legend()
         plt.axis('equal')
         plt.show()
 

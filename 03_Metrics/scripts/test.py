@@ -10,7 +10,9 @@ test = Results('./input/landmarks_geodesic-mesa_2025-02-27_11-16-52', './saved_o
 
 test.compute_all_results()
 dsp = Display(test)
-dsp.boxplot('point_distance_ape')
+#dsp.plot_trajectories_all()
+#dsp.boxplot('transformation_ape')
+dsp.plot_trajectories_comp(['gt','est'])
 
 # dsp.plot_trajectories('gt')
 # dsp.plot_trajectories_all('gt')
