@@ -115,16 +115,24 @@ class Display():
             
             positions_ref = []
             positions_obs = []
+            landmarks_ref = []
+            landmarks_obs = []
 
             for k in data_ref[rid].keys():
                 s = gtsam.Symbol(k)
                 if chr(s.chr()) == rid:
                     positions_ref.append(self.getPoint(k, data_ref[rid]))
                     positions_obs.append(self.getPoint(k, data_obs[rid]))
+                
+                elif chr(s.chr()) == 'l':
+                    landmarks_ref.append(self.getLandmark(k, data_ref[rid]))
+                    landmarks_obs.append(self.getLandmark(k, data_obs[rid]))
 
             positions_ref = np.stack(positions_ref)
             positions_obs = np.stack(positions_obs)
-            
+            landmarks_ref = np.stack(landmarks_ref)
+            landmarks_obs = np.stack(landmarks_obs)
+
             plt.plot(
                 positions_obs.T[0],
                 positions_obs.T[1],
@@ -141,6 +149,25 @@ class Display():
                 color='black',
                 label=f'Robot {rid} gt'
             )
+            print(landmarks_obs.T[0][0])
+            print(landmarks_obs.T[1][0])
+            print(landmarks_obs.T[2][0])
+            plt.scatter(
+                landmarks_obs.T[0][0],
+                landmarks_obs.T[1][0],
+                landmarks_obs.T[2][0],
+                alpha = 1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+            # plt.scatter(
+            #     lk_r[0],
+            #     lk_r[1],
+            #     lk_r[2],
+            #     alpha = 1,
+            #     color='black',
+            #     label=f'Robot {rid} lk'
+            # )
             ax.legend()
         plt.axis('equal')
         plt.show()
@@ -230,6 +257,9 @@ class Display():
     ## HELPERS section
     def getPoint(self, key, values):
         return values.atPose3(key).translation()
+
+    def getLandmark(self, key, values):
+        return values.atPoint3(key)
     
 
 class Test():
