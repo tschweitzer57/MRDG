@@ -149,26 +149,25 @@ class Display():
                 color='black',
                 label=f'Robot {rid} gt'
             )
-            print(landmarks_obs.T[0][0])
-            print(landmarks_obs.T[1][0])
-            print(landmarks_obs.T[2][0])
-            plt.scatter(
-                landmarks_obs.T[0][0],
-                landmarks_obs.T[1][0],
-                landmarks_obs.T[2][0],
+            
+            ax.scatter(
+                landmarks_ref.T[0],
+                landmarks_ref.T[1],
+                landmarks_ref.T[2],
+                alpha = 1,
+                color='black',
+                label=f'Robot {rid} lk'
+            )
+            ax.scatter(
+                landmarks_obs.T[0],
+                landmarks_obs.T[1],
+                landmarks_obs.T[2],
                 alpha = 1,
                 color=colors[idx],
-                label=f'Robot {rid}'
+                label=f'Robotlk {rid}'
             )
-            # plt.scatter(
-            #     lk_r[0],
-            #     lk_r[1],
-            #     lk_r[2],
-            #     alpha = 1,
-            #     color='black',
-            #     label=f'Robot {rid} lk'
-            # )
             ax.legend()
+        
         plt.axis('equal')
         plt.show()
 
