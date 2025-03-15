@@ -28,14 +28,17 @@ def get_all_edges(robots):
                 edges.add(edge)
     return edges
 
-def associate_lid_edges(edges):
-    index = 1
-    lid_per_edge = {}
-    for edge in edges:
-        lid = gtsam.symbol('l', index)
-        lid_per_edge[edge] = lid
-        index += 1
-    return lid_per_edge
+def pack_lid(robots, nb_lks, group_type):
+    lk_ids = [gtsam.symbol('l', i + 1) for i in range(nb_lks)]
+    lid_dict = {}
+    if group_type == 'edges':
+        edges = get_all_edges(robots)
+        batch_nb = nb_lks // len(edges)
+        for index, edge in enumerate(edges):
+            lid_dict[edge] = [lk_ids[i + index] for i in range(batch_nb)]
+    if group_type == 'all':
+        lid_dict['all'] = lk_ids
+    return lid_dict
         
 def get_close_pose_keys(vals, rid, pose_index, index_tresh, dist_thresh):
     current_pose = vals[rid].atPose3(gtsam.symbol(rid, pose_index))
@@ -120,8 +123,8 @@ if __name__ == "__main__":
         builder.gen_lk_amers()
 
         # Define edges
-        edges = get_all_edges(builder.robots)
-        lid_per_edge = associate_lid_edges(edges)
+        shared_lids = pack_lid(builder.robots, builder.params.landmarks['number'], 'edges')
+        print(shared_lids)
 
     # Setup com_map
     com_map = list(combinations(builder.robots, 2))

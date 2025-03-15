@@ -165,6 +165,10 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             return dpl
 
+    #-----------------------------------------------------------------------------------------
+    #   Define data generators
+    #-----------------------------------------------------------------------------------------
+
     def gen_gt_trajectories(self, nb_poses):
         
         # Define initial Pose
@@ -232,9 +236,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
         
         np.random.seed()
 
-    #------------------------------
+    #-----------------------------------------------------------------------------------------
     #   Define noise generators
-    #------------------------------
+    #-----------------------------------------------------------------------------------------
 
     def init_noise_gen(self, sigma = None):
         if sigma == None:
@@ -598,24 +602,3 @@ if __name__ == "__main__":
     # builder.add_lc_intra('a',1,3)
     builder.gen_lk_amers()
     #print(builder.gt_vals)
-
-    # colors = sns.color_palette("colorblind", len(builder.robots))
-    # for idx, rid in enumerate(builder.robots):
-    #     poses = []
-    #     gtvals = builder.gt_traj[rid]
-
-    #     for k in gtvals.keys():
-    #         s = gtsam.Symbol(k)
-    #         if chr(s.chr()) == rid:
-    #             poses.append(gtvals.atPose3(k).translation())
-
-    #     poses = np.stack(poses)
-    #     ax = plt.figure().add_subplot(projection='3d')
-    #     plt.plot(poses.T[0],
-    #              poses.T[1],
-    #              poses.T[2],
-    #              alpha=1,
-    #              color=colors[idx])
-
-    # plt.axis('equal')
-    # plt.show()
