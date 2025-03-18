@@ -113,6 +113,9 @@ if __name__ == "__main__":
             init_range_freq = np.random.randint(builder.params.lc_inter_direct['range']['frequency'])
         if builder.params.lc_inter_direct.get('pose') is not None:
             init_pose_freq = np.random.randint(builder.params.lc_inter_direct['pose']['frequency'])
+    # Add in config ?
+    # TODO handle multiple configurations
+    lk_options = ['all']
 
     # Setup groundTruths
     builder.gen_gt_trajectories(500)
@@ -122,9 +125,12 @@ if __name__ == "__main__":
         # Generate landmarks
         builder.gen_lk_amers()
 
-        # Define edges
-        shared_lids = pack_lid(builder.robots, builder.params.landmarks['number'], 'edges')
-        print(shared_lids)
+        # Define landmarks
+        if 'all' in lk_options:
+            shared_lids = pack_lid(builder.robots, builder.params.landmarks['number'], 'all')
+        else:
+            shared_lids = pack_lid(builder.robots, builder.params.landmarks['number'], 'edges')
+        #
 
     # Setup com_map
     com_map = list(combinations(builder.robots, 2))
