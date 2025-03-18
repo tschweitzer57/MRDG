@@ -115,7 +115,7 @@ if __name__ == "__main__":
             init_pose_freq = np.random.randint(builder.params.lc_inter_direct['pose']['frequency'])
     # Add in config ?
     # TODO handle multiple configurations
-    lk_options = ['all']
+    lk_options = 'edges'
 
     # Setup groundTruths
     builder.gen_gt_trajectories(500)
@@ -126,7 +126,7 @@ if __name__ == "__main__":
         builder.gen_lk_amers()
 
         # Define landmarks
-        if 'all' in lk_options:
+        if lk_options == 'all':
             shared_lids = pack_lid(builder.robots, builder.params.landmarks['number'], 'all')
         else:
             shared_lids = pack_lid(builder.robots, builder.params.landmarks['number'], 'edges')
@@ -194,10 +194,14 @@ if __name__ == "__main__":
             # Add landmark measurement
             for rid in builder.robots:
                 if np.random.rand() < builder.params.landmarks['probability']:
-                    random_edge = random.choice(tuple(edges))
-                    oid = random.choice(random_edge)
-                    lid = lid_per_edge[random_edge]
-                    builder.add_lk(lid, oid, pose_num)
+                    if lk_options == 'all':
+                        lid = random.choice(shared_lids['all'])
+                    else:
+                        possible_edges = [edge for edge in shared_lids.keys() if edge[0]==rid or edge[1]==rid]
+                        selected_edge = random.choice(possible_edges)
+                        lid = random.choice(shared_lids[selected_edge])
+
+                    builder.add_lk(lid, rid, pose_num)
 
     dataset = builder.build()
     writer = jrl.Writer()
