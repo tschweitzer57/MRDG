@@ -104,9 +104,9 @@ def get_available_comms(vals, robots, pose_index, dist_thresh):
 if __name__ == "__main__":
 
     # Setup the Dataset Builder
-    input_dir = './configs'
+    input_dir = './configs/landmarks/number_all'
     output_dir = './output'
-    config_name = 'landmarks_2'
+    config_name = 'landmarks_20'
     builder = DatasetGenerator(os.path.join(input_dir, config_name + ".json"))
     if builder.params.lc_inter_direct is not None:
         if builder.params.lc_inter_direct.get('range') is not None:
