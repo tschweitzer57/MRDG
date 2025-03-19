@@ -118,7 +118,7 @@ if __name__ == "__main__":
     lk_options = 'edges'
 
     # Setup groundTruths
-    builder.gen_gt_trajectories(500)
+    builder.gen_gt_trajectories()
     
     # Add landmarks
     if builder.params.landmarks is not None:

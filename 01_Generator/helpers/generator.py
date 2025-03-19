@@ -169,8 +169,11 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #   Define data generators
     #-----------------------------------------------------------------------------------------
 
-    def gen_gt_trajectories(self, nb_poses):
-        
+    def gen_gt_trajectories(self, nb_poses=None):
+
+        # Define number of poses
+        if nb_poses is None:
+            nb_poses = self.params.dataset_opts['number_poses']
         # Define initial Pose
         if "trajectory_seed" in self.params.dataset_opts:
             np.random.seed(self.params.dataset_opts['trajectory_seed'])
