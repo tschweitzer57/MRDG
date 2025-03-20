@@ -215,11 +215,11 @@ class Display():
 
         ax.set_title(err_type)
         plt.show()
-        #style = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh', 'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot', 'grayscale', 'seaborn-v0_8', 'seaborn-v0_8-bright', 'seaborn-v0_8-colorblind', 'seaborn-v0_8-dark', 'seaborn-v0_8-dark-palette', 'seaborn-v0_8-darkgrid', 'seaborn-v0_8-deep', 'seaborn-v0_8-muted', 'seaborn-v0_8-notebook', 'seaborn-v0_8-paper', 'seaborn-v0_8-pastel', 'seaborn-v0_8-poster', 'seaborn-v0_8-talk', 'seaborn-v0_8-ticks', 'seaborn-v0_8-white', 'seaborn-v0_8-whitegrid', 'tableau-colorblind10']
-        #plt.style.use('_mpl-gallery')
+        # style = ['Solarize_Light2', '_classic_test_patch', '_mpl-gallery', '_mpl-gallery-nogrid', 'bmh', 'classic', 'dark_background', 'fast', 'fivethirtyeight', 'ggplot', 'grayscale', 'seaborn-v0_8', 'seaborn-v0_8-bright', 'seaborn-v0_8-colorblind', 'seaborn-v0_8-dark', 'seaborn-v0_8-dark-palette', 'seaborn-v0_8-darkgrid', 'seaborn-v0_8-deep', 'seaborn-v0_8-muted', 'seaborn-v0_8-notebook', 'seaborn-v0_8-paper', 'seaborn-v0_8-pastel', 'seaborn-v0_8-poster', 'seaborn-v0_8-talk', 'seaborn-v0_8-ticks', 'seaborn-v0_8-white', 'seaborn-v0_8-whitegrid', 'tableau-colorblind10']
+        # plt.style.use('_mpl-gallery')
         
 
-        # # plot
+        # plot
         # fig, ax = plt.subplots()
         # VP = ax.boxplot(D, positions=[2, 4, 6], widths=1, patch_artist=True,
         #                 showmeans=False, showfliers=False,
@@ -228,17 +228,17 @@ class Display():
         #                         "linewidth": 0.5},
         #                 whiskerprops={"color": "black", "linewidth": 1.5},
         #                 capprops={"color": "black", "linewidth": 1.5})
-        # # VP = ax.boxplot(D, positions=[2, 4, 6], widths=1, patch_artist=True,
-        # #                 showmeans=False, showfliers=False,
-        # #                 medianprops={"color": "white", "linewidth": 0.5},
-        # #                 boxprops={"facecolor": "C0", "edgecolor": "white",
-        # #                         "linewidth": 0.5},
-        # #                 whiskerprops={"color": "C0", "linewidth": 1.5},
-        # #                 capprops={"color": "C0", "linewidth": 1.5})
+        # VP = ax.boxplot(D, positions=[2, 4, 6], widths=1, patch_artist=True,
+        #                 showmeans=False, showfliers=False,
+        #                 medianprops={"color": "white", "linewidth": 0.5},
+        #                 boxprops={"facecolor": "C0", "edgecolor": "white",
+        #                         "linewidth": 0.5},
+        #                 whiskerprops={"color": "C0", "linewidth": 1.5},
+        #                 capprops={"color": "C0", "linewidth": 1.5})
 
-        # # plt.setp(VP['boxes'], color='black')
-        # # plt.setp(VP['whiskers'], color='black')
-        # # plt.setp(VP['fliers'], color='red', marker='+')
+        # plt.setp(VP['boxes'], color='black')
+        # plt.setp(VP['whiskers'], color='black')
+        # plt.setp(VP['fliers'], color='red', marker='+')
 
         # ax.set_xticklabels(['label 1','label 2','label 3'],
         #                    rotation=45, fontsize=8)
