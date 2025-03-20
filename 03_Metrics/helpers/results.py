@@ -86,10 +86,11 @@ class Results():
     
     def generate_metrics_results(self, minimal=True, pose_types=None):
 
-        # Generate folder
+        # Generate folders
         folder = 'metrics'
         self.metrics_path = os.path.join(self.output_path, folder)
-        os.makedirs(self.metrics_path , exist_ok=True)
+        self.raw_metrics_path = os.path.join(self.metrics_path, 'raw')
+        os.makedirs(self.raw_metrics_path , exist_ok=True)
 
         # generate dict to store errors
         self.errors = {}
@@ -109,7 +110,7 @@ class Results():
                 # Chemin des fichiers JSON
                 file_name = pose_type + '_' + error_type
                 metrics_path = os.path.join(self.metrics_path, file_name + '.json')
-                raw_errors_path = os.path.join(self.metrics_path, 'raw', file_name + '_raw.json')
+                raw_errors_path = os.path.join(self.raw_metrics_path, file_name + '_raw.json')
 
                 metrics, errors = self.__get_metrics(pose_type, error_type)
                 self.errors[pose_type + '_' + error_type] = errors

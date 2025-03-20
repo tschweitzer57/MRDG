@@ -14,7 +14,7 @@ test.export_base_results()
 dsp = Display(test)
 # dsp.plot_trajectories_all()
 # dsp.boxplot('transformation_ape', './saved_output/peer_80lk.png')
-dsp.boxplot('transformation_ape', './saved_output/all_80lk.png')
+dsp.boxplot('transformation_ape')
 # dsp.plot_trajectories_comp(['gt','est'])
 
 # dsp.plot_trajectories('gt')
