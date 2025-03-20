@@ -3,14 +3,14 @@ from display import Display
 import numpy as np
 
 test = Results('./input/Pyxis/landmarks_80_geodesic-mesa_2025-03-19_15-12-59', 
-               './saved_output',
-               './datasets/landmarks/landmarks_80.jrl')
+               './datasets/landmarks/landmarks_80.jrl',
+               './saved_output')
 #test = Results('./input/landmarks_geodesic-mesa_2025-02-27_11-16-52', './saved_output', './datasets/landmarks.jrl')
 
 # Generate results folder
 # TODO: add possibility to load data from generated results
 
-test.export_all_results()
+test.export_base_results()
 dsp = Display(test)
 # dsp.plot_trajectories_all()
 # dsp.boxplot('transformation_ape', './saved_output/peer_80lk.png')

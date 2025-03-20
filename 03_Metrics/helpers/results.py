@@ -11,7 +11,7 @@ from metrics import Metrics
 from display import Display
 
 class Results():
-    def __init__(self, results_path, export_path, dataset_path):
+    def __init__(self, results_path, dataset_path, export_path):
         # Define paths
         self.input_path = results_path
         self.output_path = os.path.join(export_path, os.path.basename(self.input_path))
@@ -77,9 +77,14 @@ class Results():
     def export_all_results(self):
         self.generate_summary_file()
         self.generate_intermediate_results()
+        self.generate_metrics_results(minimal=False)
+
+    def export_base_results(self):
+        self.generate_summary_file()
+        self.generate_intermediate_results()
         self.generate_metrics_results()
     
-    def generate_metrics_results(self):
+    def generate_metrics_results(self, minimal=True, pose_types=None):
 
         # Generate folder
         folder = 'metrics'
@@ -89,8 +94,14 @@ class Results():
         # generate dict to store errors
         self.errors = {}
 
-        pose_types = ['translation','transformation','rotation','rot_angle_deg','point_distance','rot_angle_rad']
-        error_types = ['ape','rpe']
+        if minimal:
+            pose_types = ['transformation','rot_angle_deg','point_distance']
+            error_types = ['ape','rpe']
+        elif pose_types is not None:
+            error_types = ['ape','rpe']
+        else:
+            pose_types = ['translation','transformation','rotation','rot_angle_deg','point_distance','rot_angle_rad']
+            error_types = ['ape','rpe']
 
         for pose_type in pose_types:
             for error_type in error_types:
@@ -98,7 +109,7 @@ class Results():
                 # Chemin des fichiers JSON
                 file_name = pose_type + '_' + error_type
                 metrics_path = os.path.join(self.metrics_path, file_name + '.json')
-                raw_errors_path = os.path.join(self.metrics_path, file_name + '_raw.json')
+                raw_errors_path = os.path.join(self.metrics_path, 'raw', file_name + '_raw.json')
 
                 metrics, errors = self.__get_metrics(pose_type, error_type)
                 self.errors[pose_type + '_' + error_type] = errors
