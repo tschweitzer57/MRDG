@@ -8,6 +8,7 @@ import gtsam
 
 # Custom librairies
 from metrics import Metrics
+from display import Display
 
 class Results():
     def __init__(self, results_path, export_path, dataset_path):
