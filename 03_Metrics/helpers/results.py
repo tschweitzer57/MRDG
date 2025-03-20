@@ -74,7 +74,7 @@ class Results():
         
         # Print generated intermediate results
 
-    def compute_all_results(self):
+    def export_all_results(self):
         self.generate_summary_file()
         self.generate_intermediate_results()
         self.generate_metrics_results()

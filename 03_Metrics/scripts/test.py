@@ -2,17 +2,20 @@ from results import Results
 from display import Display
 import numpy as np
 
-test = Results('./input/Pyxis/landmarks_2_20_geodesic-mesa_2025-03-19_15-02-56', './saved_output', './datasets/landmarks/landmarks_2_20.jrl')
+test = Results('./input/Pyxis/landmarks_80_geodesic-mesa_2025-03-19_15-12-59', 
+               './saved_output',
+               './datasets/landmarks/landmarks_80.jrl')
 #test = Results('./input/landmarks_geodesic-mesa_2025-02-27_11-16-52', './saved_output', './datasets/landmarks.jrl')
 
 # Generate results folder
 # TODO: add possibility to load data from generated results
 
-test.compute_all_results()
+test.export_all_results()
 dsp = Display(test)
-#dsp.plot_trajectories_all()
-#dsp.boxplot('transformation_ape')
-dsp.plot_trajectories_comp(['gt','est'])
+# dsp.plot_trajectories_all()
+# dsp.boxplot('transformation_ape', './saved_output/peer_80lk.png')
+dsp.boxplot('transformation_ape', './saved_output/all_80lk.png')
+# dsp.plot_trajectories_comp(['gt','est'])
 
 # dsp.plot_trajectories('gt')
 # dsp.plot_trajectories_all('gt')
