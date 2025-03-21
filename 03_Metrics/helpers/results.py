@@ -10,6 +10,20 @@ import gtsam
 from metrics import Metrics
 from display import Display
 
+class Data():
+    def __init__(self):
+        # initialize structure
+        self.groundtruths = {}
+        self.initializations = {}
+        self.estimates = {}
+        self.robots = Results.dataset.robots()
+        self.errors = Results.errors
+
+        for rid in self.robots:
+            self.groundtruths[rid] = Results.dataset.groundTruth(rid)
+            self.initializations[rid] = Results.dataset.initialization(rid)
+            self.estimates[rid] = Results.results.robot_solutions[rid].values
+
 class Results():
     def __init__(self, results_path, dataset_path, export_path):
         # Define paths
