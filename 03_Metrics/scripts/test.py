@@ -25,7 +25,8 @@ mdsp.add_results('dis_60lk', dis_60lk)
 mdsp.add_results('dis_40lk', dis_40lk)
 mdsp.add_results('dis_20lk', dis_20lk)
 
-mdsp.boxplot()
+mdsp.boxplot('point_distance_rpe')
+mdsp.boxplot('rot_angle_deg_rpe')
 
 # dsp = Display(test)
 # dsp.plot_trajectories_all()

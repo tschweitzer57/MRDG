@@ -421,51 +421,56 @@ class MultiDisplay():
         plt.axis('equal')
         plt.show()
 
-    def boxplot(self, err_type=None, output_path=None):
-        
-        print(self.data.keys())
+    def boxplot(self, err_type, output_path=None):
+        errs = {}
+        for data in self.data.keys():
+            error = []
+            for robot in self.data[data].errors[err_type].keys():
+                error += self.data[data].errors[err_type][robot]
+            errs[data] = error
+
         colors = sns.color_palette("colorblind", len(self.data.keys()))
 
-        # plt.style.use('bmh')
-        # fig, ax = plt.subplots()
-        # ax.boxplot(errs['Robot a'], positions=[1], widths=0.5, patch_artist=True,
-        #            showmeans=False, showfliers=False,
-        #            medianprops={"color": "red", "linewidth": 1},
-        #            boxprops={"facecolor": colors[0], "edgecolor": "black",
-        #                      "linewidth": 1.5},
-        #            whiskerprops={"color": "black", "linewidth": 1.5},
-        #            capprops={"color": "black", "linewidth": 1.5})
+        plt.style.use('bmh')
+        fig, ax = plt.subplots()
+        ax.boxplot(errs['dis_20lk'], positions=[1], widths=0.5, patch_artist=True,
+                   showmeans=False, showfliers=False,
+                   medianprops={"color": "red", "linewidth": 1},
+                   boxprops={"facecolor": colors[0], "edgecolor": "black",
+                             "linewidth": 1.5},
+                   whiskerprops={"color": "black", "linewidth": 1.5},
+                   capprops={"color": "black", "linewidth": 1.5})
 
-        # ax.boxplot(errs['Robot b'], positions=[2], widths=0.5, patch_artist=True,
-        #            showmeans=False, showfliers=False,
-        #            medianprops={"color": "red", "linewidth": 1},
-        #            boxprops={"facecolor": colors[1], "edgecolor": "black",
-        #                      "linewidth": 1.5},
-        #            whiskerprops={"color": "black", "linewidth": 1.5},
-        #            capprops={"color": "black", "linewidth": 1.5})
+        ax.boxplot(errs['dis_40lk'], positions=[2], widths=0.5, patch_artist=True,
+                   showmeans=False, showfliers=False,
+                   medianprops={"color": "red", "linewidth": 1},
+                   boxprops={"facecolor": colors[1], "edgecolor": "black",
+                             "linewidth": 1.5},
+                   whiskerprops={"color": "black", "linewidth": 1.5},
+                   capprops={"color": "black", "linewidth": 1.5})
 
-        # ax.boxplot(errs['Robot c'], positions=[3], widths=0.5, patch_artist=True,
-        #            showmeans=False, showfliers=False,
-        #            medianprops={"color": "red", "linewidth": 1},
-        #            boxprops={"facecolor": colors[2], "edgecolor": "black",
-        #                      "linewidth": 1.5},
-        #            whiskerprops={"color": "black", "linewidth": 1.5},
-        #            capprops={"color": "black", "linewidth": 1.5})
+        ax.boxplot(errs['dis_60lk'], positions=[3], widths=0.5, patch_artist=True,
+                   showmeans=False, showfliers=False,
+                   medianprops={"color": "red", "linewidth": 1},
+                   boxprops={"facecolor": colors[2], "edgecolor": "black",
+                             "linewidth": 1.5},
+                   whiskerprops={"color": "black", "linewidth": 1.5},
+                   capprops={"color": "black", "linewidth": 1.5})
         
-        # ax.boxplot(errs['Robot d'], positions=[4], widths=0.5, patch_artist=True,
-        #            showmeans=False, showfliers=False,
-        #            medianprops={"color": "red", "linewidth": 1},
-        #            boxprops={"facecolor": colors[3], "edgecolor": "black",
-        #                      "linewidth": 1.5},
-        #            whiskerprops={"color": "black", "linewidth": 1.5},
-        #            capprops={"color": "black", "linewidth": 1.5})
+        ax.boxplot(errs['dis_80lk'], positions=[4], widths=0.5, patch_artist=True,
+                   showmeans=False, showfliers=False,
+                   medianprops={"color": "red", "linewidth": 1},
+                   boxprops={"facecolor": colors[3], "edgecolor": "black",
+                             "linewidth": 1.5},
+                   whiskerprops={"color": "black", "linewidth": 1.5},
+                   capprops={"color": "black", "linewidth": 1.5})
 
-        # ax.set_xticklabels(['Robot a','Robot b','Robot c','Robot d'],
-        #                    rotation=45, fontsize=8)
+        ax.set_xticklabels(['dis_20lk','dis_40lk','dis_60lk','dis_80lk'],
+                           rotation=45, fontsize=8)
 
-        # ax.set_title(err_type)
+        ax.set_title(err_type)
 
-        # plt.show()
+        plt.show()
 
 # def path_to_dataset(path):
 #     parser = jrl.Parser()
