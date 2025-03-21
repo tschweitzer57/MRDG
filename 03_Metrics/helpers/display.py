@@ -12,6 +12,8 @@ import matplotlib.pyplot as plt
 
 import seaborn as sns
 
+from results import Data
+
 class Display():
 
     def __init__(self, Results):
@@ -263,6 +265,208 @@ class Display():
     def getLandmark(self, key, values):
         return values.atPoint3(key)
 
+class MultiDisplay():
+    """ This class can handle multiple datasets.
+        Its goal is to compare datasets errors.
+        Robots errors are aggregated as single errors.
+    """
+
+    def __init__(self):
+        self.data = {}
+
+    def add_results(self, name, Results):
+        self.data[name] = Data(Results)
+
+    def plot_trajectories(self, data_type=None):
+        if data_type is None:
+            data = self.groundtruths
+        elif data_type == 'gt':
+            data = self.groundtruths
+        elif data_type == 'init':
+            data = self.initializations
+        elif data_type == 'est':
+            data = self.estimates
+        else:
+            raise ValueError("Unknown error type")
+
+        colors = sns.color_palette("colorblind", len(self.robots))
+        for idx, rid in enumerate(self.robots):
+            positions = []
+            for k in data[rid].keys():
+                s = gtsam.Symbol(k)
+                if chr(s.chr()) == rid:
+                    positions.append(self.getPoint(k, data[rid]))
+            positions = np.stack(positions)
+            ax = plt.figure().add_subplot(projection='3d')
+            plt.plot(
+                positions.T[0],
+                positions.T[1],
+                positions.T[2],
+                alpha=1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+            ax.legend()
+        plt.axis('equal')
+        plt.show()
+    
+    def plot_trajectories_all(self, data_type=None):
+        if data_type is None:
+            data = self.groundtruths
+        elif data_type == 'gt':
+            data = self.groundtruths
+        elif data_type == 'init':
+            data = self.initializations
+        elif data_type == 'est':
+            data = self.estimates
+        else:
+            raise ValueError("Unknown error type")
+
+        colors = sns.color_palette("colorblind", len(self.robots))
+        ax = plt.figure().add_subplot(111,projection='3d')
+        for idx, rid in enumerate(self.robots):
+            positions = []
+            for k in data[rid].keys():
+                s = gtsam.Symbol(k)
+                if chr(s.chr()) == rid:
+                    positions.append(self.getPoint(k, data[rid]))
+            positions = np.stack(positions)
+            plt.plot(
+                positions.T[0],
+                positions.T[1],
+                positions.T[2],
+                alpha=1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+        ax.legend()
+        plt.axis('equal')
+        plt.show()
+
+    def plot_trajectories_comp(self, data_type=None):
+        if data_type is None:
+            data_ref = self.groundtruths
+            data_obs = self.estimates
+        elif 'gt' in data_type and 'init' in data_type:
+            data_ref = self.groundtruths
+            data_obs = self.initializations
+        elif 'gt' in data_type and 'est' in data_type:
+            data_ref = self.groundtruths
+            data_obs = self.estimates
+        elif 'init' in data_type and 'est' in data_type:
+            data_ref = self.initializations
+            data_obs = self.estimates
+        else:
+            raise ValueError("Unknown error type")
+
+        colors = sns.color_palette("colorblind", len(self.robots))
+        for idx, rid in enumerate(self.robots):
+            ax = plt.figure().add_subplot(111,projection='3d')
+            
+            positions_ref = []
+            positions_obs = []
+            landmarks_ref = []
+            landmarks_obs = []
+
+            for k in data_ref[rid].keys():
+                s = gtsam.Symbol(k)
+                if chr(s.chr()) == rid:
+                    positions_ref.append(self.getPoint(k, data_ref[rid]))
+                    positions_obs.append(self.getPoint(k, data_obs[rid]))
+                
+                elif chr(s.chr()) == 'l':
+                    landmarks_ref.append(self.getLandmark(k, data_ref[rid]))
+                    landmarks_obs.append(self.getLandmark(k, data_obs[rid]))
+
+            positions_ref = np.stack(positions_ref)
+            positions_obs = np.stack(positions_obs)
+            landmarks_ref = np.stack(landmarks_ref)
+            landmarks_obs = np.stack(landmarks_obs)
+
+            plt.plot(
+                positions_obs.T[0],
+                positions_obs.T[1],
+                positions_obs.T[2],
+                alpha=1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+            plt.plot(
+                positions_ref.T[0],
+                positions_ref.T[1],
+                positions_ref.T[2],
+                alpha=1,
+                color='black',
+                label=f'Robot {rid} gt'
+            )
+            
+            ax.scatter(
+                landmarks_ref.T[0],
+                landmarks_ref.T[1],
+                landmarks_ref.T[2],
+                alpha = 1,
+                color='black',
+                label=f'Robot {rid} lk'
+            )
+            ax.scatter(
+                landmarks_obs.T[0],
+                landmarks_obs.T[1],
+                landmarks_obs.T[2],
+                alpha = 1,
+                color=colors[idx],
+                label=f'Robotlk {rid}'
+            )
+            ax.legend()
+        
+        plt.axis('equal')
+        plt.show()
+
+    def boxplot(self, err_type=None, output_path=None):
+        
+        print(self.data.keys())
+        colors = sns.color_palette("colorblind", len(self.data.keys()))
+
+        # plt.style.use('bmh')
+        # fig, ax = plt.subplots()
+        # ax.boxplot(errs['Robot a'], positions=[1], widths=0.5, patch_artist=True,
+        #            showmeans=False, showfliers=False,
+        #            medianprops={"color": "red", "linewidth": 1},
+        #            boxprops={"facecolor": colors[0], "edgecolor": "black",
+        #                      "linewidth": 1.5},
+        #            whiskerprops={"color": "black", "linewidth": 1.5},
+        #            capprops={"color": "black", "linewidth": 1.5})
+
+        # ax.boxplot(errs['Robot b'], positions=[2], widths=0.5, patch_artist=True,
+        #            showmeans=False, showfliers=False,
+        #            medianprops={"color": "red", "linewidth": 1},
+        #            boxprops={"facecolor": colors[1], "edgecolor": "black",
+        #                      "linewidth": 1.5},
+        #            whiskerprops={"color": "black", "linewidth": 1.5},
+        #            capprops={"color": "black", "linewidth": 1.5})
+
+        # ax.boxplot(errs['Robot c'], positions=[3], widths=0.5, patch_artist=True,
+        #            showmeans=False, showfliers=False,
+        #            medianprops={"color": "red", "linewidth": 1},
+        #            boxprops={"facecolor": colors[2], "edgecolor": "black",
+        #                      "linewidth": 1.5},
+        #            whiskerprops={"color": "black", "linewidth": 1.5},
+        #            capprops={"color": "black", "linewidth": 1.5})
+        
+        # ax.boxplot(errs['Robot d'], positions=[4], widths=0.5, patch_artist=True,
+        #            showmeans=False, showfliers=False,
+        #            medianprops={"color": "red", "linewidth": 1},
+        #            boxprops={"facecolor": colors[3], "edgecolor": "black",
+        #                      "linewidth": 1.5},
+        #            whiskerprops={"color": "black", "linewidth": 1.5},
+        #            capprops={"color": "black", "linewidth": 1.5})
+
+        # ax.set_xticklabels(['Robot a','Robot b','Robot c','Robot d'],
+        #                    rotation=45, fontsize=8)
+
+        # ax.set_title(err_type)
+
+        # plt.show()
+
 # def path_to_dataset(path):
 #     parser = jrl.Parser()
 #     dataset = parser.parseDataset(path, False)
@@ -457,202 +661,3 @@ class Display():
                 #if chr(s1.chr()) != chr(s2.chr()) and args.plot_comms:
                 #    pass
 
-class MultiDisplay():
-
-    def __init__(self):
-        self.data = {}
-
-    def add_results(self, name, Results)
-        self.data[name] = Data(Results)
-
-    def plot_trajectories(self, data_type=None):
-        if data_type is None:
-            data = self.groundtruths
-        elif data_type == 'gt':
-            data = self.groundtruths
-        elif data_type == 'init':
-            data = self.initializations
-        elif data_type == 'est':
-            data = self.estimates
-        else:
-            raise ValueError("Unknown error type")
-
-        colors = sns.color_palette("colorblind", len(self.robots))
-        for idx, rid in enumerate(self.robots):
-            positions = []
-            for k in data[rid].keys():
-                s = gtsam.Symbol(k)
-                if chr(s.chr()) == rid:
-                    positions.append(self.getPoint(k, data[rid]))
-            positions = np.stack(positions)
-            ax = plt.figure().add_subplot(projection='3d')
-            plt.plot(
-                positions.T[0],
-                positions.T[1],
-                positions.T[2],
-                alpha=1,
-                color=colors[idx],
-                label=f'Robot {rid}'
-            )
-            ax.legend()
-        plt.axis('equal')
-        plt.show()
-    
-    def plot_trajectories_all(self, data_type=None):
-        if data_type is None:
-            data = self.groundtruths
-        elif data_type == 'gt':
-            data = self.groundtruths
-        elif data_type == 'init':
-            data = self.initializations
-        elif data_type == 'est':
-            data = self.estimates
-        else:
-            raise ValueError("Unknown error type")
-
-        colors = sns.color_palette("colorblind", len(self.robots))
-        ax = plt.figure().add_subplot(111,projection='3d')
-        for idx, rid in enumerate(self.robots):
-            positions = []
-            for k in data[rid].keys():
-                s = gtsam.Symbol(k)
-                if chr(s.chr()) == rid:
-                    positions.append(self.getPoint(k, data[rid]))
-            positions = np.stack(positions)
-            plt.plot(
-                positions.T[0],
-                positions.T[1],
-                positions.T[2],
-                alpha=1,
-                color=colors[idx],
-                label=f'Robot {rid}'
-            )
-        ax.legend()
-        plt.axis('equal')
-        plt.show()
-
-    def plot_trajectories_comp(self, data_type=None):
-        if data_type is None:
-            data_ref = self.groundtruths
-            data_obs = self.estimates
-        elif 'gt' in data_type and 'init' in data_type:
-            data_ref = self.groundtruths
-            data_obs = self.initializations
-        elif 'gt' in data_type and 'est' in data_type:
-            data_ref = self.groundtruths
-            data_obs = self.estimates
-        elif 'init' in data_type and 'est' in data_type:
-            data_ref = self.initializations
-            data_obs = self.estimates
-        else:
-            raise ValueError("Unknown error type")
-
-        colors = sns.color_palette("colorblind", len(self.robots))
-        for idx, rid in enumerate(self.robots):
-            ax = plt.figure().add_subplot(111,projection='3d')
-            
-            positions_ref = []
-            positions_obs = []
-            landmarks_ref = []
-            landmarks_obs = []
-
-            for k in data_ref[rid].keys():
-                s = gtsam.Symbol(k)
-                if chr(s.chr()) == rid:
-                    positions_ref.append(self.getPoint(k, data_ref[rid]))
-                    positions_obs.append(self.getPoint(k, data_obs[rid]))
-                
-                elif chr(s.chr()) == 'l':
-                    landmarks_ref.append(self.getLandmark(k, data_ref[rid]))
-                    landmarks_obs.append(self.getLandmark(k, data_obs[rid]))
-
-            positions_ref = np.stack(positions_ref)
-            positions_obs = np.stack(positions_obs)
-            landmarks_ref = np.stack(landmarks_ref)
-            landmarks_obs = np.stack(landmarks_obs)
-
-            plt.plot(
-                positions_obs.T[0],
-                positions_obs.T[1],
-                positions_obs.T[2],
-                alpha=1,
-                color=colors[idx],
-                label=f'Robot {rid}'
-            )
-            plt.plot(
-                positions_ref.T[0],
-                positions_ref.T[1],
-                positions_ref.T[2],
-                alpha=1,
-                color='black',
-                label=f'Robot {rid} gt'
-            )
-            
-            ax.scatter(
-                landmarks_ref.T[0],
-                landmarks_ref.T[1],
-                landmarks_ref.T[2],
-                alpha = 1,
-                color='black',
-                label=f'Robot {rid} lk'
-            )
-            ax.scatter(
-                landmarks_obs.T[0],
-                landmarks_obs.T[1],
-                landmarks_obs.T[2],
-                alpha = 1,
-                color=colors[idx],
-                label=f'Robotlk {rid}'
-            )
-            ax.legend()
-        
-        plt.axis('equal')
-        plt.show()
-
-    def boxplot(self, err_type, output_path=None):
-        
-        errs = self.errors[err_type]
-        colors = sns.color_palette("colorblind", len(self.robots))
-
-        plt.style.use('bmh')
-        fig, ax = plt.subplots()
-        ax.boxplot(errs['Robot a'], positions=[1], widths=0.5, patch_artist=True,
-                   showmeans=False, showfliers=False,
-                   medianprops={"color": "red", "linewidth": 1},
-                   boxprops={"facecolor": colors[0], "edgecolor": "black",
-                             "linewidth": 1.5},
-                   whiskerprops={"color": "black", "linewidth": 1.5},
-                   capprops={"color": "black", "linewidth": 1.5})
-
-        ax.boxplot(errs['Robot b'], positions=[2], widths=0.5, patch_artist=True,
-                   showmeans=False, showfliers=False,
-                   medianprops={"color": "red", "linewidth": 1},
-                   boxprops={"facecolor": colors[1], "edgecolor": "black",
-                             "linewidth": 1.5},
-                   whiskerprops={"color": "black", "linewidth": 1.5},
-                   capprops={"color": "black", "linewidth": 1.5})
-
-        ax.boxplot(errs['Robot c'], positions=[3], widths=0.5, patch_artist=True,
-                   showmeans=False, showfliers=False,
-                   medianprops={"color": "red", "linewidth": 1},
-                   boxprops={"facecolor": colors[2], "edgecolor": "black",
-                             "linewidth": 1.5},
-                   whiskerprops={"color": "black", "linewidth": 1.5},
-                   capprops={"color": "black", "linewidth": 1.5})
-        
-        ax.boxplot(errs['Robot d'], positions=[4], widths=0.5, patch_artist=True,
-                   showmeans=False, showfliers=False,
-                   medianprops={"color": "red", "linewidth": 1},
-                   boxprops={"facecolor": colors[3], "edgecolor": "black",
-                             "linewidth": 1.5},
-                   whiskerprops={"color": "black", "linewidth": 1.5},
-                   capprops={"color": "black", "linewidth": 1.5})
-
-        ax.set_xticklabels(['Robot a','Robot b','Robot c','Robot d'],
-                           rotation=45, fontsize=8)
-
-        ax.set_title(err_type)
-
-        if output_path is not None:
-            plt.savefig(output_path)
-        plt.show()

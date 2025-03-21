@@ -8,7 +8,6 @@ import gtsam
 
 # Custom librairies
 from metrics import Metrics
-from display import Display
 
 class Data():
     def __init__(self, Results):
@@ -16,8 +15,10 @@ class Data():
         self.groundtruths = {}
         self.initializations = {}
         self.estimates = {}
+
+        # Extracct data from Results
         self.robots = Results.dataset.robots()
-        self.errors = Results.errors
+        self.errors = Results.get_errors('base')
 
         for rid in self.robots:
             self.groundtruths[rid] = Results.dataset.groundTruth(rid)
