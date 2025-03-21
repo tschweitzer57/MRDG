@@ -11,7 +11,7 @@ from metrics import Metrics
 from display import Display
 
 class Data():
-    def __init__(self):
+    def __init__(self, Results):
         # initialize structure
         self.groundtruths = {}
         self.initializations = {}
@@ -38,6 +38,9 @@ class Results():
 
         # Should be temporary
         self.dataset = parser.parseDataset(dataset_path, False)
+        
+        # Define all attributes used
+        self.errors = None
 
     def generate_intermediate_results(self):
         # Generate folder
@@ -88,15 +91,38 @@ class Results():
         
         # Print generated intermediate results
 
-    def export_all_results(self):
-        self.generate_summary_file()
-        self.generate_intermediate_results()
-        self.generate_metrics_results(minimal=False)
+    def export_results(self, rng='base'):
+        """ Saves errors in metrics folder
 
-    def export_base_results(self):
-        self.generate_summary_file()
-        self.generate_intermediate_results()
-        self.generate_metrics_results()
+        Args:
+            rng (str, optional): _description_. Defaults to 'base'.
+
+        Raises:
+            ValueError: _description_
+        """
+    
+        if rng == 'base':
+            self.generate_summary_file()
+            self.generate_intermediate_results()
+            self.generate_metrics_results(minimal=True)
+        elif rng == 'all':
+            self.generate_summary_file()
+            self.generate_intermediate_results()
+            self.generate_metrics_results(minimal=False)
+        else:
+            raise ValueError('Unknown value for rng')
+
+    def get_errors(self, rng='base'):
+        # reduce amount of computation
+        if rng == 'base':
+            self.generate_summary_file()
+            self.generate_intermediate_results()
+            self.generate_metrics_results(minimal=True)
+        elif rng == 'all':
+            self.generate_summary_file()
+            self.generate_intermediate_results()
+            self.generate_metrics_results(minimal=False)
+        return self.errors
     
     def generate_metrics_results(self, minimal=True, pose_types=None):
 
