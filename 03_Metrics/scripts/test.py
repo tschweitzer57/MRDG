@@ -17,6 +17,20 @@ dis_20lk = Results('./input/Pyxis/landmarks_20_geodesic-mesa_2025-03-19_15-27-16
                    './datasets/landmarks/landmarks_20.jrl',
                    './saved_output')
 
+## DISTRIBUTED : Pair ##
+dis_2_20lk = Results('./input/Pyxis/landmarks_2_20_geodesic-mesa_2025-03-19_15-02-56',
+                     './datasets/landmarks/landmarks_2_20.jrl',
+                     './saved_output')
+dis_2_20lk = Results('./input/Pyxis/landmarks_2_20_geodesic-mesa_2025-03-19_15-02-56',
+                     './datasets/landmarks/landmarks_2_20.jrl',
+                     './saved_output')
+dis_2_20lk = Results('./input/Pyxis/landmarks_2_20_geodesic-mesa_2025-03-19_15-02-56',
+                     './datasets/landmarks/landmarks_2_20.jrl',
+                     './saved_output')
+dis_2_20lk = Results('./input/Pyxis/landmarks_2_20_geodesic-mesa_2025-03-19_15-02-56',
+                     './datasets/landmarks/landmarks_2_20.jrl',
+                     './saved_output')
+
 ## DISTRIBUTED : 2 - 2 ##
 
 mdsp = MultiDisplay()
