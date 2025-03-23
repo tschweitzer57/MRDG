@@ -17,7 +17,7 @@ dis_20lk = Results('./input/Pyxis/landmarks_20_geodesic-mesa_2025-03-19_15-27-16
                    './datasets/landmarks/landmarks_20.jrl',
                    './saved_output')
 
-## DISTRIBUTED : Pair ##
+## DISTRIBUTED : 2 - 2 ##
 dis_2_20lk = Results('./input/Pyxis/landmarks_2_20_geodesic-mesa_2025-03-19_15-02-56',
                      './datasets/landmarks/landmarks_2_20.jrl',
                      './saved_output')
@@ -31,7 +31,35 @@ dis_2_80lk = Results('./input/Pyxis/landmarks_2_80_geodesic-mesa_2025-03-19_15-0
                      './datasets/landmarks/landmarks_2_80.jrl',
                      './saved_output')
 
+## DISTRIBUTED : ALL ##
+dis_80lk = Results('./input/Pyxis/landmarks_80_geodesic-mesa_2025-03-19_15-12-59',
+                   './datasets/landmarks/landmarks_80.jrl',
+                   './saved_output')
+dis_60lk = Results('./input/Pyxis/landmarks_60_geodesic-mesa_2025-03-19_15-17-21',
+                   './datasets/landmarks/landmarks_60.jrl',
+                   './saved_output')
+dis_40lk = Results('./input/Pyxis/landmarks_40_geodesic-mesa_2025-03-19_15-19-29',
+                   './datasets/landmarks/landmarks_40.jrl',
+                   './saved_output')
+dis_20lk = Results('./input/Pyxis/landmarks_20_geodesic-mesa_2025-03-19_15-27-16',
+                   './datasets/landmarks/landmarks_20.jrl',
+                   './saved_output')
+
 ## DISTRIBUTED : 2 - 2 ##
+dis_2_20lk = Results('./input/Pyxis/landmarks_2_20_geodesic-mesa_2025-03-19_15-02-56',
+                     './datasets/landmarks/landmarks_2_20.jrl',
+                     './saved_output')
+dis_2_40lk = Results('./input/Pyxis/landmarks_2_40_geodesic-mesa_2025-03-19_15-04-23',
+                     './datasets/landmarks/landmarks_2_40.jrl',
+                     './saved_output')
+dis_2_60lk = Results('./input/Pyxis/landmarks_2_60_geodesic-mesa_2025-03-19_15-05-52',
+                     './datasets/landmarks/landmarks_2_60.jrl',
+                     './saved_output')
+dis_2_80lk = Results('./input/Pyxis/landmarks_2_80_geodesic-mesa_2025-03-19_15-09-47',
+                     './datasets/landmarks/landmarks_2_80.jrl',
+                     './saved_output')
+
+
 
 mdsp = MultiDisplay()
 
@@ -41,12 +69,21 @@ mdsp = MultiDisplay()
 # mdsp.add_results('dis_20lk', dis_20lk)
 
 mdsp.add_results('dis_2_20lk', dis_2_20lk)
+mdsp.add_results('dis_20lk', dis_20lk)
 mdsp.add_results('dis_2_40lk', dis_2_40lk)
+mdsp.add_results('dis_40lk', dis_40lk)
 mdsp.add_results('dis_2_60lk', dis_2_60lk)
+mdsp.add_results('dis_60lk', dis_60lk)
 mdsp.add_results('dis_2_80lk', dis_2_80lk)
+mdsp.add_results('dis_80lk', dis_80lk)
 
+mdsp.boxplot('transformation_rpe')
 mdsp.boxplot('point_distance_rpe')
 mdsp.boxplot('rot_angle_deg_rpe')
+
+mdsp.boxplot('transformation_ape')
+mdsp.boxplot('point_distance_ape')
+mdsp.boxplot('rot_angle_deg_ape')
 
 # dsp = Display(test)
 # dsp.plot_trajectories_all()
