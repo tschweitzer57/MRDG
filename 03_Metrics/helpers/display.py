@@ -292,7 +292,7 @@ class MultiDisplay():
 
         plt.style.use('bmh')
         fig, ax = plt.subplots()
-        ax.boxplot(errs['dis_20lk'], positions=[1], widths=0.5, patch_artist=True,
+        ax.boxplot(errs['dis_2_20lk'], positions=[1], widths=0.5, patch_artist=True,
                    showmeans=False, showfliers=False,
                    medianprops={"color": "red", "linewidth": 1},
                    boxprops={"facecolor": colors[0], "edgecolor": "black",
@@ -300,7 +300,7 @@ class MultiDisplay():
                    whiskerprops={"color": "black", "linewidth": 1.5},
                    capprops={"color": "black", "linewidth": 1.5})
 
-        ax.boxplot(errs['dis_40lk'], positions=[2], widths=0.5, patch_artist=True,
+        ax.boxplot(errs['dis_2_40lk'], positions=[2], widths=0.5, patch_artist=True,
                    showmeans=False, showfliers=False,
                    medianprops={"color": "red", "linewidth": 1},
                    boxprops={"facecolor": colors[1], "edgecolor": "black",
@@ -308,7 +308,7 @@ class MultiDisplay():
                    whiskerprops={"color": "black", "linewidth": 1.5},
                    capprops={"color": "black", "linewidth": 1.5})
 
-        ax.boxplot(errs['dis_60lk'], positions=[3], widths=0.5, patch_artist=True,
+        ax.boxplot(errs['dis_2_60lk'], positions=[3], widths=0.5, patch_artist=True,
                    showmeans=False, showfliers=False,
                    medianprops={"color": "red", "linewidth": 1},
                    boxprops={"facecolor": colors[2], "edgecolor": "black",
@@ -316,7 +316,7 @@ class MultiDisplay():
                    whiskerprops={"color": "black", "linewidth": 1.5},
                    capprops={"color": "black", "linewidth": 1.5})
         
-        ax.boxplot(errs['dis_80lk'], positions=[4], widths=0.5, patch_artist=True,
+        ax.boxplot(errs['dis_2_80lk'], positions=[4], widths=0.5, patch_artist=True,
                    showmeans=False, showfliers=False,
                    medianprops={"color": "red", "linewidth": 1},
                    boxprops={"facecolor": colors[3], "edgecolor": "black",
@@ -324,7 +324,7 @@ class MultiDisplay():
                    whiskerprops={"color": "black", "linewidth": 1.5},
                    capprops={"color": "black", "linewidth": 1.5})
 
-        ax.set_xticklabels(['dis_20lk','dis_40lk','dis_60lk','dis_80lk'],
+        ax.set_xticklabels(['dis_2_20lk','dis_2_40lk','dis_2_60lk','dis_2_80lk'],
                            rotation=45, fontsize=8)
 
         ax.set_title(err_type)
