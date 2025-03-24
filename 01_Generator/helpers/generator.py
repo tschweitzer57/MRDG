@@ -454,7 +454,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
             if not self.is_key_in(rb, ka):
                 self.addInitialization(rb, jrl.TypedValues(est_val_ra, {ka: jrl.Pose3Tag}))
-                self.addGroundtruth(rb, jrl.TypedValues(gt_val_ra, {ka: jrl.Pose3Tag}))
+                self.addGroundTruth(rb, jrl.TypedValues(gt_val_ra, {ka: jrl.Pose3Tag}))
             
         elif modality == 'simplex-a':
             self.addEntry(
@@ -466,7 +466,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             )
             if not self.is_key_in(ra, kb):
                 self.addInitialization(ra, jrl.TypedValues(est_val_rb, {kb: jrl.Pose3Tag}))
-                self.addGroundtruth(ra, jrl.TypedValues(gt_val_rb, {kb: jrl.Pose3Tag}))
+                self.addGroundTruth(ra, jrl.TypedValues(gt_val_rb, {kb: jrl.Pose3Tag}))
 
         elif modality == 'simplex-b':
             self.addEntry(
@@ -478,7 +478,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             )
             if not self.is_key_in(rb, ka):
                 self.addInitialization(rb, jrl.TypedValues(est_val_ra, {ka: jrl.Pose3Tag}))
-                self.addGroundtruth(rb, jrl.TypedValues(gt_val_ra, {ka: jrl.Pose3Tag}))
+                self.addGroundTruth(rb, jrl.TypedValues(gt_val_ra, {ka: jrl.Pose3Tag}))
 
         else:
             raise Exception("Invalid modality")
@@ -514,11 +514,11 @@ class DatasetGenerator(jrl.DatasetBuilder):
             )
             if not self.is_key_in(ra, kb):
                 self.addInitialization(ra, jrl.TypedValues(est_val_rb, {kb: jrl.Pose3Tag}))
-                self.addGroundtruth(ra, jrl.TypedValues(gt_val_rb, {kb: jrl.Pose3Tag}))
+                self.addGroundTruth(ra, jrl.TypedValues(gt_val_rb, {kb: jrl.Pose3Tag}))
 
             if not self.is_key_in(rb, ka):
                 self.addInitialization(rb, jrl.TypedValues(est_val_ra, {ka: jrl.Pose3Tag}))
-                self.addGroundtruth(rb, jrl.TypedValues(gt_val_ra, {ka: jrl.Pose3Tag}))
+                self.addGroundTruth(rb, jrl.TypedValues(gt_val_ra, {ka: jrl.Pose3Tag}))
 
         elif modality == 'simplex-a':
             self.addEntry(
@@ -530,7 +530,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             )
             if not self.is_key_in(ra, kb):
                 self.addInitialization(ra, jrl.TypedValues(est_val_rb, {kb: jrl.Pose3Tag}))
-                self.addGroundtruth(ra, jrl.TypedValues(gt_val_rb, {kb: jrl.Pose3Tag}))
+                self.addGroundTruth(ra, jrl.TypedValues(gt_val_rb, {kb: jrl.Pose3Tag}))
 
         elif modality == 'simplex-b':
             self.addEntry(
@@ -542,7 +542,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             )
             if not self.is_key_in(rb, ka):
                 self.addInitialization(rb, jrl.TypedValues(est_val_ra, {ka: jrl.Pose3Tag}))
-                self.addGroundtruth(rb, jrl.TypedValues(gt_val_ra, {ka: jrl.Pose3Tag}))
+                self.addGroundTruth(rb, jrl.TypedValues(gt_val_ra, {ka: jrl.Pose3Tag}))
 
         else:
             raise Exception("Invalid modality")

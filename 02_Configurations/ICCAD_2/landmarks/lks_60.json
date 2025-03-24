@@ -1,6 +1,6 @@
 {
     "output_dir": "./output/iccad2",
-    "name": "odom1",
+    "name": "lks_60",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 500,
@@ -28,7 +28,7 @@
         }
     },
     "landmarks": {
-        "number": 20,
+        "number": 60,
         "seed": 96,
         "probability": 0.4
     },

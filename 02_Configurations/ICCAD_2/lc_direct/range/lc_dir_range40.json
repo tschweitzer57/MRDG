@@ -1,6 +1,6 @@
 {
     "output_dir": "./output/iccad2",
-    "name": "odom1",
+    "name": "lc_dir_range40",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 500,
@@ -20,11 +20,8 @@
         "index": 20
     },
     "inter-direct-loop-closure": {
-        "pose": {
-            "frequency": 50
-        },
         "range": {
-            "frequency": 50
+            "frequency": 40
         }
     },
     "landmarks": {

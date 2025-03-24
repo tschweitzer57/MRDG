@@ -1,6 +1,6 @@
 {
     "output_dir": "./output/iccad2",
-    "name": "odom1",
+    "name": "lc_indirect1",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 500,
@@ -17,7 +17,7 @@
     },
     "inter-indirect-loop-closure": {
         "frequency": 50,
-        "index": 20
+        "index": 10
     },
     "inter-direct-loop-closure": {
         "pose": {
