@@ -1,2 +1,0 @@
-Dataset name : landmarks_20
-Solver method : centralized

@@ -1,0 +1,2 @@
+Dataset name : lc_dir_pose40
+Solver method : geodesic-mesa
