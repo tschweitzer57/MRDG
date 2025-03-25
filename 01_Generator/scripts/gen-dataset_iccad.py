@@ -104,9 +104,9 @@ def get_available_comms(vals, robots, pose_index, dist_thresh):
 if __name__ == "__main__":
 
     # Setup the Dataset Builder
-    input_dir = './configs/ICCAD_2/lc_direct/range'
-    output_dir = './output/iccad2/lc_direct/range'
-    config_name = 'lc_dir_range50'
+    input_dir = './configs/ICCAD_2'
+    output_dir = './saved_outputs/iccad1'
+    config_name = 'no_lk'
     builder = DatasetGenerator(os.path.join(input_dir, config_name + ".json"))
     if builder.params.lc_inter_direct is not None:
         if builder.params.lc_inter_direct.get('range') is not None:
@@ -117,7 +117,9 @@ if __name__ == "__main__":
     # TODO handle multiple configurations
     # TODO make evolve to handle freq or probability
     # TODO get rid of name of config and dataset
-    lk_options = 'edges'
+    lk_options = 'all'
+    # Iccad 2 -> edges
+    # Iccad 1 -> All
 
     # Setup groundTruths
     builder.gen_gt_trajectories()
