@@ -105,7 +105,7 @@ if __name__ == "__main__":
 
     # Setup the Dataset Builder
     input_dir = './configs/ICCAD_2'
-    output_dir = './saved_outputs/iccad1'
+    output_dir = './saved_outputs/iccad3'
     config_name = 'no_lk'
     builder = DatasetGenerator(os.path.join(input_dir, config_name + ".json"))
     if builder.params.lc_inter_direct is not None:
