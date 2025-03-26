@@ -1,0 +1,2 @@
+Dataset name : lc_dir_range10
+Solver method : geodesic-mesa
