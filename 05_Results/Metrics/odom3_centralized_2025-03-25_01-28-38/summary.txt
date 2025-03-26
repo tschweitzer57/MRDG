@@ -1,0 +1,2 @@
+Dataset name : odom3
+Solver method : centralized

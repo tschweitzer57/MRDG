@@ -1,0 +1,2 @@
+Dataset name : lc_indirect2
+Solver method : centralized

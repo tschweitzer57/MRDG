@@ -1,0 +1,2 @@
+Dataset name : lc_intra2
+Solver method : centralized
