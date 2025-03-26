@@ -36,7 +36,7 @@ def pack_lid(robots, nb_lks, group_type):
         batch_nb = nb_lks // len(edges)
         for index, edge in enumerate(edges):
             lid_dict[edge] = [lk_ids[i + index] for i in range(batch_nb)]
-    if group_type == 'all':
+    elif group_type == 'all':
         lid_dict['all'] = lk_ids
     return lid_dict
         
