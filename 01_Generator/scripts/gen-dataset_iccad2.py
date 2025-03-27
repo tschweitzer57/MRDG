@@ -157,7 +157,7 @@ if __name__ == "__main__":
             for rid in builder.robots:
                 pose_oid = max(pose_num - builder.params.lc_intra['index'], 0)
 
-                # TODO initialize all freqs at beginning define an offset and add a seeed
+                # TODO initialize all freqs at beginning
                 freq = builder.params.lc_intra['frequency']
 
                 if pose_num % freq == 0:
@@ -166,7 +166,6 @@ if __name__ == "__main__":
 
         # Add loop closure : inter - indirect
         if builder.params.lc_inter_indirect is not None:
-            # TODO define a random seeded way to make lc
             for rid in builder.robots:
                 pose_oid = max(pose_num - builder.params.lc_inter_indirect['index'], 0)
                 ids = copy(builder.robots)
