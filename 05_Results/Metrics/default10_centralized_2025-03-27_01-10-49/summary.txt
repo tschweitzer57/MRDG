@@ -1,0 +1,2 @@
+Dataset name : default10
+Solver method : centralized
