@@ -171,6 +171,7 @@ if __name__ == "__main__":
                 ids = copy(builder.robots)
                 ids.remove(rid) 
                 oid = np.random.choice(ids)
+                #generate list of tuple for each var
 
                 freq = builder.params.lc_inter_indirect['frequency']
 
