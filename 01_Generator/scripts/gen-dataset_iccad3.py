@@ -73,6 +73,8 @@ def gen_lc_indirect(robots, nb_poses, nb_lc, ind_thr, seed):
         data[rid + '_oids'] = np.random.choice(o_robots, size=lc_ind_nb)
 
         data['index'] = 0
+    
+    np.random.seed()
 
     return data
 
@@ -93,6 +95,8 @@ def gen_landmarks(robots, nb_poses, nb_lks, landmarks, seed):
         data[rid + '_lks'] = lks
 
         data['index'] = 0
+
+    np.random.seed()
 
     return data
         
@@ -177,23 +181,48 @@ if __name__ == "__main__":
     # TODO solve problem with landmarks
     
     lk_options = 'all'
-    # Iccad 2 -> edges
-    # Iccad 1 -> All
+    seed = 53
 
     # Setup groundTruths
     builder.gen_gt_trajectories()
     
-    # Add landmarks
+    # Add landmarks detections
     if builder.params.landmarks is not None:
         # Generate landmarks
         builder.gen_lk_amers()
 
         # Define landmarks
-        if lk_options == 'all':
-            shared_lids = pack_lid(builder.robots, builder.params.landmarks['number'], 'all')
-        else:
-            shared_lids = pack_lid(builder.robots, builder.params.landmarks['number'], 'edges')
-        #
+        landmarks = pack_lid_per_rid(builder.robots, builder.params.landmarks['number'], lk_options)
+
+        # Define landmarks detections
+        lks_detections = gen_landmarks(builder.robots, 
+                                       builder.params.dataset_opts['number_poses'], 
+                                       builder.params.landmarks['number'], 
+                                       landmarks, 
+                                       seed)
+        
+    # Add loop closure : inter - indirect detections
+    if builder.params.lc_inter_indirect is not None:
+        lc_ind_nb = builder.params.dataset_opts['number_poses'] // builder.params.lc_inter_indirect['frequency']
+        lc_ind_det = gen_lc_indirect(builder.robots,
+                                                 builder.params.dataset_opts['number_poses'], 
+                                                 lc_ind_nb,
+                                                 builder.params.lc_inter_indirect['index'], 
+                                                 seed)
+        
+        
+        for rid in builder.robots:
+            pose_oid = max(pose_num - builder.params.lc_inter_indirect['index'], 0)
+            ids = copy(builder.robots)
+            ids.remove(rid) 
+            oid = np.random.choice(ids)
+            #generate list of tuple for each var
+
+            freq = builder.params.lc_inter_indirect['frequency']
+
+            if pose_num % freq == 0:
+                builder.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
+                builder.incr_stamp()
 
     # Setup com_map
     com_map = list(combinations(builder.robots, 2))
@@ -223,18 +252,17 @@ if __name__ == "__main__":
         # Add loop closure : inter - indirect
         if builder.params.lc_inter_indirect is not None:
             for rid in builder.robots:
-                pose_oid = max(pose_num - builder.params.lc_inter_indirect['index'], 0)
-                ids = copy(builder.robots)
-                ids.remove(rid) 
-                oid = np.random.choice(ids)
-                #generate list of tuple for each var
-
-                freq = builder.params.lc_inter_indirect['frequency']
-
-                if pose_num % freq == 0:
+                if lc_ind_det[rid + '_poses'][lc_ind_det[rid + '_index']] == pose_num:
+                    
+                    oid = lc_ind_det[rid + '_oids'][lc_ind_det[rid + '_index']]
+                    pose_oid = pose_num - builder.params.lc_inter_indirect['index']
+                    
                     builder.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
                     builder.incr_stamp()
 
+                    if lc_ind_det[rid + '_index'] < len(lc_ind_det[rid + '_poses']) - 1:
+                        lc_ind_det[rid + '_index'] += 1
+                    
         # Add loop closure : intrer - direct
         if builder.params.lc_inter_direct is not None:
 
@@ -259,15 +287,13 @@ if __name__ == "__main__":
 
             # Add landmark measurement
             for rid in builder.robots:
-                if np.random.rand() < builder.params.landmarks['probability']:
-                    if lk_options == 'all':
-                        lid = random.choice(shared_lids['all'])
-                    else:
-                        possible_edges = [edge for edge in shared_lids.keys() if edge[0]==rid or edge[1]==rid]
-                        selected_edge = random.choice(possible_edges)
-                        lid = random.choice(shared_lids[selected_edge])
+                if lks_detections[rid + '_poses'][lks_detections[rid + '_index']] == pose_num:
 
+                    lid = lks_detections[rid + '_lks'][lks_detections[rid + '_index']]
                     builder.add_lk(lid, rid, pose_num)
+
+                    if lks_detections[rid + '_index'] < len(lks_detections[rid + '_poses']) - 1:
+                        lks_detections[rid + '_index'] += 1
 
     dataset = builder.build()
     writer = jrl.Writer()

@@ -176,7 +176,7 @@ if __name__ == "__main__":
     # TODO solve problem with indirect
     # TODO solve problem with landmarks
     
-    lk_options = 'all'
+    lk_options = 'all' # 'edges'
     # Iccad 2 -> edges
     # Iccad 1 -> All
 
@@ -193,7 +193,6 @@ if __name__ == "__main__":
             shared_lids = pack_lid(builder.robots, builder.params.landmarks['number'], 'all')
         else:
             shared_lids = pack_lid(builder.robots, builder.params.landmarks['number'], 'edges')
-        #
 
     # Setup com_map
     com_map = list(combinations(builder.robots, 2))

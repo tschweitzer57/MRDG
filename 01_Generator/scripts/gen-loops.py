@@ -54,7 +54,7 @@ def gen_lc_indirect(robots, nb_poses, nb_lc, ind_thr, seed):
         np.random.seed(seeds[idx][1])
         data[rid + '_oids'] = np.random.choice(o_robots, size=lc_ind_nb)
 
-        data['index'] = 0
+        data[rid + '_index'] = 0
 
     return data
 
@@ -74,7 +74,7 @@ def gen_landmarks(robots, nb_poses, nb_lks, landmarks, seed):
         lks = np.random.choice(landmarks[rid], size=nb_lks)
         data[rid + '_lks'] = lks
 
-        data['index'] = 0
+        data[rid + '_index'] = 0
 
     return data
 
