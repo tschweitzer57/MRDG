@@ -72,7 +72,7 @@ def gen_lc_indirect(robots, nb_poses, nb_lc, ind_thr, seed):
         np.random.seed(seeds[idx][1])
         data[rid + '_oids'] = np.random.choice(o_robots, size=lc_ind_nb)
 
-        data['index'] = 0
+        data[rid + '_index'] = 0
     
     np.random.seed()
 
@@ -94,7 +94,7 @@ def gen_landmarks(robots, nb_poses, nb_lks, landmarks, seed):
         lks = np.random.choice(landmarks[rid], size=nb_lks)
         data[rid + '_lks'] = lks
 
-        data['index'] = 0
+        data[rid + '_index'] = 0
 
     np.random.seed()
 
@@ -164,9 +164,9 @@ def get_available_comms(vals, robots, pose_index, dist_thresh):
 if __name__ == "__main__":
 
     # Setup the Dataset Builder
-    input_dir = './configs/VAR_odom'
-    output_dir = './saved_outputs/var_odom'
-    config_name = 'odom9'
+    input_dir = './configs/ICCAD/lc_indirect'
+    output_dir = './saved_outputs/iccad_4/lc_indirect'
+    config_name = 'lc_indirect1'
     builder = DatasetGenerator(os.path.join(input_dir, config_name + ".json"))
     if builder.params.lc_inter_direct is not None:
         if builder.params.lc_inter_direct.get('range') is not None:
@@ -177,8 +177,6 @@ if __name__ == "__main__":
     # TODO handle multiple configurations
     # TODO make evolve to handle freq or probability
     # TODO get rid of name of config and dataset
-    # TODO solve problem with indirect
-    # TODO solve problem with landmarks
     
     lk_options = 'all'
     seed = 53
@@ -209,20 +207,6 @@ if __name__ == "__main__":
                                                  lc_ind_nb,
                                                  builder.params.lc_inter_indirect['index'], 
                                                  seed)
-        
-        
-        for rid in builder.robots:
-            pose_oid = max(pose_num - builder.params.lc_inter_indirect['index'], 0)
-            ids = copy(builder.robots)
-            ids.remove(rid) 
-            oid = np.random.choice(ids)
-            #generate list of tuple for each var
-
-            freq = builder.params.lc_inter_indirect['frequency']
-
-            if pose_num % freq == 0:
-                builder.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
-                builder.incr_stamp()
 
     # Setup com_map
     com_map = list(combinations(builder.robots, 2))
