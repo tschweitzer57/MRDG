@@ -278,10 +278,6 @@ if __name__ == "__main__":
                 while lks_detections[rid + '_poses'][lks_detections[rid + '_index']] == pose_num and not stop_condition:
                     
                     lid = lks_detections[rid + '_lks'][lks_detections[rid + '_index']]
-
-                    lid_index = gtsam.Symbol(lid).index()
-                    print(f'RID: {rid}; Pose num {pose_num}; LID: l{lid_index}')
-
                     builder.add_lk(lid, rid, pose_num)
 
                     if lks_detections[rid + '_index'] < len(lks_detections[rid + '_poses']) - 1:
