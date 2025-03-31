@@ -166,7 +166,7 @@ if __name__ == "__main__":
     # Setup the Dataset Builder
     input_dir = './configs/ICCAD/lc_indirect'
     output_dir = './saved_outputs/iccad_4/lc_indirect'
-    config_name = 'lc_indirect1'
+    config_name = 'lc_indirect5'
     builder = DatasetGenerator(os.path.join(input_dir, config_name + ".json"))
     if builder.params.lc_inter_direct is not None:
         if builder.params.lc_inter_direct.get('range') is not None:
@@ -195,7 +195,7 @@ if __name__ == "__main__":
         # Define landmarks detections
         lks_detections = gen_landmarks(builder.robots, 
                                        builder.params.dataset_opts['number_poses'], 
-                                       builder.params.landmarks['number'], 
+                                       200,
                                        landmarks, 
                                        seed)
         
@@ -236,7 +236,8 @@ if __name__ == "__main__":
         # Add loop closure : inter - indirect
         if builder.params.lc_inter_indirect is not None:
             for rid in builder.robots:
-                if lc_ind_det[rid + '_poses'][lc_ind_det[rid + '_index']] == pose_num:
+                stop_condition = False
+                while lc_ind_det[rid + '_poses'][lc_ind_det[rid + '_index']] == pose_num and not stop_condition:
                     
                     oid = lc_ind_det[rid + '_oids'][lc_ind_det[rid + '_index']]
                     pose_oid = pose_num - builder.params.lc_inter_indirect['index']
@@ -246,7 +247,9 @@ if __name__ == "__main__":
 
                     if lc_ind_det[rid + '_index'] < len(lc_ind_det[rid + '_poses']) - 1:
                         lc_ind_det[rid + '_index'] += 1
-                    
+                    else:
+                        stop_condition = True
+
         # Add loop closure : intrer - direct
         if builder.params.lc_inter_direct is not None:
 
@@ -271,13 +274,20 @@ if __name__ == "__main__":
 
             # Add landmark measurement
             for rid in builder.robots:
-                if lks_detections[rid + '_poses'][lks_detections[rid + '_index']] == pose_num:
-
+                stop_condition = False
+                while lks_detections[rid + '_poses'][lks_detections[rid + '_index']] == pose_num and not stop_condition:
+                    
                     lid = lks_detections[rid + '_lks'][lks_detections[rid + '_index']]
+
+                    lid_index = gtsam.Symbol(lid).index()
+                    print(f'RID: {rid}; Pose num {pose_num}; LID: l{lid_index}')
+
                     builder.add_lk(lid, rid, pose_num)
 
                     if lks_detections[rid + '_index'] < len(lks_detections[rid + '_poses']) - 1:
                         lks_detections[rid + '_index'] += 1
+                    else:
+                        stop_condition = True
 
     dataset = builder.build()
     writer = jrl.Writer()
