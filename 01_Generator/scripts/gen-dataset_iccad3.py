@@ -164,9 +164,9 @@ def get_available_comms(vals, robots, pose_index, dist_thresh):
 if __name__ == "__main__":
 
     # Setup the Dataset Builder
-    input_dir = './configs/ICCAD/lc_direct/range'
-    output_dir = './saved_outputs/iccad_4/lc_direct/range'
-    config_name = 'lc_dir_range10'
+    input_dir = './configs/ICCAD'
+    output_dir = './saved_outputs/iccad_4'
+    config_name = 'no_lk'
     builder = DatasetGenerator(os.path.join(input_dir, config_name + ".json"))
     if builder.params.lc_inter_direct is not None:
         if builder.params.lc_inter_direct.get('range') is not None:
