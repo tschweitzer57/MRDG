@@ -1,0 +1,2 @@
+Dataset name : lc_dir_range20
+Solver method : centralized
