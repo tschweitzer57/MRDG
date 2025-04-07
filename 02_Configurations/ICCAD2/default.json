@@ -6,7 +6,8 @@
         "number_poses": 500,
         "number_robots": 4,
         "initialization_type": "odom",
-        "trajectory_seed": 38
+        "trajectory_seed": 38,
+        "outliers": "False"
     },
     "odometry": {
         "odom_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
@@ -43,7 +44,7 @@
         "lc_intra": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
         "lc_inter_indirect": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
         "lc_inter_direct_pose": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
-        "lc_inter_direct_range": [0.10, 0.10, 0.10, 0.05, 0.05, 0.05],
+        "lc_inter_direct_range": 0.10,
 
         "landmarks": [0.05, 0.05, 0.1]
     },

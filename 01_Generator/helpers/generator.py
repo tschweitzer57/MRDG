@@ -62,9 +62,16 @@ class DatasetGenerator(jrl.DatasetBuilder):
         self.pose_loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
             self.params.sigmas['lc_inter_direct_pose'])
         self.range_loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
-            [self.params.sigmas['lc_inter_direct_range'][0]])
+            [self.params.sigmas['lc_inter_direct_range']])
         self.bearing_range_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
             self.params.sigmas['landmarks'])
+
+        # Define if dataset include outliers
+        if self.params.dataset_opts.get('outliers') == "False":
+            self.outliers = False
+        else:
+            self.outliers = True
+        print('Outliers option:',self.outliers)
 
         # Rotation matrices (NED)
         Rxp = Rot3(np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]]))
@@ -240,7 +247,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         np.random.seed()
 
     #-----------------------------------------------------------------------------------------
-    #   Define noise generators
+    #   Define error noise generators
     #-----------------------------------------------------------------------------------------
 
     def init_noise_gen(self, sigma = None):
@@ -255,39 +262,63 @@ class DatasetGenerator(jrl.DatasetBuilder):
     def odom_noise_gen(self, sigma = None):
         if sigma == None:
             sigma = self.params.sigmas['odom']
-        return Pose3.Expmap(
-            np.random.multivariate_normal(
-                np.zeros((6,)), np.diag(np.array(sigma) ** 2)
-            )
-        )
+        
+        noise = np.random.multivariate_normal(
+                    np.zeros((6,)), np.diag(np.array(sigma) ** 2)
+                )
+
+        if not self.outliers:
+            noise = np.minimum(noise, np.array(sigma))
+            noise = np.maximum(noise, -np.array(sigma))
+        return Pose3.Expmap(noise)
 
     def loop_noise_gen(self, sigma = None):
         if sigma == None:
             sigma = self.params.sigmas['lc_intra']
-        return Pose3.Expmap(
-            np.random.multivariate_normal(
-                np.zeros((6,)), np.diag(np.array(sigma) ** 2)
-            )
-        )
+
+        noise = np.random.multivariate_normal(
+                    np.zeros((6,)), np.diag(np.array(sigma) ** 2)
+                )
+
+        if not self.outliers:
+            noise = np.minimum(noise, np.array(sigma))
+            noise = np.maximum(noise, -np.array(sigma))
+
+        return Pose3.Expmap(noise)
 
     def range_loop_noise_gen(self, sigma = None):
         if sigma == None:
-            sigma = self.params.sigmas['lc_inter_direct_range'][0]
-        return np.random.normal(0, sigma)
+            sigma = self.params.sigmas['lc_inter_direct_range']
+        
+        noise = np.random.normal(0, sigma)
+
+        if not self.outliers:
+            noise = np.minimum(noise, np.array(sigma))
+            noise = np.maximum(noise, -np.array(sigma))
+
+        return noise
     
     def pose_loop_noise_gen(self, sigma = None):
         if sigma == None:
             sigma = self.params.sigmas['lc_inter_direct_pose']
-        return Pose3.Expmap(
-            np.random.multivariate_normal(
-                np.zeros((6,)), np.diag(np.array(sigma) ** 2)
-            )
-        )
+
+        noise = np.random.multivariate_normal(
+                    np.zeros((6,)), np.diag(np.array(sigma) ** 2)
+                )
+
+        return Pose3.Expmap(noise)
     
     def bearing_range_noise_gen(self, sigma = None):
         if sigma == None:
             sigma = self.params.sigmas['landmarks']
-        return np.random.normal(np.zeros(3,),np.array(sigma))
+
+        noise = np.random.normal(np.zeros(3,),np.array(sigma))
+
+        if not self.outliers:
+            noise = np.minimum(noise, np.array(sigma))
+            noise = np.maximum(noise, -np.array(sigma))
+            
+        return noise
     
     #----------------------------
     #   Factor generators
