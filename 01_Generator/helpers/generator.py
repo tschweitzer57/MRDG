@@ -19,8 +19,6 @@ import matplotlib.pyplot as plt
 #TODO init start point
 #TODO add scenario add reset add save -> same dataset with different factors
 #TODO add a mapping function generating a common map for trajectories and lks
-#TODO add config option to generate seed dataset or not -> require upgrade
-#TODO if dataset is not correct generate odometry choice with seed
 #TODO améliorer intégration des random seed
 
 class DatasetGenerator(jrl.DatasetBuilder):
@@ -317,7 +315,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         if not self.outliers:
             noise = np.minimum(noise, np.array(sigma))
             noise = np.maximum(noise, -np.array(sigma))
-            
+
         return noise
     
     #----------------------------

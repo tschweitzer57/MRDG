@@ -5,8 +5,9 @@
         "repeats": 1,
         "number_poses": 500,
         "number_robots": 4,
-        "initialization_type": "odom",
-        "trajectory_seed": 38
+        "initialization_type": "noisy_gt",
+        "trajectory_seed": 38,
+        "outliers": "False"
     },
     "odometry": {
         "odom_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
