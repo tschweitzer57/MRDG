@@ -1,0 +1,2 @@
+Dataset name : no_lk_odom
+Solver method : centralized

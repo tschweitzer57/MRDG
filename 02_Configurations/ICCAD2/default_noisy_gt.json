@@ -1,6 +1,6 @@
 {
     "output_dir": "./output/iccad2",
-    "name": "default",
+    "name": "default_noisy_gt",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 500,

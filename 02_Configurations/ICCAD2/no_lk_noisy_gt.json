@@ -1,6 +1,6 @@
 {
     "output_dir": "./output/iccad2",
-    "name": "no_lk",
+    "name": "no_lk_noisy_gt",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 500,

@@ -1,0 +1,2 @@
+Dataset name : default_odom
+Solver method : centralized
