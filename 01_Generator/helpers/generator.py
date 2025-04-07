@@ -69,7 +69,6 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.outliers = False
         else:
             self.outliers = True
-        print('Outliers option:',self.outliers)
 
         # Rotation matrices (NED)
         Rxp = Rot3(np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]]))

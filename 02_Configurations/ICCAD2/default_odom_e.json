@@ -1,6 +1,6 @@
 {
     "output_dir": "./output/iccad2",
-    "name": "no_lk",
+    "name": "default",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 500,
@@ -27,6 +27,11 @@
         "range": {
             "frequency": 50
         }
+    },
+    "landmarks": {
+        "number": 20,
+        "seed": 96,
+        "probability": 0.4
     },
     "sigmas": {
         "initialization": [0.2, 0.2, 0.2, 1, 1, 1],

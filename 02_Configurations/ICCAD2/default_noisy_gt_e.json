@@ -1,11 +1,11 @@
 {
     "output_dir": "./output/iccad2",
-    "name": "no_lk",
+    "name": "default",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 500,
         "number_robots": 4,
-        "initialization_type": "odom",
+        "initialization_type": "noisy_gt",
         "trajectory_seed": 38,
         "outliers": "False"
     },
@@ -27,6 +27,11 @@
         "range": {
             "frequency": 50
         }
+    },
+    "landmarks": {
+        "number": 20,
+        "seed": 96,
+        "probability": 0.4
     },
     "sigmas": {
         "initialization": [0.2, 0.2, 0.2, 1, 1, 1],
