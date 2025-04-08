@@ -178,7 +178,6 @@ if __name__ == "__main__":
     # TODO make evolve to handle freq or probability
     # TODO get rid of name of config and dataset
     
-    lk_options = 'edges'
     seed = 53
 
     # Setup groundTruths
@@ -190,7 +189,8 @@ if __name__ == "__main__":
         builder.gen_lk_amers()
 
         # Define landmarks
-        landmarks = pack_lid_per_rid(builder.robots, builder.params.landmarks['number'], lk_options)
+        lk_pack = 'edges'
+        landmarks = pack_lid_per_rid(builder.robots, builder.params.landmarks['number'], lk_pack)
 
         # Define landmarks detections
         lks_detections = gen_landmarks(builder.robots, 
