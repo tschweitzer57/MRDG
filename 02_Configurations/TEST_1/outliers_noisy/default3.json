@@ -1,6 +1,6 @@
 {
-    "output_dir": "./output/iccad2",
-    "name": "default_noisy_gt_e",
+    "output_dir": "./output/iccad6",
+    "name": "default3_n",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 500,
@@ -31,10 +31,11 @@
     "landmarks": {
         "number": 20,
         "seed": 96,
+        "pack": "all",
         "probability": 0.4
     },
     "sigmas": {
-        "initialization": [0.2, 0.2, 0.2, 1, 1, 1],
+        "initialization": [0.4, 0.4, 0.4, 1, 1, 1],
         
         "prior": [0.0175, 0.0175, 0.0175, 0.01, 0.01, 0.01],
         "robot_zero_prior": [0.0175, 0.0175, 0.0175, 0.01, 0.01, 0.01],
