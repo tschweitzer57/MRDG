@@ -1,4 +1,5 @@
 import os
+import glob
 import sys
 from datetime import date
 
@@ -65,12 +66,12 @@ def gen_lc_indirect(robots, nb_poses, nb_lc, ind_thr, seed):
         o_robots.remove(rid)
 
         np.random.seed(seeds[idx][0])
-        pose_num = np.random.randint(ind_thr, nb_poses, size=lc_ind_nb)
+        pose_num = np.random.randint(ind_thr, nb_poses, size=nb_lc)
         pose_num.sort()
         data[rid + '_poses'] = pose_num
 
         np.random.seed(seeds[idx][1])
-        data[rid + '_oids'] = np.random.choice(o_robots, size=lc_ind_nb)
+        data[rid + '_oids'] = np.random.choice(o_robots, size=nb_lc)
 
         data[rid + '_index'] = 0
     
@@ -161,13 +162,33 @@ def get_available_comms(vals, robots, pose_index, dist_thresh):
                 available.remove(other_rid)
     return comms
 
-if __name__ == "__main__":
+def get_config_paths(config_folder):
+    # List all entries in the parent folder
+    entries = os.listdir(config_folder)
 
+    # Filter out the entries that are directories
+    folder_paths = [os.path.join(config_folder, entry) for entry in entries if os.path.isdir(os.path.join(config_folder, entry))]
+
+    file_paths = []
+
+    # Print the path of each folder
+    for folder_path in folder_paths:
+        jrl_files = glob.glob(os.path.join(folder_path, '*.json'))
+        file_paths += jrl_files
+
+    return file_paths
+
+def generate_dataset(config_file_path, output_dir):
+    # Setup folders
+    config_name, _ = os.path.splitext(os.path.basename(config_file_path))
+    folder_name = os.path.basename(os.path.dirname(config_file_path))
+    output_path = os.path.join(output_dir, folder_name)
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+    output_path = os.path.join(output_path, config_name + ".jrl")
+    
     # Setup the Dataset Builder
-    input_dir = './configs/ICCAD2'
-    output_dir = './saved_outputs/iccad_5'
-    config_name = 'default_noisy_gt_e'
-    builder = DatasetGenerator(os.path.join(input_dir, config_name + ".json"))
+    builder = DatasetGenerator(config_file_path)
     if builder.params.lc_inter_direct is not None:
         if builder.params.lc_inter_direct.get('range') is not None:
             init_range_freq = np.random.randint(builder.params.lc_inter_direct['range']['frequency'])
@@ -203,10 +224,10 @@ if __name__ == "__main__":
     if builder.params.lc_inter_indirect is not None:
         lc_ind_nb = builder.params.dataset_opts['number_poses'] // builder.params.lc_inter_indirect['frequency']
         lc_ind_det = gen_lc_indirect(builder.robots,
-                                                 builder.params.dataset_opts['number_poses'], 
-                                                 lc_ind_nb,
-                                                 builder.params.lc_inter_indirect['index'], 
-                                                 seed)
+                                     builder.params.dataset_opts['number_poses'], 
+                                     lc_ind_nb,
+                                     builder.params.lc_inter_indirect['index'], 
+                                     seed)
 
     # Setup com_map
     com_map = list(combinations(builder.robots, 2))
@@ -292,8 +313,20 @@ if __name__ == "__main__":
 
     writer.writeDataset(
         dataset,
-        os.path.join(output_dir, config_name + ".jrl"),
+        output_path,
         #os.path.join(builder.params.output_dir, builder.params.name + "_{:01d}.jrl".format(dataset_count)),
         #os.path.join(params.output_dir, params.name + "_{:04d}.jrl".format(dataset_count)),
         False,
     )
+    print('generated',output_path)
+
+if __name__ == "__main__":
+
+    config_folder = './configs/TEST_1'
+    output_dir = './saved_outputs/TEST_1'
+    
+    file_paths = get_config_paths(config_folder)
+
+    for config_file_path in file_paths:
+        generate_dataset(config_file_path, output_dir)
+
