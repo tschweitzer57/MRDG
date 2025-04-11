@@ -1,2 +1,0 @@
-Dataset name : lc_intra2
-Solver method : geodesic-mesa

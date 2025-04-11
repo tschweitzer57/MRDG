@@ -1,2 +1,0 @@
-Dataset name : lks_60
-Solver method : geodesic-mesa

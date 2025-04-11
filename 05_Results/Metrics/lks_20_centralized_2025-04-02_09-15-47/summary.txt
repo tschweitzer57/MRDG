@@ -1,2 +1,0 @@
-Dataset name : lks_20
-Solver method : centralized

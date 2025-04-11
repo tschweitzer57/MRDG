@@ -1,2 +1,0 @@
-Dataset name : odom2
-Solver method : centralized

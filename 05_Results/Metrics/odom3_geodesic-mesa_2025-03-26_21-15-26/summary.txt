@@ -1,2 +1,0 @@
-Dataset name : odom3
-Solver method : geodesic-mesa

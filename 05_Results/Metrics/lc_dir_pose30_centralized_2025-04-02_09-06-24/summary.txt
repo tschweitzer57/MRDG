@@ -1,2 +1,0 @@
-Dataset name : lc_dir_pose30
-Solver method : centralized

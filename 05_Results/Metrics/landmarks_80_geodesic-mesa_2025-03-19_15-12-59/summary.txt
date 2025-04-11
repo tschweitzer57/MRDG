@@ -1,2 +1,0 @@
-Dataset name : landmarks_80
-Solver method : geodesic-mesa

@@ -1,2 +1,0 @@
-Dataset name : default8
-Solver method : centralized

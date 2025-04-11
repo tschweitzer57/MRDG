@@ -1,2 +1,0 @@
-Dataset name : lc_dir_range40
-Solver method : centralized
