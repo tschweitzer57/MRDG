@@ -1,0 +1,2 @@
+Dataset name : no_lk1_n
+Solver method : centralized

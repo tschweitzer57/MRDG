@@ -1,0 +1,2 @@
+Dataset name : no_lk3_o
+Solver method : centralized

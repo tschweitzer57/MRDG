@@ -1,0 +1,2 @@
+Dataset name : default_a3_n
+Solver method : centralized
