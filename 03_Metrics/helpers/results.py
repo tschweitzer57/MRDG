@@ -26,7 +26,7 @@ class Data():
             self.estimates[rid] = Results.results.robot_solutions[rid].values
 
 class Results():
-    def __init__(self, results_path, dataset_path, export_path):
+    def __init__(self, results_path, dataset_path, export_path, iteration='final'):
         # Define paths
         self.input_path = results_path
         self.output_path = os.path.join(export_path, os.path.basename(self.input_path))
@@ -34,7 +34,11 @@ class Results():
         
         # Get results data
         parser = jrl.Parser()
-        results_path = os.path.join(self.input_path, 'final_results.jrr.cbor')
+        if iteration == 'final':
+            results_path = os.path.join(self.input_path, 'final_results.jrr.cbor')
+        else:
+            results_path = os.path.join(self.input_path, 'iterations',self.__get_jrr_name(iteration))
+            print(results_path)
         self.results = parser.parseResults(results_path, True)
 
         # Should be temporary
@@ -171,6 +175,10 @@ class Results():
         f_summary.write(f'Dataset name : {self.results.dataset_name}\n')
         f_summary.write(f'Solver method : {self.results.method_name}\n')
 
+    def __get_jrr_name(self, iteration):
+        file_name = '0'*(12-len(str(iteration))) + str(iteration) + '.jrr.cbor'
+        return file_name
+    
     def __format_dataline(self, pose_nr, val):
         tr = val.translation()
         quat = val.rotation().toQuaternion()

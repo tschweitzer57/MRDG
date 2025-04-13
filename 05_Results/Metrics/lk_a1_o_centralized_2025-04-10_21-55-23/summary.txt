@@ -1,0 +1,2 @@
+Dataset name : lk_a1_o
+Solver method : centralized

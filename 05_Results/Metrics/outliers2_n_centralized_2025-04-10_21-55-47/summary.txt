@@ -1,0 +1,2 @@
+Dataset name : outliers2_n
+Solver method : centralized
