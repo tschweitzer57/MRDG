@@ -1,2 +1,0 @@
-Dataset name : lk_a3_n
-Solver method : geodesic-mesa

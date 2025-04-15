@@ -2,6 +2,8 @@ from results import Results
 from display import Display, MultiDisplay
 import numpy as np
 
+init_opt = True
+
 ##########################################################################################################
 ###             Landmarks - Odom                                                                       ###
 ##########################################################################################################
@@ -45,42 +47,51 @@ import numpy as np
 ##########################################################################################################
 ###             Landmarks - Noisy                                                                      ###
 ##########################################################################################################
-# ctr_def_a1_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_a1_n_geodesic-mesa_2025-04-11_08-12-05',
-#                        './datasets/TEST_1/landmarks_noisy/default_a1.jrl',
-#                        './saved_output',
-#                        iteration=996)
-# ctr_def_a2_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_a2_n_geodesic-mesa_2025-04-11_08-19-33',
-#                        './datasets/TEST_1/landmarks_noisy/default_a2.jrl',
-#                        './saved_output',
-#                        iteration=996)
-# ctr_def_a3_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_a3_n_geodesic-mesa_2025-04-11_08-21-11',
-#                        './datasets/TEST_1/landmarks_noisy/default_a3.jrl',
-#                        './saved_output',
-#                        iteration=996)
-# ctr_def_e1_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_e1_n_geodesic-mesa_2025-04-11_08-23-41',
-#                        './datasets/TEST_1/landmarks_noisy/default_e1.jrl',
-#                        './saved_output',
-#                        iteration=996)
-# ctr_def_e2_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_e2_n_geodesic-mesa_2025-04-11_08-25-03',
-#                        './datasets/TEST_1/landmarks_noisy/default_e2.jrl',
-#                        './saved_output',
-#                        iteration=996)
-# ctr_def_e3_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_e3_n_geodesic-mesa_2025-04-11_08-26-25',
-#                        './datasets/TEST_1/landmarks_noisy/default_e3.jrl',
-#                        './saved_output',
-#                        iteration=996)
-# ctr_no_lk1_n = Results('./input/TEST_1_pyxis/landmarks_noisy/no_lk1_n_geodesic-mesa_2025-04-11_08-28-03',
-#                        './datasets/TEST_1/landmarks_noisy/no_lk1.jrl',
-#                        './saved_output',
-#                        iteration=996)
-# ctr_no_lk2_n = Results('./input/TEST_1_pyxis/landmarks_noisy/no_lk2_n_geodesic-mesa_2025-04-11_08-30-23',
-#                        './datasets/TEST_1/landmarks_noisy/no_lk2.jrl',
-#                        './saved_output',
-#                        iteration=996)
-# ctr_no_lk3_n = Results('./input/TEST_1_pyxis/landmarks_noisy/no_lk3_n_geodesic-mesa_2025-04-11_08-31-37',
-#                        './datasets/TEST_1/landmarks_noisy/no_lk3.jrl',
-#                        './saved_output',
-#                        iteration=432)
+ctr_def_a1_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_a1_n_geodesic-mesa_2025-04-11_08-12-05',
+                       './datasets/TEST_1/landmarks_noisy/default_a1.jrl',
+                       './saved_output',
+                       iteration=996,
+                       init=init_opt)
+ctr_def_a2_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_a2_n_geodesic-mesa_2025-04-11_08-19-33',
+                       './datasets/TEST_1/landmarks_noisy/default_a2.jrl',
+                       './saved_output',
+                       iteration=996,
+                       init=init_opt)
+ctr_def_a3_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_a3_n_geodesic-mesa_2025-04-11_08-21-11',
+                       './datasets/TEST_1/landmarks_noisy/default_a3.jrl',
+                       './saved_output',
+                       iteration=996,
+                       init=init_opt)
+ctr_def_e1_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_e1_n_geodesic-mesa_2025-04-11_08-23-41',
+                       './datasets/TEST_1/landmarks_noisy/default_e1.jrl',
+                       './saved_output',
+                       iteration=996,
+                       init=init_opt)
+ctr_def_e2_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_e2_n_geodesic-mesa_2025-04-11_08-25-03',
+                       './datasets/TEST_1/landmarks_noisy/default_e2.jrl',
+                       './saved_output',
+                       iteration=996,
+                       init=init_opt)
+ctr_def_e3_n = Results('./input/TEST_1_pyxis/landmarks_noisy/default_e3_n_geodesic-mesa_2025-04-11_08-26-25',
+                       './datasets/TEST_1/landmarks_noisy/default_e3.jrl',
+                       './saved_output',
+                       iteration=996,
+                       init=init_opt)
+ctr_no_lk1_n = Results('./input/TEST_1_pyxis/landmarks_noisy/no_lk1_n_geodesic-mesa_2025-04-11_08-28-03',
+                       './datasets/TEST_1/landmarks_noisy/no_lk1.jrl',
+                       './saved_output',
+                       iteration=996,
+                       init=init_opt)
+ctr_no_lk2_n = Results('./input/TEST_1_pyxis/landmarks_noisy/no_lk2_n_geodesic-mesa_2025-04-11_08-30-23',
+                       './datasets/TEST_1/landmarks_noisy/no_lk2.jrl',
+                       './saved_output',
+                       iteration=996,
+                       init=init_opt)
+ctr_no_lk3_n = Results('./input/TEST_1_pyxis/landmarks_noisy/no_lk3_n_geodesic-mesa_2025-04-11_08-31-37',
+                       './datasets/TEST_1/landmarks_noisy/no_lk3.jrl',
+                       './saved_output',
+                       iteration=432,
+                       init=init_opt)
 
 ##########################################################################################################
 ###             Landmarks - E/A - Odom                                                                 ###
@@ -165,30 +176,36 @@ import numpy as np
 ##########################################################################################################
 ###             Outliers - Noisy                                                                       ###
 ##########################################################################################################
-ctr_def1_n = Results('./input/TEST_1_pyxis/outliers_noisy/default1_n_geodesic-mesa_2025-04-11_11-39-04',
-                     './datasets/TEST_1/outliers_noisy/default1.jrl',
-                     './saved_output',
-                     iteration=252)
-ctr_def2_n = Results('./input/TEST_1_pyxis/outliers_noisy/default2_n_geodesic-mesa_2025-04-11_11-40-37',
-                     './datasets/TEST_1/outliers_noisy/default2.jrl',
-                     './saved_output',
-                     iteration=252)
-ctr_def3_n = Results('./input/TEST_1_pyxis/outliers_noisy/default3_n_geodesic-mesa_2025-04-11_11-43-20',
-                     './datasets/TEST_1/outliers_noisy/default3.jrl',
-                     './saved_output',
-                     iteration=252)
-ctr_out1_n = Results('./input/TEST_1_pyxis/outliers_noisy/outliers1_n_geodesic-mesa_2025-04-11_11-45-40',
-                     './datasets/TEST_1/outliers_noisy/outliers1.jrl',
-                     './saved_output',
-                     iteration=252)
-ctr_out2_n = Results('./input/TEST_1_pyxis/outliers_noisy/outliers2_n_geodesic-mesa_2025-04-11_11-47-12',
-                     './datasets/TEST_1/outliers_noisy/outliers2.jrl',
-                     './saved_output',
-                     iteration=252)
-ctr_out3_n = Results('./input/TEST_1_pyxis/outliers_noisy/outliers3_n_geodesic-mesa_2025-04-11_11-48-56',
-                     './datasets/TEST_1/outliers_noisy/outliers3.jrl',
-                     './saved_output',
-                     iteration=252)
+# ctr_def1_n = Results('./input/TEST_1_pyxis/outliers_noisy/default1_n_geodesic-mesa_2025-04-11_11-39-04',
+#                      './datasets/TEST_1/outliers_noisy/default1.jrl',
+#                      './saved_output',
+#                      iteration=252,
+#                      init=init_opt)
+# ctr_def2_n = Results('./input/TEST_1_pyxis/outliers_noisy/default2_n_geodesic-mesa_2025-04-11_11-40-37',
+#                      './datasets/TEST_1/outliers_noisy/default2.jrl',
+#                      './saved_output',
+#                      iteration=252,
+#                      init=init_opt)
+# ctr_def3_n = Results('./input/TEST_1_pyxis/outliers_noisy/default3_n_geodesic-mesa_2025-04-11_11-43-20',
+#                      './datasets/TEST_1/outliers_noisy/default3.jrl',
+#                      './saved_output',
+#                      iteration=252,
+#                      init=init_opt)
+# ctr_out1_n = Results('./input/TEST_1_pyxis/outliers_noisy/outliers1_n_geodesic-mesa_2025-04-11_11-45-40',
+#                      './datasets/TEST_1/outliers_noisy/outliers1.jrl',
+#                      './saved_output',
+#                      iteration=252,
+#                      init=init_opt)
+# ctr_out2_n = Results('./input/TEST_1_pyxis/outliers_noisy/outliers2_n_geodesic-mesa_2025-04-11_11-47-12',
+#                      './datasets/TEST_1/outliers_noisy/outliers2.jrl',
+#                      './saved_output',
+#                      iteration=252,
+#                      init=init_opt)
+# ctr_out3_n = Results('./input/TEST_1_pyxis/outliers_noisy/outliers3_n_geodesic-mesa_2025-04-11_11-48-56',
+#                      './datasets/TEST_1/outliers_noisy/outliers3.jrl',
+#                      './saved_output',
+#                      iteration=252,
+#                      init=init_opt)
 
 mdsp = MultiDisplay()
 
@@ -210,17 +227,17 @@ mdsp = MultiDisplay()
 ################################################
 ###        Landmarks - Noisy                 ###
 ################################################
-# mdsp.add_results('ctr_def_a1_n', ctr_def_a1_n)
-# mdsp.add_results('ctr_def_a2_n', ctr_def_a2_n)
-# mdsp.add_results('ctr_def_a3_n', ctr_def_a3_n)
+mdsp.add_results('ctr_def_a1_n', ctr_def_a1_n)
+mdsp.add_results('ctr_def_a2_n', ctr_def_a2_n)
+mdsp.add_results('ctr_def_a3_n', ctr_def_a3_n)
 
-# mdsp.add_results('ctr_def_e1_n', ctr_def_e1_n)
-# mdsp.add_results('ctr_def_e2_n', ctr_def_e2_n)
-# mdsp.add_results('ctr_def_e3_n', ctr_def_e3_n)
+mdsp.add_results('ctr_def_e1_n', ctr_def_e1_n)
+mdsp.add_results('ctr_def_e2_n', ctr_def_e2_n)
+mdsp.add_results('ctr_def_e3_n', ctr_def_e3_n)
 
-# mdsp.add_results('ctr_no_lk1_n', ctr_no_lk1_n)
-# mdsp.add_results('ctr_no_lk2_n', ctr_no_lk2_n)
-# mdsp.add_results('ctr_no_lk3_n', ctr_no_lk3_n)
+mdsp.add_results('ctr_no_lk1_n', ctr_no_lk1_n)
+mdsp.add_results('ctr_no_lk2_n', ctr_no_lk2_n)
+mdsp.add_results('ctr_no_lk3_n', ctr_no_lk3_n)
 
 ################################################
 ###        Landmarks - E/A - Odom            ###
@@ -258,13 +275,13 @@ mdsp = MultiDisplay()
 ################################################
 ###        Outliers - Noisy                  ###
 ################################################
-mdsp.add_results('ctr_def1_n', ctr_def1_n)
-mdsp.add_results('ctr_def2_n', ctr_def2_n)
-mdsp.add_results('ctr_def3_n', ctr_def3_n)
+# mdsp.add_results('ctr_def1_n', ctr_def1_n)
+# mdsp.add_results('ctr_def2_n', ctr_def2_n)
+# mdsp.add_results('ctr_def3_n', ctr_def3_n)
 
-mdsp.add_results('ctr_out1_n', ctr_out1_n)
-mdsp.add_results('ctr_out2_n', ctr_out2_n)
-mdsp.add_results('ctr_out3_n', ctr_out3_n)
+# mdsp.add_results('ctr_out1_n', ctr_out1_n)
+# mdsp.add_results('ctr_out2_n', ctr_out2_n)
+# mdsp.add_results('ctr_out3_n', ctr_out3_n)
 
 mdsp.boxplot('transformation_rpe')
 mdsp.boxplot('point_distance_rpe')

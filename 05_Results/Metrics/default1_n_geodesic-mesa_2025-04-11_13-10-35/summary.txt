@@ -1,2 +1,0 @@
-Dataset name : default1_n
-Solver method : geodesic-mesa

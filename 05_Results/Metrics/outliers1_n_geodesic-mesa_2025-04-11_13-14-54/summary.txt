@@ -1,2 +1,0 @@
-Dataset name : outliers1_n
-Solver method : geodesic-mesa

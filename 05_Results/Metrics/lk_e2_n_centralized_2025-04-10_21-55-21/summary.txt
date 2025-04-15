@@ -1,2 +1,0 @@
-Dataset name : lk_e2_n
-Solver method : centralized

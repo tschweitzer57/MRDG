@@ -26,7 +26,7 @@ class Data():
             self.estimates[rid] = Results.results.robot_solutions[rid].values
 
 class Results():
-    def __init__(self, results_path, dataset_path, export_path, iteration='final'):
+    def __init__(self, results_path, dataset_path, export_path, iteration='final', init=False):
         # Define paths
         self.input_path = results_path
         self.output_path = os.path.join(export_path, os.path.basename(self.input_path))
@@ -40,6 +40,9 @@ class Results():
             results_path = os.path.join(self.input_path, 'iterations',self.__get_jrr_name(iteration))
             print(results_path)
         self.results = parser.parseResults(results_path, True)
+
+        # Define init option
+        self.init_opt = init
 
         # Should be temporary
         self.dataset = parser.parseDataset(dataset_path, False)
@@ -98,10 +101,8 @@ class Results():
 
     def export_results(self, rng='base'):
         """ Saves errors in metrics folder
-
         Args:
             rng (str, optional): _description_. Defaults to 'base'.
-
         Raises:
             ValueError: _description_
         """
@@ -109,27 +110,25 @@ class Results():
         if rng == 'base':
             self.generate_summary_file()
             self.generate_intermediate_results()
-            self.generate_metrics_results(minimal=True)
+            self.generate_metrics_results(minimal=True, export=True)
         elif rng == 'all':
             self.generate_summary_file()
             self.generate_intermediate_results()
-            self.generate_metrics_results(minimal=False)
+            self.generate_metrics_results(minimal=False, export=True)
         else:
             raise ValueError('Unknown value for rng')
 
     def get_errors(self, rng='base'):
         # reduce amount of computation
         if rng == 'base':
-            self.generate_summary_file()
             self.generate_intermediate_results()
             self.generate_metrics_results(minimal=True)
         elif rng == 'all':
-            self.generate_summary_file()
             self.generate_intermediate_results()
             self.generate_metrics_results(minimal=False)
         return self.errors
     
-    def generate_metrics_results(self, minimal=True, pose_types=None):
+    def generate_metrics_results(self, minimal=True, pose_types=None, export=False):
 
         # Generate folders
         folder = 'metrics'
@@ -151,22 +150,23 @@ class Results():
 
         for pose_type in pose_types:
             for error_type in error_types:
-                
-                # Chemin des fichiers JSON
-                file_name = pose_type + '_' + error_type
-                metrics_path = os.path.join(self.metrics_path, file_name + '.json')
-                raw_errors_path = os.path.join(self.raw_metrics_path, file_name + '_raw.json')
 
-                metrics, errors = self.__get_metrics(pose_type, error_type)
+                metrics, errors = self.__get_metrics(pose_type, error_type, self.init_opt)
                 self.errors[pose_type + '_' + error_type] = errors
 
-                # Export metrics in JSON file
-                with open(metrics_path, 'w', encoding='utf-8') as json_file:
-                    json.dump(metrics, json_file, ensure_ascii=False, indent=4)
+                if export:
+                    # Chemin des fichiers JSON
+                    file_name = pose_type + '_' + error_type
+                    metrics_path = os.path.join(self.metrics_path, file_name + '.json')
+                    raw_errors_path = os.path.join(self.raw_metrics_path, file_name + '_raw.json')
 
-                # Export raw errors in JSON file
-                with open(raw_errors_path, 'w', encoding='utf-8') as json_file:
-                    json.dump(errors, json_file, ensure_ascii=False, indent=4)
+                    # Export metrics in JSON file
+                    with open(metrics_path, 'w', encoding='utf-8') as json_file:
+                        json.dump(metrics, json_file, ensure_ascii=False, indent=4)
+
+                    # Export raw errors in JSON file
+                    with open(raw_errors_path, 'w', encoding='utf-8') as json_file:
+                        json.dump(errors, json_file, ensure_ascii=False, indent=4)
 
     def generate_summary_file(self):
         summary_path = os.path.join(self.output_path , 'summary.txt')
@@ -184,7 +184,7 @@ class Results():
         quat = val.rotation().toQuaternion()
         return [pose_nr, tr.T[0], tr.T[1], tr.T[2], quat.x(), quat.y(),quat.z(), quat.w()]
 
-    def __get_metrics(self, pose_type, error_type, init=False):
+    def __get_metrics(self, pose_type, error_type, init):
         statistics = {}
         errors = {}
 

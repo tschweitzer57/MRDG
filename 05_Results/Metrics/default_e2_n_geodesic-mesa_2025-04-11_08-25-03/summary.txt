@@ -1,2 +1,0 @@
-Dataset name : default_e2_n
-Solver method : geodesic-mesa

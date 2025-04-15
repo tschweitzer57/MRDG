@@ -1,2 +1,0 @@
-Dataset name : outliers3_o
-Solver method : centralized

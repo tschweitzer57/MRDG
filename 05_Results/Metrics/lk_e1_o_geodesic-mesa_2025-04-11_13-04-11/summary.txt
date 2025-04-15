@@ -1,2 +1,0 @@
-Dataset name : lk_e1_o
-Solver method : geodesic-mesa

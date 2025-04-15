@@ -1,2 +1,0 @@
-Dataset name : default_a2_n
-Solver method : centralized
