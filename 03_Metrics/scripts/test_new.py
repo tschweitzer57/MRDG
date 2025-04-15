@@ -24,6 +24,9 @@ def get_data_paths(solver, results_folder, dataset_folder):
 
     return paths
 
+def add_one(x):
+    x += 1
+
 #####################################################
 ###             Landmarks - Odom                  ###
 #####################################################
@@ -47,14 +50,14 @@ mdsp = MultiDisplay()
 for key in data.keys():
     mdsp.add_results(key, data[key])
 
-mdsp.boxplot('transformation_rpe')
-mdsp.boxplot('point_distance_rpe')
-mdsp.boxplot('rot_angle_deg_rpe')
+mdsp.std_boxplot()
+# mdsp.boxplot('transformation_rpe')
+# mdsp.boxplot('point_distance_rpe')
+# mdsp.boxplot('rot_angle_deg_rpe')
 
-mdsp.boxplot('transformation_ape')
-mdsp.boxplot('point_distance_ape')
-mdsp.boxplot('rot_angle_deg_ape')
-
+# mdsp.boxplot('transformation_ape')
+# mdsp.boxplot('point_distance_ape')
+# mdsp.boxplot('rot_angle_deg_ape')
 
 
 

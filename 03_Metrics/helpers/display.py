@@ -300,8 +300,119 @@ class MultiDisplay():
                        whiskerprops={"color": "black", "linewidth": 1.5},
                        capprops={"color": "black", "linewidth": 1.5})
 
-        ax.set_xticklabels(self.data.keys(), rotation=45, fontsize=8)
-        ax.set_title(err_type)
+        self.ax.set_xticklabels(self.data.keys(), rotation=45, fontsize=8)
+        self.ax.set_title(err_type)
+        plt.show()
+    
+    def std_boxplot(self, output_path=None):
+        # Set plot parameters
+        colors = sns.color_palette("colorblind", len(self.data.keys()))
+        plt.style.use('bmh')
+
+        # Define axes
+        fig_T_rpe, ax_T_rpe = plt.subplots()
+        fig_rpe, ax_rpe = plt.subplots(1,2)
+        fig_T_ape, ax_T_ape = plt.subplots()
+        fig_ape, ax_ape = plt.subplots(1,2)
+
+        # err_types = ['transformation_rpe',
+        #              'point_distance_rpe',
+        #              'rot_angle_deg_rpe',
+        #              'transformation_ape',
+        #              'point_distance_ape',
+        #              'rot_angle_deg_ape']
+
+        for idx, data in enumerate(self.data.keys()):
+            # Transformation rpe
+            error = []
+            for robot in self.data[data].errors['transformation_rpe'].keys():
+                error += self.data[data].errors['transformation_rpe'][robot]
+
+            ax_T_rpe.boxplot(error, positions=[idx + 1], widths=0.5, patch_artist=True,
+                       showmeans=False, showfliers=False,
+                       medianprops={"color": "red", "linewidth": 1},
+                       boxprops={"facecolor": colors[idx], "edgecolor": "black",
+                                 "linewidth": 1.5},
+                       whiskerprops={"color": "black", "linewidth": 1.5},
+                       capprops={"color": "black", "linewidth": 1.5})
+
+            # Point distance rpe
+            error = []
+            for robot in self.data[data].errors['point_distance_rpe'].keys():
+                error += self.data[data].errors['point_distance_rpe'][robot]
+
+            ax_rpe[0].boxplot(error, positions=[idx + 1], widths=0.5, patch_artist=True,
+                       showmeans=False, showfliers=False,
+                       medianprops={"color": "red", "linewidth": 1},
+                       boxprops={"facecolor": colors[idx], "edgecolor": "black",
+                                 "linewidth": 1.5},
+                       whiskerprops={"color": "black", "linewidth": 1.5},
+                       capprops={"color": "black", "linewidth": 1.5})
+
+            # Rotation (deg) rpe
+            error = []
+            for robot in self.data[data].errors['rot_angle_deg_rpe'].keys():
+                error += self.data[data].errors['rot_angle_deg_rpe'][robot]
+
+            ax_rpe[1].boxplot(error, positions=[idx + 1], widths=0.5, patch_artist=True,
+                       showmeans=False, showfliers=False,
+                       medianprops={"color": "red", "linewidth": 1},
+                       boxprops={"facecolor": colors[idx], "edgecolor": "black",
+                                 "linewidth": 1.5},
+                       whiskerprops={"color": "black", "linewidth": 1.5},
+                       capprops={"color": "black", "linewidth": 1.5})
+
+            # Transformation ape
+            error = []
+            for robot in self.data[data].errors['transformation_ape'].keys():
+                error += self.data[data].errors['transformation_ape'][robot]
+
+            ax_T_ape.boxplot(error, positions=[idx + 1], widths=0.5, patch_artist=True,
+                       showmeans=False, showfliers=False,
+                       medianprops={"color": "red", "linewidth": 1},
+                       boxprops={"facecolor": colors[idx], "edgecolor": "black",
+                                 "linewidth": 1.5},
+                       whiskerprops={"color": "black", "linewidth": 1.5},
+                       capprops={"color": "black", "linewidth": 1.5})
+
+            # Point distance ape
+            error = []
+            for robot in self.data[data].errors['point_distance_ape'].keys():
+                error += self.data[data].errors['point_distance_ape'][robot]
+
+            ax_ape[0].boxplot(error, positions=[idx + 1], widths=0.5, patch_artist=True,
+                       showmeans=False, showfliers=False,
+                       medianprops={"color": "red", "linewidth": 1},
+                       boxprops={"facecolor": colors[idx], "edgecolor": "black",
+                                 "linewidth": 1.5},
+                       whiskerprops={"color": "black", "linewidth": 1.5},
+                       capprops={"color": "black", "linewidth": 1.5})
+
+            # Rotation (deg) ape
+            error = []
+            for robot in self.data[data].errors['rot_angle_deg_ape'].keys():
+                error += self.data[data].errors['rot_angle_deg_ape'][robot]
+
+            ax_ape[1].boxplot(error, positions=[idx + 1], widths=0.5, patch_artist=True,
+                       showmeans=False, showfliers=False,
+                       medianprops={"color": "red", "linewidth": 1},
+                       boxprops={"facecolor": colors[idx], "edgecolor": "black",
+                                 "linewidth": 1.5},
+                       whiskerprops={"color": "black", "linewidth": 1.5},
+                       capprops={"color": "black", "linewidth": 1.5})
+
+        ax_T_rpe.set_xticklabels(self.data.keys(), rotation=45, fontsize=8)
+        ax_T_rpe.set_title('transformation_rpe')
+        ax_rpe[0].set_xticklabels(self.data.keys(), rotation=45, fontsize=8)
+        ax_rpe[0].set_title('point_distance_rpe')
+        ax_rpe[1].set_xticklabels(self.data.keys(), rotation=45, fontsize=8)
+        ax_rpe[1].set_title('rot_angle_deg_rpe')
+        ax_T_ape.set_xticklabels(self.data.keys(), rotation=45, fontsize=8)
+        ax_T_ape.set_title('transformation_ape')
+        ax_ape[0].set_xticklabels(self.data.keys(), rotation=45, fontsize=8)
+        ax_ape[0].set_title('point_distance_ape')
+        ax_ape[1].set_xticklabels(self.data.keys(), rotation=45, fontsize=8)
+        ax_ape[1].set_title('rot_angle_deg_ape')
         plt.show()
 
         # ax.boxplot(errs['dis_2_40lk'], positions=[2], widths=0.5, patch_artist=True,
