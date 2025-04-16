@@ -24,33 +24,50 @@ def get_data_paths(solver, results_folder, dataset_folder):
 
     return paths
 
-def add_one(x):
-    x += 1
-
 #####################################################
-###             Landmarks - Odom                  ###
+###           Landmarks - Noisy - CTR             ###
 #####################################################
 dataset_folder = 'datasets/TEST_1/landmarks_noisy'
 results_folder = 'input/TEST_1_ctr/landmarks_noisy'
-
-
 solver = 'ctr'
+paths_ctr = get_data_paths(solver, results_folder, dataset_folder)
+
+#####################################################
+###           Landmarks - Noisy - MESA            ###
+#####################################################
+dataset_folder = 'datasets/TEST_1/landmarks_noisy'
+results_folder = 'input/TEST_1_mesa/landmarks_noisy'
+solver = 'mesa'
+paths_mesa = get_data_paths(solver, results_folder, dataset_folder)
+
+#####################################################
+###           Landmarks - Noisy - PYXIS           ###
+#####################################################
+dataset_folder = 'input/TEST_1_pyxis/landmarks_noisy'
+results_folder = 'input/TEST_1_ctr/landmarks_noisy'
+solver = 'pyxis'
+paths_pyxis = get_data_paths(solver, results_folder, dataset_folder)
+
 output_folder = 'saved_output'
 data = {}
 
-paths = get_data_paths(solver, results_folder, dataset_folder)
-
 # Compute errors for all datasets/results couple
-for key in paths.keys():
-    print(key, paths[key][1])
-    data[key] = Results(paths[key][1], paths[key][0], output_folder)
+for key in paths_mesa.keys():
+    if not 'no_lk' in key:
+        print(key, paths_mesa[key][1])
+        data[key] = Results(paths_mesa[key][1], paths_mesa[key][0], output_folder)
+
+for key in paths_pyxis.keys():
+    if not 'no_lk' in key:
+        print(key, paths_pyxis[key][1])
+        data[key] = Results(paths_pyxis[key][1], paths_pyxis[key][0], output_folder)
 
 mdsp = MultiDisplay()
 
 for key in data.keys():
     mdsp.add_results(key, data[key])
 
-mdsp.std_boxplot()
+mdsp.std_boxplot(output_path='saved_output')
 # mdsp.boxplot('transformation_rpe')
 # mdsp.boxplot('point_distance_rpe')
 # mdsp.boxplot('rot_angle_deg_rpe')

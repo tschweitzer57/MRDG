@@ -304,7 +304,7 @@ class MultiDisplay():
         self.ax.set_title(err_type)
         plt.show()
     
-    def std_boxplot(self, output_path=None):
+    def std_boxplot(self, output_path=None, fig_name="fig"):
         # Set plot parameters
         colors = sns.color_palette("colorblind", len(self.data.keys()))
         plt.style.use('bmh')
@@ -413,7 +413,14 @@ class MultiDisplay():
         ax_ape[0].set_title('point_distance_ape')
         ax_ape[1].set_xticklabels(self.data.keys(), rotation=45, fontsize=8)
         ax_ape[1].set_title('rot_angle_deg_ape')
-        plt.show()
+
+        if output_path is not None:
+            fig_T_rpe.savefig(os.path.join(output_path, fig_name + '_' + "T_rpe.png"))
+            fig_rpe.savefig(os.path.join(output_path, fig_name + '_' + "rpe.png"))
+            fig_T_ape.savefig(os.path.join(output_path, fig_name + '_' + "T_ape.png"))
+            fig_ape.savefig(os.path.join(output_path, fig_name + '_' + "ape.png"))
+        else:
+            plt.show()
 
         # ax.boxplot(errs['dis_2_40lk'], positions=[2], widths=0.5, patch_artist=True,
         #            showmeans=False, showfliers=False,
