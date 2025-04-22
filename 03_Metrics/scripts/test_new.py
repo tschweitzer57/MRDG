@@ -75,6 +75,3 @@ mdsp.std_boxplot(output_path='saved_output')
 # mdsp.boxplot('transformation_ape')
 # mdsp.boxplot('point_distance_ape')
 # mdsp.boxplot('rot_angle_deg_ape')
-
-
-
