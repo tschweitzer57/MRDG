@@ -4,10 +4,9 @@ from gtsam import Rot3, Pose3
 import numpy as np
 from collections import defaultdict
 from string import ascii_letters
-#from helpers.parameters import DatasetParameters
-from parameters import DatasetParameters
-
 from collections import defaultdict
+
+from parameters import DatasetParameters
 
 # for test
 import matplotlib
@@ -173,6 +172,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #   Define data generators
     #-----------------------------------------------------------------------------------------
 
+    # Generator for groundtruth trajectories
     def gen_gt_trajectories(self, nb_poses=None):
 
         # Define number of poses
@@ -222,6 +222,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 self.gt_poses.insert(gtsam.symbol(rid, pose_nb + 1), new_pose)
                 prev_pose = new_pose
     
+    # Generator for landmarks amers
     def gen_lk_amers(self, nb=None):
 
         if nb is None and self.params.landmarks is not None:
