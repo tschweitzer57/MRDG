@@ -1,12 +1,12 @@
 {
     "output_dir": "./output/iccad6",
-    "name": "no_lk1_10",
+    "name": "default_e3_02",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 500,
         "number_robots": 4,
         "initialization_type": "noisy_gt",
-        "trajectory_seed": 38,
+        "trajectory_seed": 43,
         "outliers": "False"
     },
     "odometry": {
@@ -28,8 +28,14 @@
             "frequency": 50
         }
     },
+    "landmarks": {
+        "number": 20,
+        "seed": 57,
+        "pack": "edges",
+        "probability": 0.4
+    },
     "sigmas": {
-        "initialization": [1, 1, 1 , 1, 1, 1],
+        "initialization": [0.2, 0.2, 0.2, 1, 1, 1],
         
         "prior": [0.0175, 0.0175, 0.0175, 0.01, 0.01, 0.01],
         "robot_zero_prior": [0.0175, 0.0175, 0.0175, 0.01, 0.01, 0.01],
