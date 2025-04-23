@@ -112,16 +112,16 @@ def get_data_paths(solver, results_folder, dataset_folder):
 # paths_ctr = get_data_paths(solver, results_folder, dataset_folder)
 
 # Initialization : 08
-dataset_folder = 'datasets/TEST_2/landmarks_08'
-results_folder = 'input/TEST_2_pyxis/landmarks_08'
-solver = 'pyxis'
-paths_ctr = get_data_paths(solver, results_folder, dataset_folder)
-
-# Initialization : 10
-# dataset_folder = 'datasets/TEST_2/landmarks_10'
-# results_folder = 'input/TEST_2_pyxis/landmarks_10'
+# dataset_folder = 'datasets/TEST_2/landmarks_08'
+# results_folder = 'input/TEST_2_pyxis/landmarks_08'
 # solver = 'pyxis'
 # paths_ctr = get_data_paths(solver, results_folder, dataset_folder)
+
+# Initialization : 10
+dataset_folder = 'datasets/TEST_2/landmarks_10'
+results_folder = 'input/TEST_2_pyxis/landmarks_10'
+solver = 'pyxis'
+paths_ctr = get_data_paths(solver, results_folder, dataset_folder)
 
 output_folder = 'saved_output'
 data = {}
@@ -130,7 +130,7 @@ data = {}
 computed_paths = paths_ctr
 for key in computed_paths.keys():
     print(key, computed_paths[key][1])
-    data[key] = Results(computed_paths[key][1], computed_paths[key][0], output_folder, iteration=36)
+    data[key] = Results(computed_paths[key][1], computed_paths[key][0], output_folder)
 
 mdsp = MultiDisplay()
 

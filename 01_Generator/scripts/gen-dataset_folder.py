@@ -322,8 +322,8 @@ def generate_dataset(config_file_path, output_dir):
 
 if __name__ == "__main__":
 
-    config_folder = './configs/TEST_2'
-    output_dir = './saved_outputs/TEST_2'
+    config_folder = './configs/TEST_3'
+    output_dir = './saved_outputs/TEST_3'
     
     file_paths = get_config_paths(config_folder)
 
