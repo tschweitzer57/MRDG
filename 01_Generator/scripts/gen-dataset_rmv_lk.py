@@ -307,18 +307,21 @@ def generate_dataset(config_file_path, output_dir):
                         stop_condition = True
 
     dataset = builder.build()
-    writer = jrl.Writer()
+    measurements = dataset.measurements()
+    for val in measurements:
+        print(val)
+    # writer = jrl.Writer()
 
-    dataset_count = 0
+    # dataset_count = 0
 
-    writer.writeDataset(
-        dataset,
-        output_path,
-        #os.path.join(builder.params.output_dir, builder.params.name + "_{:01d}.jrl".format(dataset_count)),
-        #os.path.join(params.output_dir, params.name + "_{:04d}.jrl".format(dataset_count)),
-        False,
-    )
-    print('generated',output_path)
+    # writer.writeDataset(
+    #     dataset,
+    #     output_path,
+    #     #os.path.join(builder.params.output_dir, builder.params.name + "_{:01d}.jrl".format(dataset_count)),
+    #     #os.path.join(params.output_dir, params.name + "_{:04d}.jrl".format(dataset_count)),
+    #     False,
+    # )
+    # print('generated',output_path)
 
 if __name__ == "__main__":
 
@@ -329,4 +332,3 @@ if __name__ == "__main__":
 
     for config_file_path in file_paths:
         generate_dataset(config_file_path, output_dir)
-
