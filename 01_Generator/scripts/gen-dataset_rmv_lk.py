@@ -185,7 +185,9 @@ def generate_dataset(config_file_path, output_dir):
     output_path = os.path.join(output_dir, folder_name)
     if not os.path.exists(output_path):
         os.makedirs(output_path)
-    output_path = os.path.join(output_path, config_name + ".jrl")
+    # output_path = os.path.join(output_path, config_name + ".jrl")
+    output_path_a = os.path.join(output_path, config_name + '_a.jrl')
+    output_path_e = os.path.join(output_path, config_name + '_e.jrl')
     
     # Setup the Dataset Builder
     builder = DatasetGenerator(config_file_path)
@@ -215,7 +217,7 @@ def generate_dataset(config_file_path, output_dir):
 
         # Define landmarks detections
         lks_detections = gen_landmarks(builder.robots, 
-                                       builder.params.dataset_opts['number_poses'], 
+                                       builder.params.dataset_opts['number_poses'],
                                        200,
                                        landmarks, 
                                        seed)
@@ -306,22 +308,56 @@ def generate_dataset(config_file_path, output_dir):
                     else:
                         stop_condition = True
 
+    # Generate landmarks shared by all 
     dataset = builder.build()
-    measurements = dataset.measurements()
-    for val in measurements:
-        print(val)
-    # writer = jrl.Writer()
+    writer = jrl.Writer()
 
     # dataset_count = 0
+    writer.writeDataset(
+        dataset,
+        output_path_a,
+        #os.path.join(builder.params.output_dir, builder.params.name + "_{:01d}.jrl".format(dataset_count)),
+        #os.path.join(params.output_dir, params.name + "_{:04d}.jrl".format(dataset_count)),
+        False,
+    )
+    print('generated',output_path_a)
 
-    # writer.writeDataset(
-    #     dataset,
-    #     output_path,
-    #     #os.path.join(builder.params.output_dir, builder.params.name + "_{:01d}.jrl".format(dataset_count)),
-    #     #os.path.join(params.output_dir, params.name + "_{:04d}.jrl".format(dataset_count)),
-    #     False,
-    # )
-    # print('generated',output_path)
+
+    # Generate landmarks shared on edges
+    landmarks_edges = pack_lid_per_rid(builder.robots, builder.params.landmarks['number'], 'edges')
+    
+    for rid in dataset.robots():
+        entry_index = 0
+        index_tosupp = []
+        for entry in dataset.measurements(rid):
+            for i in range(entry.measurements.nrFactors()):
+                factor = entry.measurements.at(i)
+                if type(factor) is gtsam.BearingRangeFactor3D:
+                    key1 = factor.keys()[0]
+                    key2 = factor.keys()[1]
+                    remove_factor = True
+
+                    for e_lk in landmarks_edges[rid]:
+                        if e_lk == key1 or e_lk == key2:
+                            remove_factor = False
+
+                    if remove_factor:
+                        index_tosupp.append(entry_index)
+
+            entry_index += 1
+
+        print('Measurements to suppress:', len(index_tosupp))
+        for index in index_tosupp:
+            dataset.measurements(rid).pop(index)
+
+    writer.writeDataset(
+        dataset,
+        output_path_e,
+        #os.path.join(builder.params.output_dir, builder.params.name + "_{:01d}.jrl".format(dataset_count)),
+        #os.path.join(params.output_dir, params.name + "_{:04d}.jrl".format(dataset_count)),
+        False,
+    )
+    print('generated', output_path_e)
 
 if __name__ == "__main__":
 
