@@ -201,105 +201,63 @@ def generate_dataset(config_file_path, output_dir):
 
     # Setup groundTruths
     builder.gen_gt_trajectories()
-
-    sys.exit()
     
     # Add 1 landmark
     if builder.params.landmarks is not None:
         # Generate landmarks
-        builder.gen_lk_amers()
+        builder.gen_lk_amers(1)
 
         # Define landmarks
-        lk_pack = builder.params.landmarks['pack']
-        landmarks = pack_lid_per_rid(builder.robots, builder.params.landmarks['number'], lk_pack)
+        # lk_pack = builder.params.landmarks['pack']
+        # landmarks = pack_lid_per_rid(builder.robots, builder.params.landmarks['number'], lk_pack)
 
         # Define landmarks detections
-        lks_detections = gen_landmarks(builder.robots, 
-                                       builder.params.dataset_opts['number_poses'], 
-                                       200,
-                                       landmarks, 
-                                       seed)
+        # lks_detections = gen_landmarks(builder.robots, 
+        #                                builder.params.dataset_opts['number_poses'], 
+        #                                200,
+        #                                landmarks, 
+        #                                seed)
         
     # Add loop closure : inter - indirect detections
-    if builder.params.lc_inter_indirect is not None:
-        lc_ind_nb = builder.params.dataset_opts['number_poses'] // builder.params.lc_inter_indirect['frequency']
-        lc_ind_det = gen_lc_indirect(builder.robots,
-                                     builder.params.dataset_opts['number_poses'], 
-                                     lc_ind_nb,
-                                     builder.params.lc_inter_indirect['index'], 
-                                     seed)
+    # if builder.params.lc_inter_indirect is not None:
+    #     lc_ind_nb = 1
+    #     lc_ind_det = gen_lc_indirect(builder.robots,
+    #                                  builder.params.dataset_opts['number_poses'], 
+    #                                  lc_ind_nb,
+    #                                  builder.params.lc_inter_indirect['index'], 
+    #                                  seed)
 
     # Setup com_map
-    com_map = list(combinations(builder.robots, 2))
+    # com_map = list(combinations(builder.robots, 2))
 
     for rid in builder.robots:
         builder.add_prior(rid, 0)
     builder.incr_stamp()
 
     for pose_num in range(1, builder.params.dataset_opts['number_poses']):
+        
         # Add odometry measurements
         for rid in builder.robots:
             builder.add_odom_step(rid, pose_num)
         builder.incr_stamp()
 
-        # Add loop closure : intra
-        if builder.params.lc_intra is not None:
-            for rid in builder.robots:
-                pose_oid = max(pose_num - builder.params.lc_intra['index'], 0)
-
-                # TODO initialize all freqs at beginning
-                freq = builder.params.lc_intra['frequency']
-
-                if pose_num % freq == 0:
-                    builder.add_lc_intra(rid, pose_num, pose_oid)
-                    builder.incr_stamp()
-
-        # Add loop closure : inter - indirect
-        if builder.params.lc_inter_indirect is not None:
-            for rid in builder.robots:
-                stop_condition = False
-                while lc_ind_det[rid + '_poses'][lc_ind_det[rid + '_index']] == pose_num and not stop_condition:
-                    
-                    oid = lc_ind_det[rid + '_oids'][lc_ind_det[rid + '_index']]
-                    pose_oid = pose_num - builder.params.lc_inter_indirect['index']
-                    
-                    builder.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
-                    builder.incr_stamp()
-
-                    if lc_ind_det[rid + '_index'] < len(lc_ind_det[rid + '_poses']) - 1:
-                        lc_ind_det[rid + '_index'] += 1
-                    else:
-                        stop_condition = True
-
-        # Add loop closure : intrer - direct
-        if builder.params.lc_inter_direct is not None:
-
-            # Add range measurement
-            if builder.params.lc_inter_direct.get('range') is not None:
-                freq = builder.params.lc_inter_direct['range']['frequency']
-                if pose_num % freq == 0:
-                    builder.incr_stamp()
-                    for ra, rb in com_map:
-                        builder.add_lc_inter_direct('range', pose_num, ra, rb, modality='duplex')
-            
-            # Add pose measurement
-            if builder.params.lc_inter_direct.get('pose') is not None:
-                freq = builder.params.lc_inter_direct['pose']['frequency']
-                if pose_num % freq == 0:
-                    builder.incr_stamp()
-                    for ra, rb in com_map:
-                        builder.add_lc_inter_direct('pose', pose_num, ra, rb, modality='duplex')
+        sys.exit()
+        # TODO: Comment générer un landmark outlier
         
         # Add landmarks
         if builder.params.landmarks is not None:
-
+            
             # Add landmark measurement
+            # 
             for rid in builder.robots:
+                if pose_num == 5
+                builder.add_lk(lid, rid, pose_num)
+
                 stop_condition = False
                 while lks_detections[rid + '_poses'][lks_detections[rid + '_index']] == pose_num and not stop_condition:
                     
                     lid = lks_detections[rid + '_lks'][lks_detections[rid + '_index']]
-                    builder.add_lk(lid, rid, pose_num)
+                    
 
                     if lks_detections[rid + '_index'] < len(lks_detections[rid + '_poses']) - 1:
                         lks_detections[rid + '_index'] += 1
