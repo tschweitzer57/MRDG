@@ -170,6 +170,8 @@ def get_config_paths(config_folder):
     folder_paths = [os.path.join(config_folder, entry) for entry in entries if os.path.isdir(os.path.join(config_folder, entry))]
 
     file_paths = []
+    jrl_files = glob.glob(os.path.join(config_folder, '*.json'))
+    file_paths += jrl_files
 
     # Print the path of each folder
     for folder_path in folder_paths:
@@ -181,8 +183,8 @@ def get_config_paths(config_folder):
 def generate_dataset(config_file_path, output_dir):
     # Setup folders
     config_name, _ = os.path.splitext(os.path.basename(config_file_path))
-    folder_name = os.path.basename(os.path.dirname(config_file_path))
-    output_path = os.path.join(output_dir, folder_name)
+    output_path = output_dir
+
     if not os.path.exists(output_path):
         os.makedirs(output_path)
     output_path = os.path.join(output_path, config_name + ".jrl")
@@ -194,17 +196,15 @@ def generate_dataset(config_file_path, output_dir):
             init_range_freq = np.random.randint(builder.params.lc_inter_direct['range']['frequency'])
         if builder.params.lc_inter_direct.get('pose') is not None:
             init_pose_freq = np.random.randint(builder.params.lc_inter_direct['pose']['frequency'])
-    # Add in config ?
-    # TODO handle multiple configurations
-    # TODO make evolve to handle freq or probability
-    # TODO get rid of name of config and dataset
     
     seed = 53
 
     # Setup groundTruths
     builder.gen_gt_trajectories()
+
+    sys.exit()
     
-    # Add landmarks detections
+    # Add 1 landmark
     if builder.params.landmarks is not None:
         # Generate landmarks
         builder.gen_lk_amers()
@@ -322,8 +322,8 @@ def generate_dataset(config_file_path, output_dir):
 
 if __name__ == "__main__":
 
-    config_folder = './configs/LKS'
-    output_dir = './saved_outputs/LKS'
+    config_folder = './configs/TEST_4'
+    output_dir = './saved_outputs/TEST_4'
     
     file_paths = get_config_paths(config_folder)
 
