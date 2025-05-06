@@ -207,29 +207,6 @@ def generate_dataset(config_file_path, output_dir):
         # Generate landmarks
         builder.gen_lk_amers(1)
 
-        # Define landmarks
-        # lk_pack = builder.params.landmarks['pack']
-        # landmarks = pack_lid_per_rid(builder.robots, builder.params.landmarks['number'], lk_pack)
-
-        # Define landmarks detections
-        # lks_detections = gen_landmarks(builder.robots, 
-        #                                builder.params.dataset_opts['number_poses'], 
-        #                                200,
-        #                                landmarks, 
-        #                                seed)
-        
-    # Add loop closure : inter - indirect detections
-    # if builder.params.lc_inter_indirect is not None:
-    #     lc_ind_nb = 1
-    #     lc_ind_det = gen_lc_indirect(builder.robots,
-    #                                  builder.params.dataset_opts['number_poses'], 
-    #                                  lc_ind_nb,
-    #                                  builder.params.lc_inter_indirect['index'], 
-    #                                  seed)
-
-    # Setup com_map
-    # com_map = list(combinations(builder.robots, 2))
-
     for rid in builder.robots:
         builder.add_prior(rid, 0)
     builder.incr_stamp()
@@ -240,29 +217,17 @@ def generate_dataset(config_file_path, output_dir):
         for rid in builder.robots:
             builder.add_odom_step(rid, pose_num)
         builder.incr_stamp()
-
-        sys.exit()
-        # TODO: Comment générer un landmark outlier
         
         # Add landmarks
         if builder.params.landmarks is not None:
             
             # Add landmark measurement
-            # 
+            lid = gtsam.symbol('l', 1)
             for rid in builder.robots:
-                if pose_num == 5
-                builder.add_lk(lid, rid, pose_num)
-
-                stop_condition = False
-                while lks_detections[rid + '_poses'][lks_detections[rid + '_index']] == pose_num and not stop_condition:
-                    
-                    lid = lks_detections[rid + '_lks'][lks_detections[rid + '_index']]
-                    
-
-                    if lks_detections[rid + '_index'] < len(lks_detections[rid + '_poses']) - 1:
-                        lks_detections[rid + '_index'] += 1
-                    else:
-                        stop_condition = True
+                if pose_num == 5 and rid == 'a':
+                    builder.add_lk(lid, rid, pose_num, outlier=True)
+                elif pose_num == 5:
+                    builder.add_lk(lid, rid, pose_num)
 
     dataset = builder.build()
     writer = jrl.Writer()

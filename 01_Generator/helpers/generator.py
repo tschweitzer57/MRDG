@@ -309,16 +309,18 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
         return Pose3.Expmap(noise)
     
-    def bearing_range_noise_gen(self, sigma = None):
+    def bearing_range_noise_gen(self, sigma = None, force_outlier = False):
         if sigma == None:
             sigma = self.params.sigmas['landmarks']
 
         noise = np.random.normal(np.zeros(3,),np.array(sigma))
 
-        if not self.outliers:
+        if not self.outliers and not force_outlier:
             noise = np.minimum(noise, np.array(sigma))
             noise = np.maximum(noise, -np.array(sigma))
-
+        elif force_outlier:
+            noise = np.maximum(noise, 3*np.array(sigma))
+            noise = np.minimum(noise, -3*np.array(sigma))
         return noise
     
     #----------------------------
@@ -579,7 +581,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             raise Exception("Invalid modality")
 
-    def add_lk(self, lid, rid, pose_number):
+    def add_lk(self, lid, rid, pose_number, outlier=False):
         r_key = gtsam.symbol(rid, pose_number)
         l_key = lid
 
@@ -587,7 +589,10 @@ class DatasetGenerator(jrl.DatasetBuilder):
         fg = gtsam.NonlinearFactorGraph()
         gt_val_lk = gtsam.Values()
         est_val_lk = gtsam.Values()
-        noise = self.bearing_range_noise_gen()
+        if outlier:
+            noise = self.bearing_range_noise_gen(force_outlier=True)
+        else:
+            noise = self.bearing_range_noise_gen()
         noise_model = self.bearing_range_noise_model
 
         # Get robot pose and landmark

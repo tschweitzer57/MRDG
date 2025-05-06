@@ -1,0 +1,138 @@
+*****************************
+*      Dataset Summary      *
+*****************************
+dataset name: default_a1_02
+robots: ['a', 'b', 'c', 'd']
+
+Factors : Robot a
+-----------------
+Number of poses : 10
+Number of priors : 1
+Number of landmarks : 1
+
+----- Loop closures -----
+Intra : 0
+Inter Direct - range [b]: 0
+Inter Direct - range [c]: 0
+Inter Direct - range [d]: 0
+Inter Direct - pose [b]: 0
+Inter Direct - pose [c]: 0
+Inter Direct - pose [d]: 0
+Inter Indirect [b]: 0
+Inter Indirect [c]: 0
+Inter Indirect [d]: 0
+-----------------
+--ODOMETRY--
+a0 - a1
+a1 - a2
+a2 - a3
+a3 - a4
+a4 - a5
+a5 - a6
+a6 - a7
+a7 - a8
+a8 - a9
+--LC Intra--
+--LC INTER - DIRECT--
+--LC INTER - INDIRECT--
+
+Factors : Robot b
+-----------------
+Number of poses : 10
+Number of priors : 1
+Number of landmarks : 1
+
+----- Loop closures -----
+Intra : 0
+Inter Direct - range [a]: 0
+Inter Direct - range [c]: 0
+Inter Direct - range [d]: 0
+Inter Direct - pose [a]: 0
+Inter Direct - pose [c]: 0
+Inter Direct - pose [d]: 0
+Inter Indirect [a]: 0
+Inter Indirect [c]: 0
+Inter Indirect [d]: 0
+-----------------
+--ODOMETRY--
+b0 - b1
+b1 - b2
+b2 - b3
+b3 - b4
+b4 - b5
+b5 - b6
+b6 - b7
+b7 - b8
+b8 - b9
+--LC Intra--
+--LC INTER - DIRECT--
+--LC INTER - INDIRECT--
+
+Factors : Robot c
+-----------------
+Number of poses : 10
+Number of priors : 1
+Number of landmarks : 1
+
+----- Loop closures -----
+Intra : 0
+Inter Direct - range [a]: 0
+Inter Direct - range [b]: 0
+Inter Direct - range [d]: 0
+Inter Direct - pose [a]: 0
+Inter Direct - pose [b]: 0
+Inter Direct - pose [d]: 0
+Inter Indirect [a]: 0
+Inter Indirect [b]: 0
+Inter Indirect [d]: 0
+-----------------
+--ODOMETRY--
+c0 - c1
+c1 - c2
+c2 - c3
+c3 - c4
+c4 - c5
+c5 - c6
+c6 - c7
+c7 - c8
+c8 - c9
+--LC Intra--
+--LC INTER - DIRECT--
+--LC INTER - INDIRECT--
+
+Factors : Robot d
+-----------------
+Number of poses : 10
+Number of priors : 1
+Number of landmarks : 1
+
+----- Loop closures -----
+Intra : 0
+Inter Direct - range [a]: 0
+Inter Direct - range [b]: 0
+Inter Direct - range [c]: 0
+Inter Direct - pose [a]: 0
+Inter Direct - pose [b]: 0
+Inter Direct - pose [c]: 0
+Inter Indirect [a]: 0
+Inter Indirect [b]: 0
+Inter Indirect [c]: 0
+-----------------
+--ODOMETRY--
+d0 - d1
+d1 - d2
+d2 - d3
+d3 - d4
+d4 - d5
+d5 - d6
+d6 - d7
+d7 - d8
+d8 - d9
+--LC Intra--
+--LC INTER - DIRECT--
+--LC INTER - INDIRECT--
+
+-- LANDMARKS --
+
+# l1 #
+a5, b5, c5, d5, 
