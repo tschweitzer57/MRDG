@@ -10,3 +10,4 @@ if __name__ == "__main__":
     
     parser = DatasetParser(dataset_path)
     parser.print(file=True, filepath=output_path)
+    parser.plot_trajectories(data_type='init')

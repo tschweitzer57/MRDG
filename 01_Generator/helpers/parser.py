@@ -3,10 +3,64 @@ import gtsam
 import numpy as np
 from collections import defaultdict
 
+import matplotlib
+matplotlib.use("TkAgg")
+import matplotlib.pyplot as plt
+
+import seaborn as sns
+
 class DatasetParser():
     def __init__(self, dataset_path):
         parser = jrl.Parser()
         self.dataset = parser.parseDataset(dataset_path, False)
+
+        self.groundtruths = {}
+        self.initializations = {}
+        self.robots = self.dataset.robots()
+
+        for rid in self.robots:
+            self.groundtruths[rid] = self.dataset.groundTruth(rid)
+            self.initializations[rid] = self.dataset.initialization(rid)
+
+    def plot_trajectories(self, data_type=None):
+        if data_type is None:
+            data = self.groundtruths
+        elif data_type == 'gt':
+            data = self.groundtruths
+        elif data_type == 'init':
+            data = self.initializations
+        else:
+            raise ValueError("Unknown error type")
+
+        colors = sns.color_palette("colorblind", len(self.robots))
+        ax = plt.figure().add_subplot(projection='3d')
+        for idx, rid in enumerate(self.robots):
+            positions = []
+            for k in data[rid].keys():
+                s = gtsam.Symbol(k)
+                if chr(s.chr()) == rid:
+                    positions.append(self.getPoint(k, data[rid]))
+                elif chr(s.chr()) == 'l':
+                    landmark = data[rid].atPoint3(k)
+                    print(landmark)
+            positions = np.stack(positions)
+            landmark = np.stack(landmark)
+            
+            plt.plot(
+                positions.T[0],
+                positions.T[1],
+                positions.T[2],
+                alpha=1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+            ax.scatter(landmark[0], landmark[1], landmark[2], color=colors[idx])
+            ax.legend()
+        plt.axis('equal')
+        plt.show()
+    
+    def getPoint(self, key, values):
+        return values.atPose3(key).translation()
 
     def print(self,file=False, filepath=None, verbose=False):
         output  = "*****************************\n"
