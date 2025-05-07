@@ -1,6 +1,6 @@
 {
     "output_dir": "./output/iccad6",
-    "name": "default",
+    "name": "noisy",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 10,
@@ -35,7 +35,7 @@
         "probability": 0.4
     },
     "sigmas": {
-        "initialization": [0.2, 0.2, 0.2, 1, 1, 1],
+        "initialization": [0.8, 0.8, 0.8, 1, 1, 1],
         
         "prior": [0.0175, 0.0175, 0.0175, 0.01, 0.01, 0.01],
         "robot_zero_prior": [0.0175, 0.0175, 0.0175, 0.01, 0.01, 0.01],
