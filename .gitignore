@@ -1,0 +1,14 @@
+# Ignore OS-Specific files
+.DS_Store
+
+# Ignore generated datasets
+04_Datasets/*
+!04_Datasets/.gitkeep
+
+# Ignore Results folders
+05_Results/Computed/*
+05_Results/Computed/.gitkeep
+05_Results/Display/*
+05_Results/Display/.gitkeep
+05_Results/Metrics/*
+05_Results/Metrics/.gitkeep
