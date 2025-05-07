@@ -14,6 +14,7 @@ matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 # import seaborn as sns
 
+#TODO: Extraire Landmarks / Groundtruth / Initialization / Noise sous forme de classes
 #TODO transform gt var into simple gtsam.Values (dont require rid since there is a key)
 #TODO init start point
 #TODO add scenario add reset add save -> same dataset with different factors
