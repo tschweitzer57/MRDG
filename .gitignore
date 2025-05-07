@@ -7,8 +7,8 @@
 
 # Ignore Results folders
 05_Results/Computed/*
-05_Results/Computed/.gitkeep
+!05_Results/Computed/.gitkeep
 05_Results/Display/*
-05_Results/Display/.gitkeep
+!05_Results/Display/.gitkeep
 05_Results/Metrics/*
-05_Results/Metrics/.gitkeep
+!05_Results/Metrics/.gitkeep
