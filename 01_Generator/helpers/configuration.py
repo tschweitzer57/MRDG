@@ -1,7 +1,7 @@
 import json
 import numpy as np
 
-class DatasetParameters():
+class DatasetConfiguration():
     def __init__(self, json_file_path):
         json_data = self.read_json_file(json_file_path)
 
@@ -33,27 +33,6 @@ class DatasetParameters():
      
         # Limits
         self.limits = json_data.get('limits')
-
-    # @property
-    # def raw_dict(self):
-    #     return self._raw_dict
-    # @property
-    # def output_dir(self):
-    #     return self._output_dir
-    # @output_dir.setter
-    # def output_dir(self, value):
-    #     if not isinstance(value, str):
-    #         raise ValueError("Name must be a string")
-    #     self._output_dir = value
-
-    # @property
-    # def name(self):
-    #     return self._name
-    # @name.setter
-    # def name(self, value):
-    #     if not isinstance(value, str):
-    #         raise ValueError("Name must be a string")
-    #     self._name = value
 
     def __str__(self):
         output  = f"----------------------------------\n"
@@ -151,10 +130,5 @@ class DatasetParameters():
 if __name__ == '__main__':
     # Dataset Parameters
     file_path = '/home/workspace/configs/default.json'
-    Params = DatasetParameters(file_path)
+    Params = DatasetConfiguration(file_path)
     print(Params)
-    # print(Params)
-
-    # MESA Parameters
-    # mesa_params = MESAParams()
-    # print(mesa_params)

@@ -6,7 +6,7 @@ from collections import defaultdict
 from string import ascii_letters
 from collections import defaultdict
 
-from parameters import DatasetParameters
+from configuration import DatasetConfiguration
 
 # for test
 import matplotlib
@@ -24,8 +24,8 @@ import matplotlib.pyplot as plt
 class DatasetGenerator(jrl.DatasetBuilder):
     def __init__(self, config_path):
 
-        # Get parameters from config file
-        self.params = DatasetParameters(config_path)
+        # Get configuration from config file
+        self.config = DatasetConfiguration(config_path)
 
         # Define variables
         self.gt_poses = gtsam.Values()
@@ -42,33 +42,33 @@ class DatasetGenerator(jrl.DatasetBuilder):
         # Setup ID's for each robot
         self.robots = []
         lk_offset = 0
-        for i in range(self.params.dataset_opts['number_robots']):
+        for i in range(self.config.dataset_opts['number_robots']):
             if ascii_letters[i] == 'l':
                 lk_offset = 1
             rid = ascii_letters[i + lk_offset]
             self.robots.append(rid)
         
         # Add robot to handle landmarks
-        if self.params.landmarks is not None:
+        if self.config.landmarks is not None:
             self.landmarks = gtsam.Values()
 
         # Create jrl.DatasetBuilder
-        super().__init__(self.params.name, self.robots)
+        super().__init__(self.config.name, self.robots)
 
         # Define noise models
         self.odom_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
-            self.params.sigmas['odom'])
+            self.config.sigmas['odom'])
         self.loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
-            self.params.sigmas['lc_intra'])
+            self.config.sigmas['lc_intra'])
         self.pose_loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
-            self.params.sigmas['lc_inter_direct_pose'])
+            self.config.sigmas['lc_inter_direct_pose'])
         self.range_loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
-            [self.params.sigmas['lc_inter_direct_range']])
+            [self.config.sigmas['lc_inter_direct_range']])
         self.bearing_range_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
-            self.params.sigmas['landmarks'])
+            self.config.sigmas['landmarks'])
 
         # Define if dataset include outliers
-        if self.params.dataset_opts.get('outliers') == "False":
+        if self.config.dataset_opts.get('outliers') == "False":
             self.outliers = False
         else:
             self.outliers = True
@@ -134,39 +134,39 @@ class DatasetGenerator(jrl.DatasetBuilder):
         return l_key
 
     def check_limits(self, pose, dpl):
-        if pose.x() < self.params.limits['x'][0]:
+        if pose.x() < self.config.limits['x'][0]:
             end_pose = Pose3(
-                gtsam.Rot3.Identity(), np.array([self.params.limits['x'][0], pose.y(), pose.z()])
+                gtsam.Rot3.Identity(), np.array([self.config.limits['x'][0], pose.y(), pose.z()])
             )
             return pose.inverse().compose(end_pose)
-        elif pose.x() > self.params.limits['x'][1]:
+        elif pose.x() > self.config.limits['x'][1]:
             end_pose = Pose3(
                 Rot3.RzRyRx(np.pi, 0, 0),
-                np.array([self.params.limits['x'][1], pose.y(), pose.z()]),
+                np.array([self.config.limits['x'][1], pose.y(), pose.z()]),
             )
             return pose.inverse().compose(end_pose)
-        elif pose.y() < self.params.limits['y'][0]:
+        elif pose.y() < self.config.limits['y'][0]:
             end_pose = Pose3(
                 Rot3.RzRyRx(np.pi / 2, 0, 0),
-                np.array([pose.x(), self.params.limits['y'][0], pose.z()]),
+                np.array([pose.x(), self.config.limits['y'][0], pose.z()]),
             )
             return pose.inverse().compose(end_pose)
-        elif pose.y() > self.params.limits['y'][1]:
+        elif pose.y() > self.config.limits['y'][1]:
             end_pose = Pose3(
                 Rot3.RzRyRx(-np.pi / 2, 0, 0),
-                np.array([pose.x(), self.params.limits['y'][1], pose.z()]),
+                np.array([pose.x(), self.config.limits['y'][1], pose.z()]),
             )
             return pose.inverse().compose(end_pose)
-        elif pose.z() < self.params.limits['z'][0]:
+        elif pose.z() < self.config.limits['z'][0]:
             end_pose = Pose3(
                 Rot3.RzRyRx(0, -np.pi / 2, 0),
-                np.array([pose.x(), pose.y(), self.params.limits['z'][0]]),
+                np.array([pose.x(), pose.y(), self.config.limits['z'][0]]),
             )
             return pose.inverse().compose(end_pose)
-        elif pose.z() > self.params.limits['z'][1]:
+        elif pose.z() > self.config.limits['z'][1]:
             end_pose = Pose3(
                 Rot3.RzRyRx(0, np.pi / 2, 0),
-                np.array([pose.x(), pose.y(), self.params.limits['z'][1]]),
+                np.array([pose.x(), pose.y(), self.config.limits['z'][1]]),
             )
             return pose.inverse().compose(end_pose)
         else:
@@ -181,10 +181,10 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
         # Define number of poses
         if nb_poses is None:
-            nb_poses = self.params.dataset_opts['number_poses']
+            nb_poses = self.config.dataset_opts['number_poses']
         # Define initial Pose
-        if "trajectory_seed" in self.params.dataset_opts:
-            np.random.seed(self.params.dataset_opts['trajectory_seed'])
+        if "trajectory_seed" in self.config.dataset_opts:
+            np.random.seed(self.config.dataset_opts['trajectory_seed'])
         else:
             np.random.seed()
 
@@ -192,9 +192,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
             initial_rot = np.random.choice(self.ODOM_OPTIONS_GRIDWORLD).rotation()
             initial_position = np.array(
             [
-                np.random.uniform(self.params.limits['x'][0] / 2, self.params.limits['x'][1] / 2),
-                np.random.uniform(self.params.limits['y'][0] / 2, self.params.limits['y'][1] / 2),
-                np.random.uniform(self.params.limits['z'][0] / 2, self.params.limits['z'][1] / 2),
+                np.random.uniform(self.config.limits['x'][0] / 2, self.config.limits['x'][1] / 2),
+                np.random.uniform(self.config.limits['y'][0] / 2, self.config.limits['y'][1] / 2),
+                np.random.uniform(self.config.limits['z'][0] / 2, self.config.limits['z'][1] / 2),
             ])
             init_pose = gtsam.Pose3(initial_rot, initial_position)
 
@@ -202,14 +202,14 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.init_values.insert(gtsam.symbol(rid, 0), init_pose)
 
         # Define displacements
-        if "trajectory_seed" in self.params.dataset_opts:
-            np.random.seed(self.params.dataset_opts['trajectory_seed'])
+        if "trajectory_seed" in self.config.dataset_opts:
+            np.random.seed(self.config.dataset_opts['trajectory_seed'])
         else:
             np.random.seed()
 
         for rid in self.robots:
-            dpl_index = np.random.choice(np.arange(len(self.params.odometry['odom_probs'])), 
-                                   p= self.params.odometry['odom_probs'],
+            dpl_index = np.random.choice(np.arange(len(self.config.odometry['odom_probs'])), 
+                                   p= self.config.odometry['odom_probs'],
                                    size= nb_poses - 1)
             prev_pose = self.gt_poses.atPose3(gtsam.symbol(rid, 0))
 
@@ -229,19 +229,19 @@ class DatasetGenerator(jrl.DatasetBuilder):
     # Generator for landmarks amers
     def gen_lk_amers(self, nb=None):
 
-        if nb is None and self.params.landmarks is not None:
-            nb = self.params.landmarks['number']
+        if nb is None and self.config.landmarks is not None:
+            nb = self.config.landmarks['number']
 
-        if "seed" in self.params.landmarks:
-            np.random.seed(self.params.landmarks['seed'])
+        if "seed" in self.config.landmarks:
+            np.random.seed(self.config.landmarks['seed'])
         else:
             np.random.seed()
 
         for i in range(nb):
             lk_coordinates = np.array([
-                np.random.uniform(self.params.limits['x'][0], self.params.limits['x'][1]),
-                np.random.uniform(self.params.limits['y'][0], self.params.limits['y'][1]),
-                np.random.uniform(self.params.limits['z'][0], self.params.limits['z'][1])
+                np.random.uniform(self.config.limits['x'][0], self.config.limits['x'][1]),
+                np.random.uniform(self.config.limits['y'][0], self.config.limits['y'][1]),
+                np.random.uniform(self.config.limits['z'][0], self.config.limits['z'][1])
             ])
             lk_pose = gtsam.Point3(lk_coordinates)
             self.landmarks.insert(gtsam.symbol('l', i + 1), lk_pose)
@@ -254,7 +254,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
     def init_noise_gen(self, sigma = None):
         if sigma == None:
-            sigma = self.params.sigmas['initialization']
+            sigma = self.config.sigmas['initialization']
         return Pose3.Expmap(
             np.random.multivariate_normal(
                 np.zeros((6,)), np.diag(np.array(sigma) ** 2)
@@ -263,7 +263,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
     def odom_noise_gen(self, sigma = None):
         if sigma == None:
-            sigma = self.params.sigmas['odom']
+            sigma = self.config.sigmas['odom']
         
         noise = np.random.multivariate_normal(
                     np.zeros((6,)), np.diag(np.array(sigma) ** 2)
@@ -276,7 +276,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
     def loop_noise_gen(self, sigma = None):
         if sigma == None:
-            sigma = self.params.sigmas['lc_intra']
+            sigma = self.config.sigmas['lc_intra']
 
         noise = np.random.multivariate_normal(
                     np.zeros((6,)), np.diag(np.array(sigma) ** 2)
@@ -290,7 +290,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
     def range_loop_noise_gen(self, sigma = None):
         if sigma == None:
-            sigma = self.params.sigmas['lc_inter_direct_range']
+            sigma = self.config.sigmas['lc_inter_direct_range']
         
         noise = np.random.normal(0, sigma)
 
@@ -302,7 +302,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
     
     def pose_loop_noise_gen(self, sigma = None):
         if sigma == None:
-            sigma = self.params.sigmas['lc_inter_direct_pose']
+            sigma = self.config.sigmas['lc_inter_direct_pose']
 
         noise = np.random.multivariate_normal(
                     np.zeros((6,)), np.diag(np.array(sigma) ** 2)
@@ -312,7 +312,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
     
     def bearing_range_noise_gen(self, sigma = None, force_outlier = False):
         if sigma == None:
-            sigma = self.params.sigmas['landmarks']
+            sigma = self.config.sigmas['landmarks']
 
         noise = np.random.normal(np.zeros(3,),np.array(sigma))
 
@@ -370,7 +370,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         fg = gtsam.NonlinearFactorGraph()
             
         init_pose = self.init_values.atPose3(key)
-        noise_sigmas = self.params.sigmas['prior']
+        noise_sigmas = self.config.sigmas['prior']
 
         # Add as factor
         fg.addPriorPose3(
@@ -422,11 +422,11 @@ class DatasetGenerator(jrl.DatasetBuilder):
         )
 
         # Update the prev_vals
-        if self.params.dataset_opts['initialization_type'] == "gt":
+        if self.config.dataset_opts['initialization_type'] == "gt":
             self.init_values.insert(k2, gt_pose)
-        elif self.params.dataset_opts['initialization_type'] == "noisy_gt":
+        elif self.config.dataset_opts['initialization_type'] == "noisy_gt":
             self.init_values.insert(k2, gt_pose.compose(self.init_noise_gen()))
-        elif self.params.dataset_opts['initialization_type'] == "odom":
+        elif self.config.dataset_opts['initialization_type'] == "odom":
             self.init_values.insert(k2, init_pose)
         else:
             raise Exception("Invalid Initialization_type")

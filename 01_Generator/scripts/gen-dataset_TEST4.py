@@ -17,7 +17,6 @@ from string import ascii_letters
 
 from itertools import combinations
 
-from parameters import DatasetParameters
 from generator import DatasetGenerator
 
 def get_all_edges(robots):
@@ -191,11 +190,11 @@ def generate_dataset(config_file_path, output_dir):
     
     # Setup the Dataset Builder
     builder = DatasetGenerator(config_file_path)
-    if builder.params.lc_inter_direct is not None:
-        if builder.params.lc_inter_direct.get('range') is not None:
-            init_range_freq = np.random.randint(builder.params.lc_inter_direct['range']['frequency'])
-        if builder.params.lc_inter_direct.get('pose') is not None:
-            init_pose_freq = np.random.randint(builder.params.lc_inter_direct['pose']['frequency'])
+    if builder.config.lc_inter_direct is not None:
+        if builder.config.lc_inter_direct.get('range') is not None:
+            init_range_freq = np.random.randint(builder.config.lc_inter_direct['range']['frequency'])
+        if builder.config.lc_inter_direct.get('pose') is not None:
+            init_pose_freq = np.random.randint(builder.config.lc_inter_direct['pose']['frequency'])
     
     seed = 53
 
@@ -203,7 +202,7 @@ def generate_dataset(config_file_path, output_dir):
     builder.gen_gt_trajectories()
     
     # Add 1 landmark
-    if builder.params.landmarks is not None:
+    if builder.config.landmarks is not None:
         # Generate landmarks
         builder.gen_lk_amers(1)
 
@@ -211,7 +210,7 @@ def generate_dataset(config_file_path, output_dir):
         builder.add_prior(rid, 0)
     builder.incr_stamp()
 
-    for pose_num in range(1, builder.params.dataset_opts['number_poses']):
+    for pose_num in range(1, builder.config.dataset_opts['number_poses']):
         
         # Add odometry measurements
         for rid in builder.robots:
@@ -219,7 +218,7 @@ def generate_dataset(config_file_path, output_dir):
         builder.incr_stamp()
         
         # Add landmarks
-        if builder.params.landmarks is not None:
+        if builder.config.landmarks is not None:
             
             # Add landmark measurement
             lid = gtsam.symbol('l', 1)
@@ -237,8 +236,8 @@ def generate_dataset(config_file_path, output_dir):
     writer.writeDataset(
         dataset,
         output_path,
-        #os.path.join(builder.params.output_dir, builder.params.name + "_{:01d}.jrl".format(dataset_count)),
-        #os.path.join(params.output_dir, params.name + "_{:04d}.jrl".format(dataset_count)),
+        #os.path.join(builder.config.output_dir, builder.config.name + "_{:01d}.jrl".format(dataset_count)),
+        #os.path.join(config.output_dir, config.name + "_{:04d}.jrl".format(dataset_count)),
         False,
     )
     print('generated',output_path)
