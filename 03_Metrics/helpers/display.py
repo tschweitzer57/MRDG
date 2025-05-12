@@ -29,7 +29,7 @@ class Display():
             self.initializations[rid] = Results.dataset.initialization(rid)
             self.estimates[rid] = Results.results.robot_solutions[rid].values
 
-    def plot_trajectories(self, data_type=None):
+    def plot_trajectories(self, data_type=None, ref=None):
         if data_type is None:
             data = self.groundtruths
         elif data_type == 'gt':
@@ -39,7 +39,14 @@ class Display():
         elif data_type == 'est':
             data = self.estimates
         else:
-            raise ValueError("Unknown error type")
+            raise ValueError("Unknown data type")
+        
+        if ref == 'gt':
+            data_ref = self.groundtruths
+        elif ref is None:
+            data_ref = None
+        else:
+            raise ValueError("Unknown reference type")
 
         colors = sns.color_palette("colorblind", len(self.robots))
         for idx, rid in enumerate(self.robots):
@@ -61,8 +68,30 @@ class Display():
             ax.legend()
         plt.axis('equal')
         plt.show()
+
+# def plot_trajectories(self, data_type=None):
+
+#         ax = plt.figure().add_subplot(projection='3d')
+#         for idx, rid in enumerate(self.robots):
+#             positions = []
+
+#             positions = np.stack(positions)
+#             
+            
+#             plt.plot(
+#                 positions.T[0],
+#                 positions.T[1],
+#                 positions.T[2],
+#                 alpha=1,
+#                 color=colors[idx],
+#                 label=f'Robot {rid}'
+#             )
+#             ax.scatter(landmark[0], landmark[1], landmark[2], color=colors[idx])
+#             ax.legend()
+#         plt.axis('equal')
+#         plt.show()
     
-    def plot_trajectories_all(self, data_type=None):
+    def plot_trajectories_all(self, data_type=None, ref=None):
         if data_type is None:
             data = self.groundtruths
         elif data_type == 'gt':
@@ -73,16 +102,37 @@ class Display():
             data = self.estimates
         else:
             raise ValueError("Unknown error type")
+        
+        if ref == 'gt':
+            data_ref = self.groundtruths
+        elif ref == 'init':
+            data_ref = self.initializations
+        elif ref is None:
+            data_ref = None
+        else:
+            raise ValueError("Unknown reference type")
 
         colors = sns.color_palette("colorblind", len(self.robots))
         ax = plt.figure().add_subplot(111,projection='3d')
+
         for idx, rid in enumerate(self.robots):
             positions = []
+            landmarks = []
+            landmarks_ref = []
+
             for k in data[rid].keys():
                 s = gtsam.Symbol(k)
                 if chr(s.chr()) == rid:
                     positions.append(self.getPoint(k, data[rid]))
+                elif chr(s.chr()) == 'l':
+                    landmarks.append(data[rid].atPoint3(k))
+                    if data_ref is not None:
+                        landmarks_ref.append(data[rid].atPoint3(k))
+
             positions = np.stack(positions)
+            landmarks = np.stack(landmarks)
+            landmarks_ref = np.stack(landmarks_ref)
+
             plt.plot(
                 positions.T[0],
                 positions.T[1],
@@ -91,6 +141,9 @@ class Display():
                 color=colors[idx],
                 label=f'Robot {rid}'
             )
+            ax.scatter(landmarks[0], landmarks[1], landmarks[2], color=colors[idx])
+            ax.scatter(landmarks_ref[0], landmarks_ref[1], landmarks_ref[2], color='black')
+
         ax.legend()
         plt.axis('equal')
         plt.show()
