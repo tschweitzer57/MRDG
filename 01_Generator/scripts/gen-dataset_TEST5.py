@@ -210,7 +210,7 @@ def generate_dataset(config_file_path, output_dir):
         builder.add_prior(rid, 0)
     builder.incr_stamp()
 
-    for pose_num in range(1, builder.config.dataset_opts['number_poses']):
+    for pose_num in range(1,builder.config.dataset_opts['number_poses']):
         
         # Add odometry measurements
         for rid in builder.robots:
@@ -223,9 +223,9 @@ def generate_dataset(config_file_path, output_dir):
             # Add landmark measurement
             lid = gtsam.symbol('l', 1)
             for rid in builder.robots:
-                if pose_num == 20 and rid == 'a':
+                if pose_num == 19 and rid == 'a':
                     builder.add_lk(lid, rid, pose_num, outlier=True)
-                elif pose_num == 20:
+                elif pose_num == 19:
                     builder.add_lk(lid, rid, pose_num)
 
     dataset = builder.build()
