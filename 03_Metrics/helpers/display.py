@@ -91,7 +91,7 @@ class Display():
 #         plt.axis('equal')
 #         plt.show()
     
-    def plot_trajectories_all(self, data_type=None, ref=None):
+    def plot_trajectories_all(self, data_type=None, ref=None, name=None):
         if data_type is None:
             data = self.groundtruths
         elif data_type == 'gt':
@@ -127,11 +127,12 @@ class Display():
                 elif chr(s.chr()) == 'l':
                     landmarks.append(data[rid].atPoint3(k))
                     if data_ref is not None:
-                        landmarks_ref.append(data[rid].atPoint3(k))
+                        landmarks_ref.append(data_ref[rid].atPoint3(k))
 
             positions = np.stack(positions)
             landmarks = np.stack(landmarks)
-            landmarks_ref = np.stack(landmarks_ref)
+            if data_ref is not None:
+                landmarks_ref = np.stack(landmarks_ref)
 
             plt.plot(
                 positions.T[0],
@@ -141,10 +142,13 @@ class Display():
                 color=colors[idx],
                 label=f'Robot {rid}'
             )
-            ax.scatter(landmarks[0], landmarks[1], landmarks[2], color=colors[idx])
-            ax.scatter(landmarks_ref[0], landmarks_ref[1], landmarks_ref[2], color='black')
+            ax.scatter(landmarks[0][0], landmarks[0][1], landmarks[0][2], color=colors[idx])
+            if data_ref is not None:    
+                ax.scatter(landmarks_ref[0][0], landmarks_ref[0][1], landmarks_ref[0][2], color='black')
 
         ax.legend()
+        if name is not None:
+            ax.set_title(name)
         plt.axis('equal')
         plt.show()
 

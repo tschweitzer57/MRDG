@@ -39,20 +39,30 @@ data = {}
 
 # Compute errors for all datasets/results couple
 computed_paths = paths
-for key in computed_paths.keys():
-    print(key, computed_paths[key][1])
-    data[key] = Results(computed_paths[key][1], computed_paths[key][0], output_folder)
+# for key in computed_paths.keys():
+#     print(key, computed_paths[key][1])
+#     data[key] = Results(computed_paths[key][1], computed_paths[key][0], output_folder, iteration=120)
 
-mdsp = MultiDisplay()
+for key in computed_paths.keys():
+    data[key] = []
+    for i in range(0,201):
+        data[key].append(Results(computed_paths[key][1], computed_paths[key][0], output_folder, iteration=i))
+
+
+# mdsp = MultiDisplay()
+
+# for key in data.keys():
+#     mdsp.add_results(key, data[key])
+
+# mdsp.std_boxplot(output_path='saved_output')
 
 for key in data.keys():
-    mdsp.add_results(key, data[key])
-
-mdsp.std_boxplot(output_path='saved_output')
-# mdsp.boxplot('transformation_rpe')
-# mdsp.boxplot('point_distance_rpe')
-# mdsp.boxplot('rot_angle_deg_rpe')
-
-# mdsp.boxplot('transformation_ape')
-# mdsp.boxplot('point_distance_ape')
-# mdsp.boxplot('rot_angle_deg_ape')
+    if 'default' in key:
+        name_id = 'default'
+    elif 'noisy' in key:
+        name_id = 'noisy'
+    else:
+        name_id = 'none'
+    for idx, result in enumerate(data[key]):
+        dsp = Display(result)
+        dsp.plot_trajectories_all(data_type='est', ref='gt',name=f'{name_id}: iteration {idx}')
