@@ -46,7 +46,9 @@ computed_paths = paths
 for key in computed_paths.keys():
     data[key] = []
     for i in range(0,101):
-        data[key].append(Results(computed_paths[key][1], computed_paths[key][0], output_folder, iteration=i))
+        #data[key].append(Results(computed_paths[key][1], computed_paths[key][0], output_folder, iteration=i))
+        res = Results(computed_paths[key][1], computed_paths[key][0], output_folder, iteration=i)
+        print(res.get_lk_error(1))
 
 
 # mdsp = MultiDisplay()
@@ -56,13 +58,13 @@ for key in computed_paths.keys():
 
 # mdsp.std_boxplot(output_path='saved_output')
 
-for key in data.keys():
-    if 'default' in key:
-        name_id = 'default'
-    elif 'noisy' in key:
-        name_id = 'noisy'
-    else:
-        name_id = 'none'
-    for idx, result in enumerate(data[key]):
-        dsp = Display(result)
-        dsp.plot_trajectories_all(data_type='est', ref='gt',name=f'{name_id}: iteration {idx}')
+# for key in data.keys():
+#     if 'default' in key:
+#         name_id = 'default'
+#     elif 'noisy' in key:
+#         name_id = 'noisy'
+#     else:
+#         name_id = 'none'
+#     for idx, result in enumerate(data[key]):
+#         dsp = Display(result)
+#         dsp.plot_trajectories_all(data_type='est', ref='gt',name=f'{name_id}: iteration {idx}')

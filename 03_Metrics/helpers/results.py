@@ -1,6 +1,7 @@
 # General librairies
 import os
 import json
+import numpy as np
 
 # Third party librairies
 import jrl
@@ -98,6 +99,17 @@ class Results():
                 key = gtsam.symbol(rid, pose_num)
         
         # Print generated intermediate results
+
+    def get_lk_error(self, lnumber):
+        key = gtsam.symbol('l', lnumber)
+        error = {}
+
+        for rid in self.dataset.robots():
+            estimation = self.results.robot_solutions[rid].values.atPoint3(key)
+            gt = self.dataset.groundTruth(rid).atPoint3(key)
+            error[rid] = np.linalg.norm(gt - estimation)
+        
+        return error
 
     def export_results(self, rng='base'):
         """ Saves errors in metrics folder
