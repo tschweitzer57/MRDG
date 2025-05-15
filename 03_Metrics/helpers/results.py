@@ -1,5 +1,6 @@
 # General librairies
 import os
+import glob
 import json
 import numpy as np
 
@@ -25,6 +26,63 @@ class Data():
             self.groundtruths[rid] = Results.dataset.groundTruth(rid)
             self.initializations[rid] = Results.dataset.initialization(rid)
             self.estimates[rid] = Results.results.robot_solutions[rid].values
+
+class Results2():
+    def __init__(self, results_path, dataset_path, export_path):
+        # Register paths
+        self.results_folder = results_path
+        self.output_folder = os.path.join(export_path, os.path.basename(self.results_folder))
+        os.makedirs(self.output_folder , exist_ok=True)
+
+        # Get dataset data [Temporary]
+        parser = jrl.Parser()
+        self.dataset = parser.parseDataset(dataset_path, False)
+
+        # Get results data
+        self.final_results = None
+        self.iteration_results = {}
+
+        final_results_path = os.path.join(self.results_folder, 'final_results.jrr.cbor')
+        iteration_results_path = os.path.join(self.results_folder, 'iterations')
+
+        if os.path.exists(final_results_path):
+            self.final_results = parser.parseResults(final_results_path, True)
+        if os.path.exists(iteration_results_path):
+            iteration_paths = glob.glob(os.path.join(iteration_results_path, '*.jrr.cbor'))
+            for path in iteration_paths:
+                self.iteration_results[self.__get_iteration_step(path)] = parser.parseResults(path, True)
+
+    def get_gtlk_error(self, lnumber):
+        key = gtsam.symbol('l', lnumber)
+        error = {}
+
+        # Initialize structure
+        for rid in self.dataset.robots():
+            error[rid] = []
+
+        # Get data
+        for iteration in self.iteration_results.keys():
+            for rid in self.dataset.robots():
+                estimation = self.iteration_results[iteration].robot_solutions[rid].values.atPoint3(key)
+                gt = self.dataset.groundTruth(rid).atPoint3(key)
+                error[rid].append([iteration,np.linalg.norm(gt - estimation)])
+
+        return error
+    
+    def get_consensuslk_error(self, lnumber):
+        # key = gtsam.symbol('l', lnumber)
+        # error = {}
+
+        # for rid in self.dataset.robots():
+        #     estimation = self.results.robot_solutions[rid].values.atPoint3(key)
+        #     gt = self.dataset.groundTruth(rid).atPoint3(key)
+        #     error[rid] = np.linalg.norm(gt - estimation)
+        
+        # return error
+        print('not implemented')
+
+    def __get_iteration_step(self, path):
+        return int(os.path.splitext(os.path.splitext(os.path.basename(path))[0])[0])
 
 class Results():
     def __init__(self, results_path, dataset_path, export_path, iteration='final', init=False):
@@ -99,17 +157,6 @@ class Results():
                 key = gtsam.symbol(rid, pose_num)
         
         # Print generated intermediate results
-
-    def get_lk_error(self, lnumber):
-        key = gtsam.symbol('l', lnumber)
-        error = {}
-
-        for rid in self.dataset.robots():
-            estimation = self.results.robot_solutions[rid].values.atPoint3(key)
-            gt = self.dataset.groundTruth(rid).atPoint3(key)
-            error[rid] = np.linalg.norm(gt - estimation)
-        
-        return error
 
     def export_results(self, rng='base'):
         """ Saves errors in metrics folder
