@@ -29,6 +29,28 @@ class Display():
             self.initializations[rid] = Results.dataset.initialization(rid)
             self.estimates[rid] = Results.results.robot_solutions[rid].values
 
+    def plot_gtlk_error(self, inp_error):
+        # Reorganize data
+        ax = plt.figure()
+        colors = sns.color_palette("colorblind", len(self.robots))
+
+        for idx, rid in enumerate(self.robots):
+            iteration = []
+            error = []
+
+            for item in inp_error[rid]:
+                iteration.append(item[0])
+                error.append(item[1])
+
+            plt.plot(iteration, error, 
+                alpha=1,
+                color=colors[idx],
+                label=f'Robot {rid}'
+            )
+        
+        ax.legend()
+        plt.show()
+        
     def plot_trajectories(self, data_type=None, ref=None):
         if data_type is None:
             data = self.groundtruths
