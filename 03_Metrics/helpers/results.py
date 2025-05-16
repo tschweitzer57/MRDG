@@ -75,13 +75,18 @@ class Results2():
         key = gtsam.symbol('l', lnumber)
         error = {}
 
-        # for rid in self.dataset.robots():
-        #     estimation = self.results.robot_solutions[rid].values.atPoint3(key)
-        #     gt = self.dataset.groundTruth(rid).atPoint3(key)
-        #     error[rid] = np.linalg.norm(gt - estimation)
+        # Initialize structure
+        for edge in self.comm_edges:
+            error[edge] = []
+
+        # Get data
+        for iteration in self.iteration_results.keys():
+            for edge in self.comm_edges:
+                estimation_1 = self.iteration_results[iteration].robot_solutions[edge[0]].values.atPoint3(key)
+                estimation_2 = self.iteration_results[iteration].robot_solutions[edge[1]].values.atPoint3(key)
+                error[edge].append(np.linalg.norm(estimation_1 - estimation_2))
         
-        # return error
-        print('not implemented')
+        return error
 
     def __get_comm_edges(self):
         edges = set()
