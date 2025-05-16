@@ -37,6 +37,8 @@ class Results2():
         # Get dataset data [Temporary]
         parser = jrl.Parser()
         self.dataset = parser.parseDataset(dataset_path, False)
+        self.robots = self.dataset.robots()
+        self.comm_edges = self.__get_comm_edges()
 
         # Get results data
         self.final_results = None
@@ -70,8 +72,8 @@ class Results2():
         return error
     
     def get_consensuslk_error(self, lnumber):
-        # key = gtsam.symbol('l', lnumber)
-        # error = {}
+        key = gtsam.symbol('l', lnumber)
+        error = {}
 
         # for rid in self.dataset.robots():
         #     estimation = self.results.robot_solutions[rid].values.atPoint3(key)
@@ -80,6 +82,15 @@ class Results2():
         
         # return error
         print('not implemented')
+
+    def __get_comm_edges(self):
+        edges = set()
+        for rid in self.robots:
+            for oid in self.robots:
+                if rid != oid:
+                    edge = (min(rid,oid),max(rid,oid))
+                    edges.add(edge)
+        return edges
 
     def __get_iteration_step(self, path):
         return int(os.path.splitext(os.path.splitext(os.path.basename(path))[0])[0])
