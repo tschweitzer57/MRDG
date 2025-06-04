@@ -50,6 +50,29 @@ class Display():
         
         ax.legend()
         plt.show()
+
+    def plot_consensuslk_error(self, inp_error):
+        # Reorganize data
+        ax = plt.figure()
+        colors = sns.color_palette("colorblind", len(self.robots))
+
+        iteration = list(range(0,502))
+
+        first_run = True
+        for edge in inp_error.keys():
+            if first_run:
+                err = np.array(inp_error[edge])
+                first_run = False
+            else:
+                err += np.array(inp_error[edge])
+
+        plt.plot(iteration, err, 
+            alpha=1,
+            label=f'Consensus'
+        )
+
+        ax.legend()
+        plt.show()
         
     def plot_trajectories(self, data_type=None, ref=None):
         if data_type is None:

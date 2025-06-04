@@ -37,12 +37,20 @@ solver = 'pyxis'
 results_paths = get_data_paths(solver, results_folder, dataset_folder)
 data = {}
 
+# for key in results_paths.keys():
+#     res1 = Results(results_paths[key][1], results_paths[key][0], output_folder)
+#     res = Results2(results_paths[key][1], results_paths[key][0], output_folder)
+#     err = res.get_gtlk_error(1)
+#     dsp = Display(res1)
+#     dsp.plot_gtlk_error(err)
+
 for key in results_paths.keys():
     res1 = Results(results_paths[key][1], results_paths[key][0], output_folder)
     res = Results2(results_paths[key][1], results_paths[key][0], output_folder)
-    err = res.get_gtlk_error(1)
+    err = res.get_consensuslk_error(1)
     dsp = Display(res1)
-    dsp.plot_gtlk_error(err)
+    dsp.plot_consensuslk_error(err)
+
 
 
 # mdsp = MultiDisplay()
