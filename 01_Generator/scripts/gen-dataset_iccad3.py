@@ -29,7 +29,7 @@ def get_all_edges(robots):
     return edges
 
 def pack_lid_per_rid(robots, nb_lks, group_type):
-    lk_ids = [gtsam.symbol('l', i + 1) for i in range(nb_lks)]
+    lk_ids = [gtsam.symbol('#', i + 1) for i in range(nb_lks)]
     lid_dict = {}
 
     if group_type == 'edges':

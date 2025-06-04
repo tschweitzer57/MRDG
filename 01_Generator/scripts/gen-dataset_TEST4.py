@@ -29,7 +29,7 @@ def get_all_edges(robots):
     return edges
 
 def pack_lid_per_rid(robots, nb_lks, group_type):
-    lk_ids = [gtsam.symbol('l', i + 1) for i in range(nb_lks)]
+    lk_ids = [gtsam.symbol('#', i + 1) for i in range(nb_lks)]
     lid_dict = {}
 
     if group_type == 'edges':
@@ -221,7 +221,7 @@ def generate_dataset(config_file_path, output_dir):
         if builder.config.landmarks is not None:
             
             # Add landmark measurement
-            lid = gtsam.symbol('l', 1)
+            lid = gtsam.symbol('#', 1)
             for rid in builder.robots:
                 if pose_num == 5 and rid == 'a':
                     builder.add_lk(lid, rid, pose_num, outlier=True)

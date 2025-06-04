@@ -32,7 +32,7 @@ def associate_lid_edges(edges):
     index = 1
     lid_per_edge = {}
     for edge in edges:
-        lid = gtsam.symbol('l', index)
+        lid = gtsam.symbol('#', index)
         lid_per_edge[edge] = lid
         index += 1
     return lid_per_edge
