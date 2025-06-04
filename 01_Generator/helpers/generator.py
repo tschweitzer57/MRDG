@@ -241,7 +241,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 np.random.uniform(self.config.limits['z'][0], self.config.limits['z'][1])
             ])
             lk_pose = gtsam.Point3(lk_coordinates)
-            self.landmarks.insert(gtsam.symbol('l', i + 1), lk_pose)
+            self.landmarks.insert(gtsam.symbol('#', i + 1), lk_pose)
         
         np.random.seed()
 
