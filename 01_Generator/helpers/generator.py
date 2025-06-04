@@ -41,11 +41,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
         
         # Setup ID's for each robot
         self.robots = []
-        lk_offset = 0
         for i in range(self.config.dataset_opts['number_robots']):
-            if ascii_letters[i] == 'l':
-                lk_offset = 1
-            rid = ascii_letters[i + lk_offset]
+            rid = ascii_letters[i]
             self.robots.append(rid)
         
         # Add robot to handle landmarks
