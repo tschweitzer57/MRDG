@@ -124,7 +124,7 @@ class DatasetParser():
 
                     is_key1_rid = chr(gtsam.Symbol(key1).chr()) == rid
                     is_key2_rid = chr(gtsam.Symbol(key2).chr()) == rid
-                    is_lk = (chr(gtsam.Symbol(key1).chr()) == 'l' or chr(gtsam.Symbol(key2).chr()) == 'l')
+                    is_lk = (chr(gtsam.Symbol(key1).chr()) == '#' or chr(gtsam.Symbol(key2).chr()) == '#')
                     are_consecutive = gtsam.Symbol(key1).index() + 1 == gtsam.Symbol(key2).index()
                     is_inter = chr(gtsam.Symbol(key1).chr()) != chr(gtsam.Symbol(key2).chr())
                     is_direct = gtsam.Symbol(key1).index() == gtsam.Symbol(key2).index()
@@ -210,7 +210,7 @@ class DatasetParser():
                 if len(factor.keys()) > 1:
                     key1 = factor.keys()[0]
                     key2 = factor.keys()[1]
-                    is_lk = (chr(gtsam.Symbol(key1).chr()) == 'l' or chr(gtsam.Symbol(key2).chr()) == 'l')
+                    is_lk = (chr(gtsam.Symbol(key1).chr()) == '#' or chr(gtsam.Symbol(key2).chr()) == '#')
                     is_inter = chr(gtsam.Symbol(key1).chr()) != chr(gtsam.Symbol(key2).chr())
                     is_direct = gtsam.Symbol(key1).index() == gtsam.Symbol(key2).index()
                     if (is_inter and is_direct and not is_lk):
@@ -226,7 +226,7 @@ class DatasetParser():
                 if len(factor.keys()) > 1:
                     key1 = factor.keys()[0]
                     key2 = factor.keys()[1]
-                    is_lk = (chr(gtsam.Symbol(key1).chr()) == 'l' or chr(gtsam.Symbol(key2).chr()) == 'l')
+                    is_lk = (chr(gtsam.Symbol(key1).chr()) == '#' or chr(gtsam.Symbol(key2).chr()) == '#')
                     is_inter = chr(gtsam.Symbol(key1).chr()) != chr(gtsam.Symbol(key2).chr())
                     is_indirect = gtsam.Symbol(key1).index() != gtsam.Symbol(key2).index()
                     if (is_inter and is_indirect and not is_lk):
@@ -261,9 +261,9 @@ class DatasetParser():
                     if len(factor.keys()) > 1:
                         key1 = factor.keys()[0]
                         key2 = factor.keys()[1]
-                        if chr(gtsam.Symbol(key1).chr()) == 'l':
+                        if chr(gtsam.Symbol(key1).chr()) == '#':
                             self.landmarks[key1].add(key2)
-                        elif chr(gtsam.Symbol(key2).chr()) == 'l':
+                        elif chr(gtsam.Symbol(key2).chr()) == '#':
                             self.landmarks[key2].add(key1)
 
         for l_key in self.landmarks.keys():
