@@ -28,8 +28,8 @@ def get_data_paths(solver, results_folder, dataset_folder):
 #####################################################
 ###           TEST_4 - Pyxis                      ###
 #####################################################
-dataset_folder = 'datasets/TEST_5'
-results_folder = 'input/TEST_5'
+dataset_folder = 'datasets/TEST_6'
+results_folder = 'input/TEST_6'
 output_folder = 'saved_output'
 
 solver = 'pyxis'
@@ -45,6 +45,7 @@ data = {}
 #     dsp.plot_gtlk_error(err)
 
 for key in results_paths.keys():
+    print(key)
     res1 = Results(results_paths[key][1], results_paths[key][0], output_folder)
     res = Results2(results_paths[key][1], results_paths[key][0], output_folder)
     err = res.get_consensuslk_error(1)
