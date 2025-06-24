@@ -1,10 +1,10 @@
 {
-    "output_dir": "./output/iccad6",
-    "name": "default",
+    "output_dir": "./output",
+    "name": "default_32",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 20,
-        "number_robots": 4,
+        "number_robots": 32,
         "initialization_type": "noisy_gt",
         "trajectory_seed": 43,
         "outliers": "False"

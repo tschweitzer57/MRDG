@@ -1,6 +1,6 @@
 {
-    "output_dir": "./output/iccad6",
-    "name": "default",
+    "output_dir": "./output",
+    "name": "default_16",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 20,
