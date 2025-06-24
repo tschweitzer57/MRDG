@@ -6,7 +6,7 @@ import os
 import glob
 import sys
 
-def get_data_paths(solver, results_folder, dataset_folder):
+def get_data_paths(solvers, results_folder, dataset_folder):
     # Get all dataset .jrl files paths
     datasets_paths = glob.glob(os.path.join(dataset_folder, '*.jrl'))
 
@@ -16,25 +16,24 @@ def get_data_paths(solver, results_folder, dataset_folder):
 
     # Define output list
     paths = {}
-
-    for result_path in results_paths:
-        for dataset_path in datasets_paths:
-            dataset_name = os.path.splitext(os.path.basename(dataset_path))[0]
-            if dataset_name in os.path.basename(result_path):
-                paths[solver +'_'+ dataset_name] = (dataset_path,result_path)
-
+    for solver in solvers:
+        for result_path in results_paths:
+            for dataset_path in datasets_paths:
+                dataset_name = os.path.splitext(os.path.basename(dataset_path))[0]
+                if dataset_name in os.path.basename(result_path) and solver in os.path.basename(result_path):
+                    paths[solver +'_'+ dataset_name] = (dataset_path,result_path)
     return paths
 
 #####################################################
-###           TEST_4 - Pyxis                      ###
+###           TEST_6 - Pyxis                      ###
 #####################################################
 dataset_folder = 'datasets/TEST_6'
 results_folder = 'input/TEST_6'
 output_folder = 'saved_output'
 
-solver = 'pyxis'
+solvers = ['pyxis', 'mesa']
 
-results_paths = get_data_paths(solver, results_folder, dataset_folder)
+results_paths = get_data_paths(solvers, results_folder, dataset_folder)
 data = {}
 
 # for key in results_paths.keys():
@@ -45,14 +44,14 @@ data = {}
 #     dsp.plot_gtlk_error(err)
 
 for key in results_paths.keys():
-    print(key)
+    print(results_paths[key][1], results_paths[key][0])
     res1 = Results(results_paths[key][1], results_paths[key][0], output_folder)
     res = Results2(results_paths[key][1], results_paths[key][0], output_folder)
     err = res.get_consensuslk_error(1)
     dsp = Display(res1)
     dsp.plot_consensuslk_error(err)
-
-
+    err = res.get_gtlk_error(1)
+    dsp.plot_gtlk_error(err)
 
 # mdsp = MultiDisplay()
 

@@ -74,7 +74,6 @@ class Results2():
     def get_consensuslk_error(self, lnumber):
         key = gtsam.symbol('#', lnumber)
         error = {}
-        print(self.dataset.groundTruth('a').atPoint3(key))
 
         # Initialize structure
         for edge in self.comm_edges:
