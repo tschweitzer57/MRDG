@@ -47,3 +47,4 @@
 ## Ideas
 - Trouver une manière pour optimiser le workfow avec CSLAM
 - Génération en C++ ?
+- Simplifier le fonctionnement des résultats

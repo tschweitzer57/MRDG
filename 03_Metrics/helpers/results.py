@@ -55,7 +55,7 @@ class Results2():
                 self.iteration_results[self.__get_iteration_step(path)] = parser.parseResults(path, True)
 
     def get_gtlk_error(self, lnumber):
-        key = gtsam.symbol('l', lnumber)
+        key = gtsam.symbol('#', lnumber)
         error = {}
 
         # Initialize structure
