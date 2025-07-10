@@ -27,8 +27,8 @@ def get_data_paths(solvers, results_folder, dataset_folder):
 #####################################################
 ###           TEST_6 - Pyxis                      ###
 #####################################################
-dataset_folder = 'datasets/BR_1'
-results_folder = 'input/BR_1'
+dataset_folder = 'datasets/BR_1_2'
+results_folder = 'input/BR_1_2'
 output_folder = 'saved_output'
 
 solvers = ['pyxis', 'mesa']
@@ -43,23 +43,23 @@ data = {}
 #     dsp = Display(res1)
 #     dsp.plot_gtlk_error(err)
 
-# for key in results_paths.keys():
-#     print(results_paths[key][1], results_paths[key][0])
-#     res1 = Results(results_paths[key][1], results_paths[key][0], output_folder)
-#     res = Results2(results_paths[key][1], results_paths[key][0], output_folder)
-#     err = res.get_consensuslk_error(1)
-#     dsp = Display(res1)
-#     dsp.plot_consensuslk_error(err)
-#     err = res.get_gtlk_error(1)
-#     dsp.plot_gtlk_error(err)
+for key in results_paths.keys():
+    print(results_paths[key][1], results_paths[key][0])
+    res1 = Results(results_paths[key][1], results_paths[key][0], output_folder)
+    res = Results2(results_paths[key][1], results_paths[key][0], output_folder)
+    err = res.get_consensuslk_error(1)
+    dsp = Display(res1)
+    dsp.plot_consensuslk_error(err)
+    err = res.get_gtlk_error(1)
+    dsp.plot_gtlk_error(err)
 
-res1 = Results('input/BR_1/default_32_geodesic-mesa_2025-06-24_14-49-00', 'datasets/BR_1/default_32.jrl', output_folder)
-res = Results2('input/BR_1/default_32_geodesic-mesa_2025-06-24_14-49-00', 'datasets/BR_1/default_32.jrl', output_folder)
-err = res.get_consensuslk_error(1)
-dsp = Display(res1)
-dsp.plot_consensuslk_error(err)
-err = res.get_gtlk_error(1)
-dsp.plot_gtlk_error(err)
+# res1 = Results('input/BR_1/default_32_geodesic-mesa_2025-06-24_14-49-00', 'datasets/BR_1/default_32.jrl', output_folder)
+# res = Results2('input/BR_1/default_32_geodesic-mesa_2025-06-24_14-49-00', 'datasets/BR_1/default_32.jrl', output_folder)
+# err = res.get_consensuslk_error(1)
+# dsp = Display(res1)
+# dsp.plot_consensuslk_error(err)
+# err = res.get_gtlk_error(1)
+# dsp.plot_gtlk_error(err)
 
 
 # mdsp = MultiDisplay()
