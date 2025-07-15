@@ -40,6 +40,7 @@ class Display():
 
             for item in inp_error[rid]:
                 iteration.append(item[0])
+                print(item[0])
                 error.append(item[1])
 
             plt.plot(iteration, error, 
@@ -55,8 +56,6 @@ class Display():
         # Reorganize data
         ax = plt.figure()
         colors = sns.color_palette("colorblind", len(self.robots))
-
-        iteration = list(range(0,502))
 
         first_run = True
         for edge in inp_error.keys():

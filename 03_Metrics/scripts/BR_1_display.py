@@ -21,17 +21,17 @@ def get_data_paths(solvers, results_folder, dataset_folder):
             for dataset_path in datasets_paths:
                 dataset_name = os.path.splitext(os.path.basename(dataset_path))[0]
                 if dataset_name in os.path.basename(result_path) and solver in os.path.basename(result_path):
-                    paths[solver +'_'+ dataset_name] = (dataset_path,result_path)
+                    paths[solver +'_'+ dataset_name] = (result_path, dataset_path)
     return paths
 
 #####################################################
 ###           TEST_6 - Pyxis                      ###
 #####################################################
-dataset_folder = 'datasets/BR_1_2'
-results_folder = 'input/BR_1_2'
+dataset_folder = './datasets/BR_1'
+results_folder = './input/BR_1'
 output_folder = 'saved_output'
 
-solvers = ['pyxis', 'mesa']
+solvers = ['pyxis', 'mesa', 'mesra']
 
 results_paths = get_data_paths(solvers, results_folder, dataset_folder)
 data = {}
@@ -44,14 +44,15 @@ data = {}
 #     dsp.plot_gtlk_error(err)
 
 for key in results_paths.keys():
-    print(results_paths[key][1], results_paths[key][0])
-    res1 = Results(results_paths[key][1], results_paths[key][0], output_folder)
-    res = Results2(results_paths[key][1], results_paths[key][0], output_folder)
+    print(results_paths[key][0], results_paths[key][1])
+    
+    res1 = Results(results_paths[key][0], results_paths[key][1], output_folder)
+    res = Results2(results_paths[key][0], results_paths[key][1], output_folder)
     err = res.get_consensuslk_error(1)
     dsp = Display(res1)
     dsp.plot_consensuslk_error(err)
-    err = res.get_gtlk_error(1)
-    dsp.plot_gtlk_error(err)
+    #err = res.get_gtlk_error(1)
+    #dsp.plot_gtlk_error(err)
 
 # res1 = Results('input/BR_1/default_32_geodesic-mesa_2025-06-24_14-49-00', 'datasets/BR_1/default_32.jrl', output_folder)
 # res = Results2('input/BR_1/default_32_geodesic-mesa_2025-06-24_14-49-00', 'datasets/BR_1/default_32.jrl', output_folder)
