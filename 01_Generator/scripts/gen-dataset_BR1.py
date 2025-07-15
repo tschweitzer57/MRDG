@@ -228,7 +228,7 @@ def generate_dataset(config_file_path, output_dir):
             for rid in builder.robots:
                 builder.add_lk(lid, rid, pose_num)
                 # if pose_num == 19 and rid == 'a':
-                #     # builder.add_lk(lid, rid, pose_num, outlier=True)
+                #     # builder.add_lk(lid, rid, pose_num, outlier=(True, 3))
                 #     builder.add_lk(lid, rid, pose_num)
                 # elif pose_num == 19:
                 #     builder.add_lk(lid, rid, pose_num)
