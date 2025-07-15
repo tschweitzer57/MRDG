@@ -18,6 +18,9 @@ from string import ascii_letters
 from itertools import combinations
 
 from generator import DatasetGenerator
+"""
+Ce script a été créé pour tester les outliers entre la communication synchrone et asynchrone
+"""
 
 def get_all_edges(robots):
     edges = set()
