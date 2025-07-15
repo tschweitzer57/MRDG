@@ -19,6 +19,10 @@ from itertools import combinations
 
 from generator import DatasetGenerator
 
+def select_outlier_rbts(robots, percentage):
+    selection_nb = int(np.round(len(robots)*percentage/100))
+    return np.random.choice(robots, selection_nb, replace=False)
+
 def get_all_edges(robots):
     edges = set()
     for rid in robots:
@@ -218,17 +222,16 @@ def generate_dataset(config_file_path, output_dir):
         builder.incr_stamp()
         
         # Add landmarks
-        if builder.config.landmarks is not None:
+        if builder.config.landmarks is not None and pose_num == 19:
+            outlier_rbts = select_outlier_rbts(builder.robots, 10)
             
             # Add landmark measurement
             lid = gtsam.symbol('#', 1)
             for rid in builder.robots:
-                builder.add_lk(lid, rid, pose_num)
-                # if pose_num == 19 and rid == 'a':
-                #     # builder.add_lk(lid, rid, pose_num, outlier=(True,3))
-                #     builder.add_lk(lid, rid, pose_num)
-                # elif pose_num == 19:
-                #     builder.add_lk(lid, rid, pose_num)
+                if rid in outlier_rbts:
+                    builder.add_lk(lid, rid, pose_num, outlier=(True,10))
+                else:
+                    builder.add_lk(lid, rid, pose_num)
 
     dataset = builder.build()
     writer = jrl.Writer()
@@ -246,8 +249,8 @@ def generate_dataset(config_file_path, output_dir):
 
 if __name__ == "__main__":
 
-    config_folder = './configs/BR_1'
-    output_dir = './saved_outputs/BR_1'
+    config_folder = './configs/BR_2'
+    output_dir = './saved_outputs/BR_2'
     
     file_paths = get_config_paths(config_folder)
 
