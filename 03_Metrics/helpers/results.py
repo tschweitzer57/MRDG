@@ -50,7 +50,7 @@ class Results2():
         if os.path.exists(final_results_path):
             self.final_results = parser.parseResults(final_results_path, True)
         if os.path.exists(iteration_results_path):
-            iteration_paths = glob.glob(os.path.join(iteration_results_path, '*.jrr.cbor'))
+            iteration_paths = sorted(glob.glob(os.path.join(iteration_results_path, '*.jrr.cbor')))
             for path in iteration_paths:
                 self.iteration_results[self.__get_iteration_step(path)] = parser.parseResults(path, True)
 
@@ -80,13 +80,11 @@ class Results2():
             error[edge] = []
 
         # Get data
-        max_iter = np.max(np.array(list(self.iteration_results.keys())))
-        for iteration in range(max_iter + 1):
-            if iteration in self.iteration_results.keys():
-                for edge in self.comm_edges:
-                    estimation_1 = self.iteration_results[iteration].robot_solutions[edge[0]].values.atPoint3(key)
-                    estimation_2 = self.iteration_results[iteration].robot_solutions[edge[1]].values.atPoint3(key)
-                    error[edge].append(np.linalg.norm(estimation_1 - estimation_2))
+        for iteration in self.iteration_results.keys():
+            for edge in self.comm_edges:
+                estimation_1 = self.iteration_results[iteration].robot_solutions[edge[0]].values.atPoint3(key)
+                estimation_2 = self.iteration_results[iteration].robot_solutions[edge[1]].values.atPoint3(key)
+                error[edge].append(np.linalg.norm(estimation_1 - estimation_2))
         
         return error
 

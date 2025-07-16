@@ -40,7 +40,6 @@ class Display():
 
             for item in inp_error[rid]:
                 iteration.append(item[0])
-                print(item[0])
                 error.append(item[1])
 
             plt.plot(iteration, error, 
@@ -48,28 +47,34 @@ class Display():
                 color=colors[idx],
                 label=f'Robot {rid}'
             )
-        
+        ax.title("Test")
         ax.legend()
         plt.show()
 
-    def plot_consensuslk_error(self, inp_error):
+    def plot_consensuslk_error(self, cs_errors, labels=None, title=None):
         # Reorganize data
         ax = plt.figure()
-        colors = sns.color_palette("colorblind", len(self.robots))
+        colors = sns.color_palette("colorblind", len(cs_errors))
+        
+        for idx, cs_error in enumerate(cs_errors):
+            
+            first_run = True
+            for edge in cs_error.keys():
+                if first_run:
+                    err = np.array(cs_error[edge])
+                    iteration = list(range(0,len(cs_error[edge])))
+                    first_run = False
+                else:
+                    err += np.array(cs_error[edge])
 
-        first_run = True
-        for edge in inp_error.keys():
-            if first_run:
-                err = np.array(inp_error[edge])
-                first_run = False
-            else:
-                err += np.array(inp_error[edge])
+            plt.plot(iteration, err, 
+                alpha=1,
+                color=colors[idx],
+                label=labels[idx]
+            )
 
-        plt.plot(iteration, err, 
-            alpha=1,
-            label=f'Consensus'
-        )
-
+        if title is not None:
+            plt.title(title)
         ax.legend()
         plt.show()
         

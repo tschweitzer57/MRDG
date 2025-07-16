@@ -6,6 +6,21 @@ import os
 import glob
 import sys
 
+def group(data_paths):
+    datasets_group = {}
+    for item in data_paths.items():
+        print(item)
+        dataset = item[0][1]
+        solver = item[0][0]
+
+        if dataset not in datasets_group.keys():
+            datasets_group[dataset] = []
+            datasets_group[dataset].append((solver,item[1]))
+        else:
+            datasets_group[dataset].append((solver,item[1]))
+
+    return datasets_group
+
 def get_data_paths(solvers, results_folder, dataset_folder):
     # Get all dataset .jrl files paths
     datasets_paths = glob.glob(os.path.join(dataset_folder, '*.jrl'))
@@ -21,62 +36,33 @@ def get_data_paths(solvers, results_folder, dataset_folder):
             for dataset_path in datasets_paths:
                 dataset_name = os.path.splitext(os.path.basename(dataset_path))[0]
                 if dataset_name in os.path.basename(result_path) and solver in os.path.basename(result_path):
-                    paths[solver +'_'+ dataset_name] = (result_path, dataset_path)
+                    paths[(solver , dataset_name)] = (result_path, dataset_path)
     return paths
 
 #####################################################
-###           TEST_6 - Pyxis                      ###
+###           BR_1 - Pyxis                      ###
 #####################################################
 dataset_folder = './datasets/BR_1'
 results_folder = './input/BR_1'
 output_folder = 'saved_output'
 
-solvers = ['pyxis', 'mesa', 'mesra']
+solvers = ['pyxis', 'mesa', 'mesa-2']
 
 results_paths = get_data_paths(solvers, results_folder, dataset_folder)
 data = {}
 
-# for key in results_paths.keys():
-#     res1 = Results(results_paths[key][1], results_paths[key][0], output_folder)
-#     res = Results2(results_paths[key][1], results_paths[key][0], output_folder)
-#     err = res.get_gtlk_error(1)
-#     dsp = Display(res1)
-#     dsp.plot_gtlk_error(err)
+for dataset_group in group(results_paths).items():
+    dataset = dataset_group[0]
+    for data in dataset_group[1]:
+        print(data)
+    print(f"Computed {dataset}")
 
-for key in results_paths.keys():
-    print(results_paths[key][0], results_paths[key][1])
+#     print(results_paths[key][0], results_paths[key][1])
     
-    res1 = Results(results_paths[key][0], results_paths[key][1], output_folder)
-    res = Results2(results_paths[key][0], results_paths[key][1], output_folder)
-    err = res.get_consensuslk_error(1)
-    dsp = Display(res1)
-    dsp.plot_consensuslk_error(err)
-    #err = res.get_gtlk_error(1)
-    #dsp.plot_gtlk_error(err)
-
-# res1 = Results('input/BR_1/default_32_geodesic-mesa_2025-06-24_14-49-00', 'datasets/BR_1/default_32.jrl', output_folder)
-# res = Results2('input/BR_1/default_32_geodesic-mesa_2025-06-24_14-49-00', 'datasets/BR_1/default_32.jrl', output_folder)
-# err = res.get_consensuslk_error(1)
-# dsp = Display(res1)
-# dsp.plot_consensuslk_error(err)
-# err = res.get_gtlk_error(1)
-# dsp.plot_gtlk_error(err)
-
-
-# mdsp = MultiDisplay()
-
-# for key in data.keys():
-#     mdsp.add_results(key, data[key])
-
-# mdsp.std_boxplot(output_path='saved_output')
-
-# for key in data.keys():
-#     if 'default' in key:
-#         name_id = 'default'
-#     elif 'noisy' in key:
-#         name_id = 'noisy'
-#     else:
-#         name_id = 'none'
-#     for idx, result in enumerate(data[key]):
-#         dsp = Display(result)
-#         dsp.plot_trajectories_all(data_type='est', ref='gt',name=f'{name_id}: iteration {idx}')
+    # res1 = Results(results_paths[key][0], results_paths[key][1], output_folder)
+    # res = Results2(results_paths[key][0], results_paths[key][1], output_folder)
+    # err = res.get_consensuslk_error(1)
+    # dsp = Display(res1)
+    # dsp.plot_consensuslk_error([err],['Val'],'Consensus de l\'essaim')
+    # err = res.get_gtlk_error(1)
+    # dsp.plot_gtlk_error(err)
