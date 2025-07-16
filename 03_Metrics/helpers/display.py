@@ -14,20 +14,7 @@ import seaborn as sns
 
 from results import Data
 
-class Display():
-
-    def __init__(self, Results):
-        # initialize structure
-        self.groundtruths = {}
-        self.initializations = {}
-        self.estimates = {}
-        self.robots = Results.dataset.robots()
-        self.errors = Results.errors
-
-        for rid in self.robots:
-            self.groundtruths[rid] = Results.dataset.groundTruth(rid)
-            self.initializations[rid] = Results.dataset.initialization(rid)
-            self.estimates[rid] = Results.results.robot_solutions[rid].values
+class Display2():
 
     def plot_gtlk_error(self, inp_error):
         # Reorganize data
@@ -77,6 +64,22 @@ class Display():
             plt.title(title)
         ax.legend()
         plt.show()
+
+
+class Display():
+
+    def __init__(self, Results):
+        # initialize structure
+        self.groundtruths = {}
+        self.initializations = {}
+        self.estimates = {}
+        self.robots = Results.dataset.robots()
+        self.errors = Results.errors
+
+        for rid in self.robots:
+            self.groundtruths[rid] = Results.dataset.groundTruth(rid)
+            self.initializations[rid] = Results.dataset.initialization(rid)
+            self.estimates[rid] = Results.results.robot_solutions[rid].values
         
     def plot_trajectories(self, data_type=None, ref=None):
         if data_type is None:

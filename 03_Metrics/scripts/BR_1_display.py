@@ -53,9 +53,21 @@ data = {}
 
 for dataset_group in group(results_paths).items():
     dataset = dataset_group[0]
+    print(f"Dataset: {dataset}")
+    solvers = []
+    errors = {}
+    errors['gt'] = []
+    errors['consensus'] = []
+
     for data in dataset_group[1]:
-        print(data)
-    print(f"Computed {dataset}")
+        print(f"Solver: {data[0]}")
+        solvers.append(data[0])
+        res = Results2(data[1][0], data[1][1], output_folder)
+        errors['consensus'].append(res.get_consensuslk_error(1))
+        errors['gt'].append(res.get_gtlk_error(1))
+
+    dsp = Display2()
+    dsp.plot_consensuslk_error(errors['consensus'],solvers,'Consensus de l\'essaim')
 
 #     print(results_paths[key][0], results_paths[key][1])
     
