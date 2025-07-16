@@ -16,6 +16,9 @@ from results import Data
 
 class Display2():
 
+    def __init__(self):
+        print('Initialized')
+
     def plot_gtlk_error(self, inp_error):
         # Reorganize data
         ax = plt.figure()

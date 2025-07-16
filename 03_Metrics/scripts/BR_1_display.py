@@ -1,5 +1,5 @@
 from results import Results, Results2
-from display import Display, MultiDisplay
+from display import Display, Display2, MultiDisplay
 import numpy as np
 
 import os
@@ -53,21 +53,22 @@ data = {}
 
 for dataset_group in group(results_paths).items():
     dataset = dataset_group[0]
-    print(f"Dataset: {dataset}")
-    solvers = []
-    errors = {}
-    errors['gt'] = []
-    errors['consensus'] = []
+    if dataset == 'default_4':
+        print(f"Dataset: {dataset}")
+        solvers = []
+        errors = {}
+        errors['gt'] = []
+        errors['consensus'] = []
 
-    for data in dataset_group[1]:
-        print(f"Solver: {data[0]}")
-        solvers.append(data[0])
-        res = Results2(data[1][0], data[1][1], output_folder)
-        errors['consensus'].append(res.get_consensuslk_error(1))
-        errors['gt'].append(res.get_gtlk_error(1))
+        for data in dataset_group[1]:
+            print(f"Solver: {data[0]}")
+            solvers.append(data[0])
+            res = Results2(data[1][0], data[1][1], output_folder)
+            errors['consensus'].append(res.get_consensuslk_error(1))
+            errors['gt'].append(res.get_gtlk_error(1))
 
-    dsp = Display2()
-    dsp.plot_consensuslk_error(errors['consensus'],solvers,'Consensus de l\'essaim')
+        dsp = Display2()
+        dsp.plot_consensuslk_error(errors['consensus'],solvers,'Consensus de l\'essaim')
 
 #     print(results_paths[key][0], results_paths[key][1])
     
