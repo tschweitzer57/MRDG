@@ -2,6 +2,8 @@ import argparse
 import os
 import sys
 
+import re
+
 import jrl
 import gtsam
 import numpy as np
@@ -16,10 +18,15 @@ from results import Data
 
 class Display2():
 
-    def __init__(self):
-        print('Initialized')
+    def __init__(self, output_folder):
+        self.output_folder = output_folder
 
-    def plot_gtlk_error(self, inp_error):
+    def __extract_dataset(self, chaine):
+        #contenu = re.findall(r'\((.*?)\)', chaine)
+        contenu = re.findall(r'\((.*?)\)', chaine)
+        return contenu[0]
+
+    def plot_gtlk_error(self, gt_error, title=None):
         # Reorganize data
         ax = plt.figure()
         colors = sns.color_palette("colorblind", len(self.robots))
@@ -28,7 +35,7 @@ class Display2():
             iteration = []
             error = []
 
-            for item in inp_error[rid]:
+            for item in gt_error[rid]:
                 iteration.append(item[0])
                 error.append(item[1])
 
@@ -37,7 +44,8 @@ class Display2():
                 color=colors[idx],
                 label=f'Robot {rid}'
             )
-        ax.title("Test")
+        if title is not None:
+            plt.title(title)
         ax.legend()
         plt.show()
 
@@ -65,9 +73,11 @@ class Display2():
 
         if title is not None:
             plt.title(title)
+            fig_name = self.__extract_dataset(title) + '.png'
+        plt.ylabel('distance (m)')
+        plt.xlabel('number of iterations')
         ax.legend()
-        plt.show()
-
+        plt.savefig(os.path.join(self.output_folder, fig_name), dpi=300, bbox_inches='tight', transparent=False)
 
 class Display():
 

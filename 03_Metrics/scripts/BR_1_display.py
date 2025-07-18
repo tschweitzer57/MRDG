@@ -53,6 +53,7 @@ data = {}
 
 for dataset_group in group(results_paths).items():
     dataset = dataset_group[0]
+    
     if dataset == 'default_4':
         print(f"Dataset: {dataset}")
         solvers = []
@@ -67,8 +68,8 @@ for dataset_group in group(results_paths).items():
             errors['consensus'].append(res.get_consensuslk_error(1))
             errors['gt'].append(res.get_gtlk_error(1))
 
-        dsp = Display2()
-        dsp.plot_consensuslk_error(errors['consensus'],solvers,'Consensus de l\'essaim')
+        dsp = Display2(output_folder)
+        dsp.plot_consensuslk_error(errors['consensus'],solvers, f'Swarm Consensus on landmark 1 ({dataset})')
 
 #     print(results_paths[key][0], results_paths[key][1])
     
