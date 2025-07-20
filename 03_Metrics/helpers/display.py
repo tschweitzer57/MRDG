@@ -29,9 +29,9 @@ class Display2():
     def plot_gtlk_error(self, gt_error, title=None):
         # Reorganize data
         ax = plt.figure()
-        colors = sns.color_palette("colorblind", len(self.robots))
+        colors = sns.color_palette("colorblind", len(gt_error.keys()))
 
-        for idx, rid in enumerate(self.robots):
+        for idx, rid in enumerate(gt_error.keys()):
             iteration = []
             error = []
 
@@ -46,8 +46,11 @@ class Display2():
             )
         if title is not None:
             plt.title(title)
+            fig_name = 'gt_' + self.__extract_dataset(title) + '.png'
+        plt.ylabel('distance (m)')
+        plt.xlabel('number of iterations')
         ax.legend()
-        plt.show()
+        plt.savefig(os.path.join(self.output_folder, fig_name), dpi=300, bbox_inches='tight', transparent=False)
 
     def plot_consensuslk_error(self, cs_errors, labels=None, title=None):
         # Reorganize data
@@ -73,7 +76,7 @@ class Display2():
 
         if title is not None:
             plt.title(title)
-            fig_name = self.__extract_dataset(title) + '.png'
+            fig_name = 'consensus_' + self.__extract_dataset(title) + '.png'
         plt.ylabel('distance (m)')
         plt.xlabel('number of iterations')
         ax.legend()
