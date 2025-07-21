@@ -54,21 +54,20 @@ data = {}
 for dataset_group in group(results_paths).items():
     dataset = dataset_group[0]
     
-    if dataset == 'default_4':
-        print(f"Dataset: {dataset}")
-        solvers = []
-        errors = {}
-        errors['consensus'] = []
-        dsp = Display2(output_folder)
+    print(f"Dataset: {dataset}")
+    solvers = []
+    errors = {}
+    errors['consensus'] = []
+    dsp = Display2(output_folder)
 
-        for data in dataset_group[1]:
-            print(f"Solver: {data[0]}")
-            solvers.append(data[0])
-            res = Results2(data[1][0], data[1][1], output_folder)
-            errors['consensus'].append(res.get_consensuslk_error(1))
-            dsp.plot_gtlk_error(res.get_gtlk_error(1), f'Swarm Errors on landmark 1 ({dataset} - {data[0]})')
+    for data in dataset_group[1]:
+        print(f"Solver: {data[0]}")
+        solvers.append(data[0])
+        res = Results2(data[1][0], data[1][1], output_folder)
+        errors['consensus'].append(res.get_consensuslk_error(1))
+        dsp.plot_gtlk_error(res.get_gtlk_error(1), f'Swarm Errors on landmark 1 ({dataset} - {data[0]})')
 
-        dsp.plot_consensuslk_error(errors['consensus'],solvers, f'Swarm Consensus on landmark 1 ({dataset})')
+    dsp.plot_consensuslk_error(errors['consensus'],solvers, f'Swarm Consensus on landmark 1 ({dataset})')
 
 #     print(results_paths[key][0], results_paths[key][1])
     
