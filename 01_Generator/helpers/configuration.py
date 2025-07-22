@@ -150,7 +150,7 @@ class DatasetConfiguration():
 
 if __name__ == '__main__':
     # Dataset Parameters
-    generate_default_config_file()
+    # generate_default_config_file()
     file_path = '/home/workspace/configs/default.json'
     Params = DatasetConfiguration(file_path)
     print(Params)
