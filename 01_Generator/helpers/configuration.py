@@ -1,6 +1,70 @@
 import json
 import numpy as np
 
+def generate_default_config_file():
+    output_path="/home/workspace/configs/default.json"
+    default_config = {
+        "output_dir": "/home/workspace/output",
+        "name": "default_dataset",
+        "dataset-options": {
+            "repeats": 1,
+            "number_poses": 250,
+            "number_robots": 4,
+            "initialization_type": "noisy_gt",
+            "trajectory_seed": 43
+        },
+        "limits": {
+            "x": [-30, 30],
+            "y": [-30, 30],
+            "z": [-30, 30]
+        },
+        "odometry": {
+            "odom_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+        },
+        "intra-loop-closure": {
+            "frequency": 50,
+            "index": 20
+        },
+        "inter-indirect-loop-closure": {
+            "frequency": 50,
+            "index": 20
+        },
+        "inter-direct-loop-closure": {
+            "pose": {
+                "frequency": 50
+            },
+            "range": {
+                "frequency": 50
+            }
+        },
+        "landmarks": {
+            "number": 30,
+            "seed": 57,
+            "pack": "all",
+            "probability": 0.4
+        },
+        "sigmas": {
+            "initialization": [0.2, 0.2, 0.2, 1, 1, 1],
+            "prior": [0.0175, 0.0175, 0.0175, 0.01, 0.01, 0.01],
+            "robot_zero_prior": [0.0175, 0.0175, 0.0175, 0.01, 0.01, 0.01],
+
+            "odom": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
+
+            "lc_intra": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
+            "lc_inter_indirect": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
+            "lc_inter_direct_pose": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
+            "lc_inter_direct_range": 0.10,
+            "landmarks": [0.05, 0.05, 0.1]
+        },
+        "outliers": {
+            "rate": 0.0
+        }
+    }
+
+    with open(output_path, "w") as f:
+        json.dump(default_config, f, indent=4)
+    print(f"Default config file generated at {output_path}")
+
 class DatasetConfiguration():
     def __init__(self, json_file_path):
         json_data = self.read_json_file(json_file_path)
@@ -37,8 +101,6 @@ class DatasetConfiguration():
         # Outliers
         self.outliers = json_data.get('outliers')
      
-        
-
     def __str__(self):
         output  = f"----------------------------------\n"
         output += f"-----  Dataset Parameters :  -----\n"
@@ -47,77 +109,63 @@ class DatasetConfiguration():
         output += f"Output directory : {self.output_dir}\n"
         output += f"\n"
 
-        if self.dataset_opts is not None:
-            output += f"Dataset-options :\n"
-            output += f"-----------------\n"
-            output += f"Number of reapeats : {self.dataset_opts['repeats']}\n"
-            output += f"Number of poses : {self.dataset_opts['number_poses']}\n"
-            output += f"Number of robots : {self.dataset_opts['number_robots']}\n"
-            output += f"Initialization type : {self.dataset_opts['initialization_type']}\n"
-            output += f"\n"
+        output += self.__json_section_str(self.limits, "Limits")
+        output += self.__json_section_str(self.dataset_opts, "Dataset-options")
+        output += self.__json_section_str(self.landmarks, "Landmarks")
+        output += self.__json_section_str(self.odometry, "Odometry")
+        output += self.__json_section_str(self.lc_intra, "Loop closure - Intra")
+        output += self.__json_section_str(self.lc_inter_indirect, "Loop closure - Inter - Indirect")
+        output += self.__json_section_str(self.lc_inter_direct, "Loop closure - Inter - Direct")
+        output += self.__json_section_str(self.sigmas, "Sigmas")
 
-        if self.landmarks is not None:
-            output += f"Landmarks :\n"
-            output += f"----------\n"
-            output += f"Number of landmarks : {self.landmarks['number']}\n"
-            output += f"Seed : {self.landmarks['seed']}\n"
-            output += f"Probability : {self.landmarks['probability']}\n"
-            output += f"\n"
+        # if self.limits is not None:
+        #     output += self.__title_str("Limits")
+        #     for item in self.limits.items():
+        #         output += f"{item[0]}: {item[1]}\n"
+        #     output += f"\n"
+
+        # if self.dataset_opts is not None:
+        #     output += self.__title_str("Dataset-options")
+        #     for item in self.dataset_opts.items():
+        #         output += f"{item[0]}: {item[1]}\n"
+        #     output += f"\n"
+
+        # if self.landmarks is not None:
+        #     output += self.__title_str("Landmarks")
+        #     for item in self.landmarks.items():
+        #         output += f"{item[0]}: {item[1]}\n"
+        #     output += f"\n"
         
-        if self.odometry is not None:
-            output += f"Odometry :\n"
-            output += f"----------\n"
-            output += f"Displacement probabilities : {self.odometry['odom_probs']}\n"
-            output += f"\n"
+        # if self.odometry is not None:
+        #     output += self.__title_str("Odometry")
+        #     for item in self.odometry.items():
+        #         output += f"{item[0]}: {item[1]}\n"
+        #     output += f"\n"
 
-        if self.lc_intra is not None:
-            output += f"Loop closure - Intra :\n"
-            output += f"----------------------\n"
-            output += f"Distance threshold : {self.lc_intra['distance_threshold']}\n"
-            output += f"Index threshold : {self.lc_intra['index_threshold']}\n"
-            output += f"Probability : {self.lc_intra['probability']}\n"
-            output += f"\n"
+        # if self.lc_intra is not None:
+        #     output += self.__title_str("Loop closure - Intra")
+        #     for item in self.lc_intra.items():
+        #         output += f"{item[0]}: {item[1]}\n"
+        #     output += f"\n"
 
-        if self.lc_inter_indirect is not None:
-            output += f"Loop closure - Inter - Indirect :\n"
-            output += f"---------------------------------\n"
-            output += f"Distance threshold : {self.lc_inter_indirect['distance_threshold']}\n"
-            output += f"Index threshold : {self.lc_inter_indirect['index_threshold']}\n"
-            output += f"Probability : {self.lc_inter_indirect['probability']}\n"
-            output += f"\n"
+        # if self.lc_inter_indirect is not None:
+        #     output += self.__title_str("Loop closure - Inter - Indirect")
+        #     for item in self.lc_inter_indirect.items():
+        #         output += f"{item[0]}: {item[1]}\n"
+        #     output += f"\n"
 
-        if self.lc_inter_direct is not None:
-            output += f"Loop closure - Inter - Direct :\n"
-            output += f"-------------------------------\n"
-            for key in self.lc_inter_direct.keys():
-                output += key + ' : ' + str(self.lc_inter_direct[key]) + "\n"
-            output += f"\n"
+        # if self.lc_inter_direct is not None:
+        #     output += self.__title_str("Loop closure - Inter - Direct")
+        #     for item in self.lc_inter_direct.items():
+        #         output += f"{item[0]}: {item[1]}\n"
+        #     output += f"\n"
 
-        if self.sigmas is not None:
-            output += f"Sigmas :\n"
-            output += f"--------\n"
-            output += f"Initialization : {self.sigmas['initialization']}\n"
-            output += f"\n"
-            output += f"Prior : {self.sigmas['prior']}\n"
-            output += f"Robot Zero Prior : {self.sigmas['robot_zero_prior']}\n"
-            output += f"\n"
-            output += f"Odometry : {self.sigmas['odom']}\n"
-            output += f"\n"
-            output += f"Loop Closure [Intra] : {self.sigmas['lc_intra']}\n"
-            output += f"Loop Closure [Inter-Indirect] : {self.sigmas['lc_inter_indirect']}\n"
-            output += f"Loop Closure [Inter-Direct-Pose] : {self.sigmas['lc_inter_direct_pose']}\n"
-            output += f"Loop Closure [Inter-Direct-Range] : {self.sigmas['lc_inter_direct_range']}\n"
-            output += f"\n"
-            output += f"Landmarks : {self.sigmas['landmarks']}\n"
-            output += f"\n"
-        
-        if self.limits is not None:
-            output += f"Limits :\n"
-            output += f"--------\n"
-            output += f"X : {self.limits['x']}\n"
-            output += f"Y : {self.limits['y']}\n"
-            output += f"Z : {self.limits['z']}\n"
-        
+        # if self.sigmas is not None:
+        #     output += self.__title_str("Sigmas")
+        #     for item in self.sigmas.items():
+        #         output += f"{item[0]}: {item[1]}\n"
+        #     output += f"\n"
+
         return output
     
     def read_json_file(self, file_path):
@@ -132,8 +180,25 @@ class DatasetConfiguration():
         except Exception as e:
             print(f"An unexpected error occurred: {e}")
 
+    def __title_str(self, title):
+        output = f"{title} :"
+        output += "\n" + "-" * len(output) + "\n"
+        return output
+    
+    def __json_section_str(self, section_data, section_name):
+        if section_data is not None:
+            output = self.__title_str(section_name)
+            for item in section_data.items():
+                output += f"{item[0]}: {item[1]}\n"
+            output += f"\n"
+        else:
+            output = ""
+
+        return output
+
 if __name__ == '__main__':
     # Dataset Parameters
+    generate_default_config_file()
     file_path = '/home/workspace/configs/default.json'
     Params = DatasetConfiguration(file_path)
     print(Params)
