@@ -118,54 +118,6 @@ class DatasetConfiguration():
         output += self.__json_section_str(self.lc_inter_direct, "Loop closure - Inter - Direct")
         output += self.__json_section_str(self.sigmas, "Sigmas")
 
-        # if self.limits is not None:
-        #     output += self.__title_str("Limits")
-        #     for item in self.limits.items():
-        #         output += f"{item[0]}: {item[1]}\n"
-        #     output += f"\n"
-
-        # if self.dataset_opts is not None:
-        #     output += self.__title_str("Dataset-options")
-        #     for item in self.dataset_opts.items():
-        #         output += f"{item[0]}: {item[1]}\n"
-        #     output += f"\n"
-
-        # if self.landmarks is not None:
-        #     output += self.__title_str("Landmarks")
-        #     for item in self.landmarks.items():
-        #         output += f"{item[0]}: {item[1]}\n"
-        #     output += f"\n"
-        
-        # if self.odometry is not None:
-        #     output += self.__title_str("Odometry")
-        #     for item in self.odometry.items():
-        #         output += f"{item[0]}: {item[1]}\n"
-        #     output += f"\n"
-
-        # if self.lc_intra is not None:
-        #     output += self.__title_str("Loop closure - Intra")
-        #     for item in self.lc_intra.items():
-        #         output += f"{item[0]}: {item[1]}\n"
-        #     output += f"\n"
-
-        # if self.lc_inter_indirect is not None:
-        #     output += self.__title_str("Loop closure - Inter - Indirect")
-        #     for item in self.lc_inter_indirect.items():
-        #         output += f"{item[0]}: {item[1]}\n"
-        #     output += f"\n"
-
-        # if self.lc_inter_direct is not None:
-        #     output += self.__title_str("Loop closure - Inter - Direct")
-        #     for item in self.lc_inter_direct.items():
-        #         output += f"{item[0]}: {item[1]}\n"
-        #     output += f"\n"
-
-        # if self.sigmas is not None:
-        #     output += self.__title_str("Sigmas")
-        #     for item in self.sigmas.items():
-        #         output += f"{item[0]}: {item[1]}\n"
-        #     output += f"\n"
-
         return output
     
     def read_json_file(self, file_path):
