@@ -12,6 +12,9 @@ class DatasetConfiguration():
         
         # Dataset-options
         self.dataset_opts = json_data.get('dataset-options')
+
+        # Limits
+        self.limits = json_data.get('limits')
         
         # Odometry
         self.odometry = json_data.get('odometry')
@@ -30,9 +33,11 @@ class DatasetConfiguration():
 
         # Sigmas
         self.sigmas = json_data.get('sigmas')
+
+        # Outliers
+        self.outliers = json_data.get('outliers')
      
-        # Limits
-        self.limits = json_data.get('limits')
+        
 
     def __str__(self):
         output  = f"----------------------------------\n"
