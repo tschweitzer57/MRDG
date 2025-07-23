@@ -49,7 +49,7 @@ class Display2():
             fig_name = 'gt_' + self.__extract_dataset(title) + '.png'
         plt.ylabel('distance (m)')
         plt.xlabel('number of iterations')
-        ax.legend()
+        #ax.legend()
         plt.savefig(os.path.join(self.output_folder, fig_name), dpi=300, bbox_inches='tight', transparent=False)
 
     def plot_consensuslk_error(self, cs_errors, labels=None, title=None):
