@@ -1,6 +1,6 @@
 {
     "output_dir": "./outputs",
-    "name": "outliers_30",
+    "name": "outliers_1_5_30",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 20,
