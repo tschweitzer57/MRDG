@@ -54,6 +54,7 @@
         "landmarks": [0.05, 0.05, 0.1]
     },
     "outliers": {
-        "percentage": 10
+        "percentage": 70,
+        "factor": 5
     }
 }

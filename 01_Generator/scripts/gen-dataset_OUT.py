@@ -223,13 +223,13 @@ def generate_dataset(config_file_path, output_dir):
         
         # Add landmarks
         if builder.config.landmarks is not None and pose_num == 19:
-            outlier_rbts = select_outlier_rbts(builder.robots, 10)
+            outlier_rbts = select_outlier_rbts(builder.robots, builder.config.outliers['percentage'])
             
             # Add landmark measurement
             lid = gtsam.symbol('#', 1)
             for rid in builder.robots:
                 if rid in outlier_rbts:
-                    builder.add_lk(lid, rid, pose_num, outlier=(True,10))
+                    builder.add_lk(lid, rid, pose_num, outlier=(True, builder.config.outliers['factor']))
                 else:
                     builder.add_lk(lid, rid, pose_num)
 

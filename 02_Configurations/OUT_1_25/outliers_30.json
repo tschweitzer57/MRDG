@@ -1,6 +1,6 @@
 {
     "output_dir": "./outputs",
-    "name": "outliers_10",
+    "name": "outliers_30",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 20,
@@ -54,6 +54,7 @@
         "landmarks": [0.05, 0.05, 0.1]
     },
     "outliers": {
-        "percentage": 10
+        "percentage": 30,
+        "factor": 1.25
     }
 }
