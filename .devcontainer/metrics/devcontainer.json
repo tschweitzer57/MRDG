@@ -13,7 +13,8 @@
 		"source=${localWorkspaceFolder}/03_Metrics/helpers,target=/home/workspace/helpers,type=bind",
 		"source=${localWorkspaceFolder}/04_Datasets,target=/home/workspace/datasets,type=bind", // mandatory to get groundtruths
 		"source=${localWorkspaceFolder}/05_Results/Computed,target=/home/workspace/input,type=bind",
-		"source=${localWorkspaceFolder}/05_Results/Metrics,target=/home/workspace/saved_output,type=bind"
+		"source=${localWorkspaceFolder}/05_Results/Metrics,target=/home/workspace/saved_output,type=bind",
+		"source=${localWorkspaceFolder}/05_Results/Display,target=/home/workspace/display_output,type=bind"
 	],
 	
 	"containerEnv": {
