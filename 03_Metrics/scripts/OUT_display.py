@@ -42,9 +42,10 @@ def get_data_paths(solvers, results_folder, dataset_folder):
 #####################################################
 ###           BR_1 - Pyxis                      ###
 #####################################################
-dataset_folder = './datasets/OUT'
-results_folder = './input/OUT'
+dataset_folder = './datasets/OUT_V2'
+results_folder = './input/OUT_V2'
 output_folder = 'saved_output'
+display_folder = 'display_output'
 
 solvers = ['pyxis', 'mesa', 'mesa-2']
 
@@ -58,7 +59,7 @@ for dataset_group in group(results_paths).items():
     solvers = []
     errors = {}
     errors['consensus'] = []
-    dsp = Display2(output_folder)
+    dsp = Display2(display_folder)
 
     for data in dataset_group[1]:
         print(f"Solver: {data[0]}")
