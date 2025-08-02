@@ -32,6 +32,13 @@
 
 	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "pip install evo"
+	// && pip uninstall -y numpy matplotlib && sudo apt remove -y python3-numpy python3-matplotlib && pip install matplotlib && pip install numpy==1.24.3"
+
+		//"pip uninstall -y numpy matplotlib",
+		//"sudo apt remove -y python3-numpy python3-matplotlib",
+		//"pip install matplotlib",
+		//"pip install numpy==1.24.3"
+	
 	//
 	// DISPLAY=192.168.14.255:0
 
