@@ -42,8 +42,8 @@ def get_data_paths(solvers, results_folder, dataset_folder):
 #####################################################
 ###           BR_1 - Pyxis                      ###
 #####################################################
-dataset_folder = './datasets/BR_1'
-results_folder = './input/BR_1'
+dataset_folder = './datasets/BR_1_2'
+results_folder = './input/Valid'
 output_folder = 'saved_output'
 
 solvers = ['pyxis', 'mesa', 'mesa-2']
