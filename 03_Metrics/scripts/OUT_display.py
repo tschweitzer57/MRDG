@@ -43,12 +43,11 @@ def get_data_paths(solvers, results_folder, dataset_folder):
 ###           BR_1 - Pyxis                      ###
 #####################################################
 dataset_folder = './datasets/OUT_V2'
-results_folder = './input/OUT_V2'
+results_folder = './input/OUT_V2_cluster2'
 output_folder = 'saved_output'
 display_folder = 'display_output'
 
-#solvers = ['pyxis-5', 'pyxis-6', 'pyxis-7']
-solvers = ['pyxis-7']
+solvers = ['pyxis-5', 'pyxis-6', 'pyxis-7']
 
 results_paths = get_data_paths(solvers, results_folder, dataset_folder)
 data = {}
