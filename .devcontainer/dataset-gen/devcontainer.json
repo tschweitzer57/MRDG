@@ -15,7 +15,6 @@
 		"source=${localWorkspaceFolder}/02_Configurations,target=/home/workspace/configs,type=bind",
 		"source=${localWorkspaceFolder}/04_Datasets,target=/home/workspace/saved_outputs,type=bind"
 	],
-
 	"containerEnv": {
     	"PYTHONPATH": "/home/workspace/helpers:/home/workspace/scripts:$PYTHONPATH"
 	}
