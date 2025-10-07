@@ -3,6 +3,7 @@ import os
 import glob
 import json
 import numpy as np
+from collections import defaultdict
 
 # Third party librairies
 import jrl
@@ -54,6 +55,18 @@ class Results2():
             for path in iteration_paths:
                 self.iteration_results[self.__get_iteration_step(path)] = parser.parseResults(path, True)
 
+        # Get shared variables
+        self.__get_shared_variables()
+
+    def __get_shared_variables(self):
+        occurences = defaultdict(list)
+
+        for rid in self.robots:
+            for key in self.iteration_results[0].robot_solutions[rid].values.keys():
+                occurences[key].append(rid)
+        
+        self.shared_variables = {key: value for key, value in occurences.items() if len(value) > 1}
+
     def get_gtlk_error(self, lnumber):
         key = gtsam.symbol('#', lnumber)
         error = {}
@@ -73,11 +86,7 @@ class Results2():
     
     def get_consensuslk_error(self, lnumber):
         key = gtsam.symbol('#', lnumber)
-        error = {}
-
-        # Initialize structure
-        for edge in self.comm_edges:
-            error[edge] = []
+        error = defaultdict(list)
 
         # Get data
         for iteration in self.iteration_results.keys():

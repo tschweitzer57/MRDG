@@ -224,6 +224,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 prev_pose = new_pose
     
     # Generator for landmarks amers
+    # minimum distance between landmarks $d_{min}$
     def gen_lk_amers(self, nb=None):
 
         if nb is None and self.config.landmarks is not None:

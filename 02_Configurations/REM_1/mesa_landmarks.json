@@ -1,6 +1,6 @@
 {
     "output_dir": "./outputs",
-    "name": "mesa_landmark",
+    "name": "mesa_landmarks",
     "dataset-options": {
         "repeats": 1,
         "number_poses": 250,
