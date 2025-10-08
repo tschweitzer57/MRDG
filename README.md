@@ -1,19 +1,21 @@
 # MRDG
-Multi-Robots Dataset Generator is a generator of datasets for multi-robots scenarios. It can generate data for backend algorithms
+Multi-Robots Dataset Generator (MRDG) is a generator of datasets for multi-robots scenarios. It can generate data for backend algorithms.
+
+<p align="center">
+<img src="0_Documentation/Ressources/Global_CSLAM_MRDG.png"
+    alt="Example JRL 2D Bearing & Range Dataset." 
+    width="70%"/>
+</p>
 
 ---
 
 <p align="center">
 <img src="0_Documentation/Ressources/MRDG_scheme.png"
     alt="Example JRL 2D Bearing & Range Dataset."
-    width="32%"/>
+    width="70%"/>
 </p>
 
-<p align="center">
-<img src="0_Documentation/Ressources/Global_CSLAM_MRDG.png"
-    alt="Example JRL 2D Bearing & Range Dataset." 
-    width="32%"/>
-</p>
+
 
 ## Prerequisites
 
