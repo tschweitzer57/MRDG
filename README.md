@@ -3,14 +3,6 @@ Multi-Robots Dataset Generator is a generator of datasets for multi-robots scena
 
 ---
 
-```markdown
-![MRDG global scheme](0_Documentation\Ressources\MRDG_scheme.png)
-```
-
-```markdown
-![MRDG global scheme](0_Documentation\Ressources\Global_CSLAM_MRDG.png)
-```
-
 <p align="center">
 <img src="0_Documentation/Ressources/MRDG_scheme.png"
     alt="Example JRL 2D Bearing & Range Dataset."
