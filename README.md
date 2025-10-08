@@ -15,8 +15,6 @@ Multi-Robots Dataset Generator (MRDG) is a generator of datasets for multi-robot
     width="70%"/>
 </p>
 
-
-
 ## Prerequisites
 
 - **Operating System** :
@@ -32,11 +30,12 @@ Multi-Robots Dataset Generator (MRDG) is a generator of datasets for multi-robot
 
 ## Repository structure
 
-- [Generator](./01_Generator) : Contient les scripts capables de générer les datasets selon les différents scénarios envisagés
-- [Configurations](./02_Configurations) : Contient les fichiers de configuration des datasets
-- [Metrics](./03_Metrics) : Contient des scripts pour calculer les différentes erreurs et les afficher/visualiser
-- [Datasets](./04_Datasets) : Contient les datasets ayant été générés
-- [Results](./05_Results) : Contient les résultats obtenus (erreurs et visualisations)
+- [Documentation](./0_Documentation) : Contient la documentation de MRDG
+- [Generator](./1_Generator) : Contient les scripts capables de générer les datasets selon les différents scénarios envisagés
+- [Configurations](./2_Configurations) : Contient les fichiers de configuration des datasets
+- [Metrics](./3_Metrics) : Contient des scripts pour calculer les différentes erreurs et les afficher/visualiser
+- [Datasets](./4_Datasets) : Contient les datasets ayant été générés
+- [Results](./5_Results) : Contient les résultats obtenus (erreurs et visualisations)
 
 ---
 
