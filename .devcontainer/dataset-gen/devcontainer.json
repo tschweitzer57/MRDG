@@ -9,11 +9,11 @@
 	// Setup the workspace and mount on docker:
 	"workspaceFolder": "/home/workspace",
 	"mounts": [
-		"source=${localWorkspaceFolder}/01_Generator/helpers,target=/home/workspace/helpers,type=bind",
-		"source=${localWorkspaceFolder}/01_Generator/scripts,target=/home/workspace/scripts,type=bind",
-		"source=${localWorkspaceFolder}/01_Generator/output,target=/home/workspace/output,type=bind",
-		"source=${localWorkspaceFolder}/02_Configurations,target=/home/workspace/configs,type=bind",
-		"source=${localWorkspaceFolder}/04_Datasets,target=/home/workspace/saved_outputs,type=bind"
+		"source=${localWorkspaceFolder}/1_Generator/helpers,target=/home/workspace/helpers,type=bind",
+		"source=${localWorkspaceFolder}/1_Generator/scripts,target=/home/workspace/scripts,type=bind",
+		"source=${localWorkspaceFolder}/1_Generator/output,target=/home/workspace/output,type=bind",
+		"source=${localWorkspaceFolder}/2_Configurations,target=/home/workspace/configs,type=bind",
+		"source=${localWorkspaceFolder}/4_Datasets,target=/home/workspace/saved_outputs,type=bind"
 	],
 	"containerEnv": {
     	"PYTHONPATH": "/home/workspace/helpers:/home/workspace/scripts:$PYTHONPATH"
