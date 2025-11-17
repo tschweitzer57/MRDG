@@ -85,6 +85,10 @@ class DatasetGenerator(jrl.DatasetBuilder):
             Pose3(Rxn, np.array([0, 0, 0])),  # Turn -x   (90°)
         ]
 
+    #--------------------------------------------
+    #   Getters / Setters
+    #--------------------------------------------
+
     @property
     def gt_vals(self):
         gt_out = {}
@@ -95,6 +99,10 @@ class DatasetGenerator(jrl.DatasetBuilder):
             pose = self.gt_poses.atPose3(key)
             gt_out[rid].insert(key, pose)
         return gt_out
+
+    #--------------------------------------------
+    #   Auxiliary functions
+    #--------------------------------------------
     
     def incr_stamp(self):
         self.stamp += 1
@@ -163,9 +171,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             return dpl
 
-    #-----------------------------------------------------------------------------------------
-    #   Define data generators
-    #-----------------------------------------------------------------------------------------
+    #--------------------------------------------
+    #   Poses and Landmarks generation functions
+    #--------------------------------------------
 
     # Generator for groundtruth trajectories
     def gen_gt_trajectories(self, nb_poses=None):
@@ -240,9 +248,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
         
         np.random.seed()
 
-    #-----------------------------------------------------------------------------------------
-    #   Define error noise generators
-    #-----------------------------------------------------------------------------------------
+    #--------------------------------------------
+    #   Error noise generators
+    #--------------------------------------------
 
     def init_noise_gen(self, sigma = None):
         if sigma == None:
@@ -316,9 +324,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
             noise = np.minimum(noise, -force_outlier * np.array(sigma))
         return noise
     
-    #----------------------------
-    #   Factor generators
-    #----------------------------
+    #--------------------------------------------
+    #    Factor generators
+    #--------------------------------------------
 
     def make_range_factor(self, k1, k2):
         fg = gtsam.NonlinearFactorGraph()
@@ -352,9 +360,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
         fg.add(gtsam.BetweenFactorPose3(k1, k2, measure, noise_model))
         return fg
 
-    #----------------------------
+    #--------------------------------------------
     #   Dataset builder functions
-    #----------------------------
+    #--------------------------------------------
 
     def add_prior(self, rid, pose_number):
         # for i, rid in enumerate(self.robots):
@@ -616,6 +624,74 @@ class DatasetGenerator(jrl.DatasetBuilder):
         if not self.is_key_in(rid, l_key):
             self.addGroundTruth(rid, jrl.TypedValues(gt_val_lk, {l_key: jrl.Point3Tag}))
             self.addInitialization(rid, jrl.TypedValues(est_val_lk, {l_key: jrl.Point3Tag}))
+
+    #--------------------------------------------
+    #   Dataset generation (default)
+    #--------------------------------------------
+
+    def generate_dataset(self, config_file_path, output_dir):
+    # Setup folders
+    config_name, _ = os.path.splitext(os.path.basename(config_file_path))
+    output_path = output_dir
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+    output_path = os.path.join(output_path, config_name + ".jrl")
+    
+    # Setup the Dataset Builder
+    builder = DatasetGenerator(config_file_path)
+    if builder.config.lc_inter_direct is not None:
+        if builder.config.lc_inter_direct.get('range') is not None:
+            init_range_freq = np.random.randint(builder.config.lc_inter_direct['range']['frequency'])
+        if builder.config.lc_inter_direct.get('pose') is not None:
+            init_pose_freq = np.random.randint(builder.config.lc_inter_direct['pose']['frequency'])
+    
+    seed = 53
+
+    # Setup groundTruths
+    builder.gen_gt_trajectories()
+    
+    # Add 1 landmark
+    if builder.config.landmarks is not None:
+        # Generate landmarks
+        builder.gen_lk_amers(1)
+
+    for rid in builder.robots:
+        builder.add_prior(rid, 0)
+    builder.incr_stamp()
+
+    for pose_num in range(1,builder.config.dataset_opts['number_poses']):
+        
+        # Add odometry measurements
+        for rid in builder.robots:
+            builder.add_odom_step(rid, pose_num)
+        builder.incr_stamp()
+        
+        # Add landmarks
+        if builder.config.landmarks is not None and pose_num == 19:
+            outlier_rbts = select_outlier_rbts(builder.robots, 10)
+            
+            # Add landmark measurement
+            lid = gtsam.symbol('#', 1)
+            for rid in builder.robots:
+                if rid in outlier_rbts:
+                    builder.add_lk(lid, rid, pose_num, outlier=(True,10))
+                else:
+                    builder.add_lk(lid, rid, pose_num)
+
+    dataset = builder.build()
+    writer = jrl.Writer()
+
+    dataset_count = 0
+
+    writer.writeDataset(
+        dataset,
+        output_path,
+        #os.path.join(builder.config.output_dir, builder.config.name + "_{:01d}.jrl".format(dataset_count)),
+        #os.path.join(config.output_dir, config.name + "_{:04d}.jrl".format(dataset_count)),
+        False,
+    )
+    print('generated',output_path)
 
 if __name__ == "__main__":
 
