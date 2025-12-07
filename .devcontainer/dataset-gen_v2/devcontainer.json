@@ -18,6 +18,5 @@
 
 	"containerEnv": {
     	"PYTHONPATH": "/home/workspace/helpers:/home/workspace/scripts:$PYTHONPATH"
-	}
-	
+	}	
 }
