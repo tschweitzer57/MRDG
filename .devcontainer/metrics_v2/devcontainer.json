@@ -1,12 +1,7 @@
-// For format details, see https://aka.ms/devcontainer.json. For config options, see the
-// README at: https://github.com/devcontainers/templates/tree/main/src/ubuntu
 {
 	"name": "error-metrics-v2",
-	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-	//	"image": "tschweitzer57/gtsam:ros2-humble", TODO: debuggen folgende Anweisung: odom_noise_model = gtsam.noiseModel.Diagonal.Sigmas([0.175, 0.175, 0.175, 0.05, 0.05, 0.05])
 	"image": "tschweitzer57/gtsam:4.3a0-ros2jazzy-mirage",
 
-	// Setup the workspace and mount on docker:
 	"workspaceFolder": "/home/workspace",
 	"mounts": [
 		"source=${localWorkspaceFolder}/3_Metrics/scripts,target=/home/workspace/scripts,type=bind",
@@ -21,30 +16,5 @@
     	"PYTHONPATH": "/home/workspace/helpers:/home/workspace/scripts:$PYTHONPATH"
 	},
 
-	//"workspaceFolder": "/workspaces/",
-	//"workspaceMount": "source=c:/Users/thiba/Documents/01_SyLRED/01_CARLoS/01_Tests/MESA/workspace,target=/home/mesa_workspace/wksp,type=bind"
-
-	// Features to add to the dev container. More info: https://containers.dev/features.
-	// "features": {},
-
-	// Use 'forwardPorts' to make a list of ports inside the container available locally.
-	// "forwardPorts": [],
-
-	// Use 'postCreateCommand' to run commands after the container is created.
 	"postCreateCommand": "pip install evo"
-	// && pip uninstall -y numpy matplotlib && sudo apt remove -y python3-numpy python3-matplotlib && pip install matplotlib && pip install numpy==1.24.3"
-
-		//"pip uninstall -y numpy matplotlib",
-		//"sudo apt remove -y python3-numpy python3-matplotlib",
-		//"pip install matplotlib",
-		//"pip install numpy==1.24.3"
-	
-	//
-	// DISPLAY=192.168.14.255:0
-
-	// Configure tool-specific properties.
-	// "customizations": {},
-
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
 }
