@@ -10,7 +10,7 @@ from configuration import get_config_paths
 
 if __name__ == "__main__":
 
-    config_folder = './configs/ICCAD2'
+    config_folder = './configs/BR_1'
     output_dir = './saved_outputs/BR_1'
     
     file_paths = get_config_paths(config_folder)
