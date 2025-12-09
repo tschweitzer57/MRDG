@@ -8,7 +8,7 @@ from collections import defaultdict
 
 from configuration import DatasetConfiguration
 
-#TODO: Extraire Landmarks / Groundtruth / Initialization / Noise sous forme de classes
+#TODO Extraire Landmarks / Groundtruth / Initialization / Noise sous forme de classes
 #TODO transform gt var into simple gtsam.Values (dont require rid since there is a key)
 #TODO init start point
 #TODO add scenario add reset add save -> same dataset with different factors
@@ -363,7 +363,6 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #--------------------------------------------
     #   Dataset builder functions
     #--------------------------------------------
-
     def add_prior(self, rid, pose_number):
         # for i, rid in enumerate(self.robots):
         key = gtsam.symbol(rid, pose_number)
@@ -628,25 +627,24 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #--------------------------------------------
     #   Dataset generation (default)
     #--------------------------------------------
-
     def generate_dataset(self, config_file_path, output_dir):
-    # Setup folders
-    config_name, _ = os.path.splitext(os.path.basename(config_file_path))
-    output_path = output_dir
+        # Setup folders
+        config_name, _ = os.path.splitext(os.path.basename(config_file_path))
+        output_path = output_dir
 
-    if not os.path.exists(output_path):
-        os.makedirs(output_path)
-    output_path = os.path.join(output_path, config_name + ".jrl")
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        output_path = os.path.join(output_path, config_name + ".jrl")
     
-    # Setup the Dataset Builder
-    builder = DatasetGenerator(config_file_path)
-    if builder.config.lc_inter_direct is not None:
-        if builder.config.lc_inter_direct.get('range') is not None:
-            init_range_freq = np.random.randint(builder.config.lc_inter_direct['range']['frequency'])
-        if builder.config.lc_inter_direct.get('pose') is not None:
-            init_pose_freq = np.random.randint(builder.config.lc_inter_direct['pose']['frequency'])
-    
-    seed = 53
+        # Setup the Dataset Builder
+        builder = DatasetGenerator(config_file_path)
+        if builder.config.lc_inter_direct is not None:
+            if builder.config.lc_inter_direct.get('range') is not None:
+                init_range_freq = np.random.randint(builder.config.lc_inter_direct['range']['frequency'])
+            if builder.config.lc_inter_direct.get('pose') is not None:
+                init_pose_freq = np.random.randint(builder.config.lc_inter_direct['pose']['frequency'])
+        
+        seed = 53
 
     # Setup groundTruths
     builder.gen_gt_trajectories()
