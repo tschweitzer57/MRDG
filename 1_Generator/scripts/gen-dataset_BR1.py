@@ -9,8 +9,7 @@ import jrl
 import json
 
 import numpy as np
-from gtsam.symbol_shorthand import X
-from gtsam.symbol_shorthand import L
+
 #from scipy.stats import chi2
 from copy import copy
 from string import ascii_letters
