@@ -1,3 +1,4 @@
+import os
 import jrl
 import gtsam
 from gtsam import Rot3, Pose3
@@ -16,11 +17,17 @@ from configuration import DatasetConfiguration
 #TODO améliorer intégration des random seed
 
 class DatasetGenerator(jrl.DatasetBuilder):
-    def __init__(self, config_path):
+    def __init__(self, config_path, output_dir=None):
 
         # Get configuration from config file
         self.config = DatasetConfiguration(config_path)
+        self.config_file_path = config_path
 
+        # Define output directory
+        if output_dir is not None:
+            self.output_dir = output_dir
+        else:
+            self.output_dir = self.set_output_dir(config_path)
         # Define variables
         self.gt_poses = gtsam.Values()
         self.init_values = gtsam.Values()
@@ -103,6 +110,15 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #--------------------------------------------
     #   Auxiliary functions
     #--------------------------------------------
+    def set_output_dir(self, config_path):
+        config_folder_name = 'configs'
+
+        path_parts = config_path.split(os.sep)
+        index = path_parts.index(config_folder_name)
+        path_parts[index] = "saved_outputs"
+        output_path = os.sep.join(path_parts[0:-1])
+        # print("Output directory set to:", output_path)
+        return output_path
 
     def get_all_edges(robots):
         edges = set()
@@ -742,57 +758,51 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #--------------------------------------------
     #   Dataset generation (default)
     #--------------------------------------------
-    def generate_dataset(self, config_file_path, output_dir):
+    def generate_dataset(self):
         # Setup folders
-        config_name, _ = os.path.splitext(os.path.basename(config_file_path))
-        output_path = output_dir
+        config_name, _ = os.path.splitext(os.path.basename(self.config_file_path))
 
-        if not os.path.exists(output_path):
-            os.makedirs(output_path)
-        output_path = os.path.join(output_path, config_name + ".jrl")
+        if not os.path.exists(self.output_dir):
+            os.makedirs(self.output_dir)
+        output_path = os.path.join(self.output_dir, config_name + ".jrl")
     
         # Setup the Dataset Builder
-        builder = DatasetGenerator(config_file_path)
-        if builder.config.lc_inter_direct is not None:
-            if builder.config.lc_inter_direct.get('range') is not None:
-                init_range_freq = np.random.randint(builder.config.lc_inter_direct['range']['frequency'])
-            if builder.config.lc_inter_direct.get('pose') is not None:
-                init_pose_freq = np.random.randint(builder.config.lc_inter_direct['pose']['frequency'])
-        
-        seed = 53
-
+        if self.config.lc_inter_direct is not None:
+            if self.config.lc_inter_direct.get('range') is not None:
+                init_range_freq = np.random.randint(self.config.lc_inter_direct['range']['frequency'])
+            if self.config.lc_inter_direct.get('pose') is not None:
+                init_pose_freq = np.random.randint(self.config.lc_inter_direct['pose']['frequency'])
         # Setup groundTruths
-        builder.gen_gt_trajectories()
+        self.gen_gt_trajectories()
         
         # Add 1 landmark
-        if builder.config.landmarks is not None:
+        if self.config.landmarks is not None:
             # Generate landmarks
-            builder.gen_lk_amers(1)
+            self.gen_lk_amers(1)
 
-        for rid in builder.robots:
-            builder.add_prior(rid, 0)
-        builder.incr_stamp()
-
-        for pose_num in range(1,builder.config.dataset_opts['number_poses']):
+        for rid in self.robots:
+            self.add_prior(rid, 0)
+        self.incr_stamp()
+        for pose_num in range(1,self.config.dataset_opts['number_poses']):
             
             # Add odometry measurements
-            for rid in builder.robots:
-                builder.add_odom_step(rid, pose_num)
-            builder.incr_stamp()
+            for rid in self.robots:
+                self.add_odom_step(rid, pose_num)
+            self.incr_stamp()
             
             # Add landmarks
-            if builder.config.landmarks is not None and pose_num == 19:
-                outlier_rbts = select_outlier_rbts(builder.robots, 10)
+            if self.config.landmarks is not None and pose_num == 19:
+                outlier_rbts = select_outlier_rbts(self.robots, 10)
                 
                 # Add landmark measurement
                 lid = gtsam.symbol('#', 1)
-                for rid in builder.robots:
+                for rid in self.robots:
                     if rid in outlier_rbts:
-                        builder.add_lk(lid, rid, pose_num, outlier=(True,10))
+                        self.add_lk(lid, rid, pose_num, outlier=(True,10))
                     else:
-                        builder.add_lk(lid, rid, pose_num)
+                        self.add_lk(lid, rid, pose_num)
 
-        dataset = builder.build()
+        dataset = self.build()
         writer = jrl.Writer()
 
         dataset_count = 0
@@ -800,8 +810,6 @@ class DatasetGenerator(jrl.DatasetBuilder):
         writer.writeDataset(
             dataset,
             output_path,
-            #os.path.join(builder.config.output_dir, builder.config.name + "_{:01d}.jrl".format(dataset_count)),
-            #os.path.join(config.output_dir, config.name + "_{:04d}.jrl".format(dataset_count)),
             False,
         )
         print('generated',output_path)

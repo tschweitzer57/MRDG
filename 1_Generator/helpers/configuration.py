@@ -6,9 +6,6 @@ import glob
 def get_config_paths(config_folder):
     # List all entries in the parent folder
     entries = os.listdir(config_folder)
-    for entry in entries:
-        print(entry)
-    print("----")
 
     # Filter out the entries that are directories
     folder_paths = [os.path.join(config_folder, entry) for entry in entries if os.path.isdir(os.path.join(config_folder, entry))]
