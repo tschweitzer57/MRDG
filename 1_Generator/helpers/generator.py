@@ -6,6 +6,8 @@ import numpy as np
 from collections import defaultdict
 from string import ascii_letters
 from collections import defaultdict
+from copy import copy
+import random
 
 from configuration import DatasetConfiguration
 
@@ -27,7 +29,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         if output_dir is not None:
             self.output_dir = output_dir
         else:
-            self.output_dir = self.set_output_dir(config_path)
+            self.output_dir = self.__set_output_dir(config_path)
         # Define variables
         self.gt_poses = gtsam.Values()
         self.init_values = gtsam.Values()
@@ -110,7 +112,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #--------------------------------------------
     #   Auxiliary functions
     #--------------------------------------------
-    def set_output_dir(self, config_path):
+    def __set_output_dir(self, config_path):
         config_folder_name = 'configs'
 
         path_parts = config_path.split(os.sep)
@@ -120,25 +122,32 @@ class DatasetGenerator(jrl.DatasetBuilder):
         # print("Output directory set to:", output_path)
         return output_path
 
-    def get_all_edges(robots):
+    def __get_all_edges(self):
+        '''
+        Generate all possible communication edges between robots
+        '''
         edges = set()
-        for rid in robots:
-            for oid in robots:
+        for rid in self.robots:
+            for oid in self.robots:
                 if rid != oid:
                     edge = (min(rid,oid),max(rid,oid))
                     edges.add(edge)
         return edges
 
-    def pack_lid_per_rid(robots, nb_lks, group_type):
+    def __pack_lid_per_rid(self, group_type='all'):
+        '''
+        Pack landmark IDs per robot ID based on grouping type
+        '''
+        nb_lks = self.config.landmarks['number']
         lk_ids = [gtsam.symbol('#', i + 1) for i in range(nb_lks)]
         lid_dict = {}
 
         if group_type == 'edges':
-            edges = get_all_edges(robots)
+            edges = self.__get_all_edges()
             batch_nb = nb_lks // len(edges)
 
             # init structure
-            for rid in robots:
+            for rid in self.robots:
                 lid_dict[rid] = set()
 
             for index, edge in enumerate(edges):
@@ -147,11 +156,11 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     lid_dict[edge[0]].add(lk)
                     lid_dict[edge[1]].add(lk)
             
-            for rid in robots:
+            for rid in self.robots:
                 lid_dict[rid] = list(lid_dict[rid])
 
         elif group_type == 'all':
-            for rid in robots:
+            for rid in self.robots:
                 lid_dict[rid] = lk_ids
 
         return lid_dict
@@ -766,42 +775,89 @@ class DatasetGenerator(jrl.DatasetBuilder):
             os.makedirs(self.output_dir)
         output_path = os.path.join(self.output_dir, config_name + ".jrl")
     
-        # Setup the Dataset Builder
+        # Initialize first poses for loops
         if self.config.lc_inter_direct is not None:
             if self.config.lc_inter_direct.get('range') is not None:
                 init_range_freq = np.random.randint(self.config.lc_inter_direct['range']['frequency'])
             if self.config.lc_inter_direct.get('pose') is not None:
                 init_pose_freq = np.random.randint(self.config.lc_inter_direct['pose']['frequency'])
+
         # Setup groundTruths
         self.gen_gt_trajectories()
         
         # Add 1 landmark
         if self.config.landmarks is not None:
             # Generate landmarks
-            self.gen_lk_amers(1)
+            self.gen_lk_amers()
+            lks_ids = self.__pack_lid_per_rid()
 
         for rid in self.robots:
             self.add_prior(rid, 0)
         self.incr_stamp()
-        for pose_num in range(1,self.config.dataset_opts['number_poses']):
+
+        for pose_num in range(1, self.config.dataset_opts['number_poses']):
             
             # Add odometry measurements
             for rid in self.robots:
                 self.add_odom_step(rid, pose_num)
             self.incr_stamp()
+
+            # Add loop closure : intra
+            if self.config.lc_intra is not None:
+                for rid in self.robots:
+                    pose_oid = max(pose_num - self.config.lc_intra['index'], 0)
+
+                    # TODO initialize all freqs at beginning
+                    freq = self.config.lc_intra['frequency']
+
+                    if pose_num % freq == 0:
+                        self.add_lc_intra(rid, pose_num, pose_oid)
+                        self.incr_stamp()
+
+            # Add loop closure : inter - indirect
+            if self.config.lc_inter_indirect is not None:
+                for rid in self.robots:
+                    pose_oid = max(pose_num - self.config.lc_inter_indirect['index'], 0)
+                    ids = copy(self.robots)
+                    ids.remove(rid) 
+                    oid = np.random.choice(ids)
+                    #generate list of tuple for each var
+
+                    freq = self.config.lc_inter_indirect['frequency']
+
+                    if pose_num % freq == 0:
+                        self.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
+                        self.incr_stamp()
+
+            # Add loop closure : intrer - direct
+            if self.config.lc_inter_direct is not None:
+
+                # Add range measurement
+                if self.config.lc_inter_direct.get('range') is not None:
+                    freq = self.config.lc_inter_direct['range']['frequency']
+                    if pose_num % freq == 0:
+                        self.incr_stamp()
+                        for ra, rb in com_map:
+                            self.add_lc_inter_direct('range', pose_num, ra, rb, modality='duplex')
+                
+                # Add pose measurement
+                if self.config.lc_inter_direct.get('pose') is not None:
+                    freq = self.config.lc_inter_direct['pose']['frequency']
+                    if pose_num % freq == 0:
+                        self.incr_stamp()
+                        for ra, rb in com_map:
+                            self.add_lc_inter_direct('pose', pose_num, ra, rb, modality='duplex')
             
             # Add landmarks
-            if self.config.landmarks is not None and pose_num == 19:
-                outlier_rbts = select_outlier_rbts(self.robots, 10)
-                
+            if self.config.landmarks is not None:
+
                 # Add landmark measurement
-                lid = gtsam.symbol('#', 1)
                 for rid in self.robots:
-                    if rid in outlier_rbts:
-                        self.add_lk(lid, rid, pose_num, outlier=(True,10))
-                    else:
+                    if np.random.rand() < self.config.landmarks['probability']:
+                        lid = random.choice(lks_ids[rid])
                         self.add_lk(lid, rid, pose_num)
 
+        # Build dataset and generate jrl file
         dataset = self.build()
         writer = jrl.Writer()
 
@@ -812,7 +868,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             output_path,
             False,
         )
-        print('generated',output_path)
+        print('--->  ',output_path)
 
 if __name__ == "__main__":
 
