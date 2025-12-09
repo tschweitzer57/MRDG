@@ -1,6 +1,6 @@
 {
-	"name": "dataset-gen-v2",
-	"image": "tschweitzer57/gtsam:4.3a0-ros2-jrl",
+	"name": "dataset-gen-v3",
+	"image": "tschweitzer57/gtsam:4.3a0-ros2jazzy-mirage",
 
 	"workspaceFolder": "/home/workspace",
 	"mounts": [

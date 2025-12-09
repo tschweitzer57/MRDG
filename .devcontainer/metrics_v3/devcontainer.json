@@ -1,5 +1,5 @@
 {
-	"name": "error-metrics-v2",
+	"name": "error-metrics-v3",
 	"image": "tschweitzer57/gtsam:4.3a0-ros2jazzy-mirage",
 
 	"workspaceFolder": "/home/workspace",
