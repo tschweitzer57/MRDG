@@ -7,10 +7,15 @@ import matplotlib
 matplotlib.use("TkAgg")
 import matplotlib.pyplot as plt
 
-import seaborn as sns
+import seaborn as sb
 
 class DatasetParser():
     def __init__(self, dataset_path):
+        """Cette classe permet d'analyser et vérifier les datasets générés.
+
+        Args:
+            dataset_path (string): Chemin relatif vers le dataset d'intérêt
+        """
         parser = jrl.Parser()
         self.dataset = parser.parseDataset(dataset_path, False)
         self.dataset_path = dataset_path
@@ -65,6 +70,11 @@ class DatasetParser():
                 file.write(output)
 
     def plot_trajectories(self, data_type=None):
+        """Affiche les trajectoires parcourues par les robots
+
+        Args:
+            data_type (string, optional): 'init' -> affiche les trajectoires à l'initialisation. 'gt' -> affiche les trajectoires réelles
+        """
         if data_type is None:
             data = self.groundtruths
         elif data_type == 'gt':
@@ -74,20 +84,18 @@ class DatasetParser():
         else:
             raise ValueError("Unknown error type")
 
-        colors = sns.color_palette("colorblind", len(self.robots))
+        colors = sb.color_palette("colorblind", len(self.robots))
         ax = plt.figure().add_subplot(projection='3d')
         for idx, rid in enumerate(self.robots):
             positions = []
+            landmarks = []
             for k in data[rid].keys():
                 s = gtsam.Symbol(k)
                 if chr(s.chr()) == rid:
                     positions.append(self.getPoint(k, data[rid]))
-                elif chr(s.chr()) == 'l':
-                    landmark = data[rid].atPoint3(k)
-                    print(landmark)
+                elif chr(s.chr()) == '#':
+                    landmarks = data[rid].atPoint3(k)
             positions = np.stack(positions)
-            landmark = np.stack(landmark)
-            
             plt.plot(
                 positions.T[0],
                 positions.T[1],
@@ -96,16 +104,18 @@ class DatasetParser():
                 color=colors[idx],
                 label=f'Robot {rid}'
             )
-            ax.scatter(landmark[0], landmark[1], landmark[2], color=colors[idx])
+            if landmarks.any(): ax.scatter(landmarks[0], landmarks[1], landmarks[2], color=colors[idx]) 
             ax.legend()
         plt.axis('equal')
         plt.show()
-    
+
+    #=========================================================================================================
+    # METHODES INTERNES
+    #=========================================================================================================
     def getPoint(self, key, values):
         return values.atPose3(key).translation()
 
     
-
     def get_general(self, rid):
         nr_poses = 0
         nr_prior = 0
