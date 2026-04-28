@@ -219,6 +219,13 @@ class DatasetGenerator(jrl.DatasetBuilder):
         return comms
 
     def get_closest_lk(self, rid, pose_number):
+        """
+        Get the closest landmark to a given robot pose
+        
+        :param rid: Robot ID
+        :param pose_number: Pose number
+        :return: Key of the closest landmark
+        """
         r_key = gtsam.symbol(rid, pose_number)
         r_pose = self.gt_poses.atPose3(r_key).translation()
         first_lk = True
@@ -317,6 +324,12 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
     # Generator for groundtruth trajectories
     def gen_gt_trajectories(self, nb_poses=None):
+        """
+        Generate groundtruth trajectories for each robot
+        
+        :param nb_poses: Number of poses to generate (if None, use config file value)
+        :return: None
+        """
 
         # Define number of poses
         if nb_poses is None:
@@ -368,6 +381,11 @@ class DatasetGenerator(jrl.DatasetBuilder):
     # Generator for landmarks amers
     # minimum distance between landmarks $d_{min}$
     def gen_lk_amers(self, nb=None):
+        """
+        Generate landmarks
+
+        :param nb: Number of landmarks to generate (if None, use config file value)
+        """
 
         if nb is None and self.config.landmarks is not None:
             nb = self.config.landmarks['number']
