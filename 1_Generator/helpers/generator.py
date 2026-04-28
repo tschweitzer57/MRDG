@@ -786,6 +786,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #   Dataset generation (default)
     #--------------------------------------------
     def generate_dataset(self):
+        print("Generating dataset for config:", self.config_file_path)
+        
         # Setup folders
         config_name, _ = os.path.splitext(os.path.basename(self.config_file_path))
 
@@ -800,7 +802,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             if self.config.lc_inter_direct.get('pose') is not None:
                 init_pose_freq = np.random.randint(self.config.lc_inter_direct['pose']['frequency'])
 
-        # Setup groundTruths
+        # Generate groundTruths
         self.gen_gt_trajectories()
         
         # Add 1 landmark
