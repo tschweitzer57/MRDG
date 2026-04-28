@@ -13,6 +13,7 @@ class DatasetParser():
     def __init__(self, dataset_path):
         parser = jrl.Parser()
         self.dataset = parser.parseDataset(dataset_path, False)
+        self.dataset_path = dataset_path
 
         self.groundtruths = {}
         self.initializations = {}
@@ -21,6 +22,47 @@ class DatasetParser():
         for rid in self.robots:
             self.groundtruths[rid] = self.dataset.groundTruth(rid)
             self.initializations[rid] = self.dataset.initialization(rid)
+
+    def summary(self,file=False, filepath=None, verbose=False):
+        """
+        Génère un résumé du dataset.
+
+        Args:
+            file (bool, optional): Si True le résumé est généré sous format .txt
+            filepath (string, optional): Le fichier .txt est généré avec le chemin indiqué
+            verbose (bool, optional): Si True le résumé est affiché dans le terminal
+        """
+        output  = "*****************************\n"
+        output += "*      Dataset Summary      *\n"
+        output += "*****************************\n"
+
+        output += f"dataset name: {self.dataset.name()}\n"
+        output += f"robots: {self.dataset.robots()}\n\n"
+
+        for rid in self.dataset.robots():
+            output += f"Factors : Robot {rid}\n"
+            output += f"-----------------\n"
+            output += self.get_general(rid)
+            output += f"-----------------\n"
+            output += self.get_odometry(rid)
+            output += self.get_lc_intra(rid)
+            output += self.get_lc_inter_direct(rid)
+            output += self.get_lc_inter_indirect(rid)
+            output += "\n"
+        output += self.get_landmarks()
+
+        if verbose:
+            print(output)
+
+        if file:
+            if filepath is None:
+                file_name = self.dataset_path.replace(".jrl", "_parsed.txt")
+                print(file_name)
+            else:
+                file_name = filepath
+
+            with open(file_name, "w") as file:
+                file.write(output)
 
     def plot_trajectories(self, data_type=None):
         if data_type is None:
@@ -62,37 +104,7 @@ class DatasetParser():
     def getPoint(self, key, values):
         return values.atPose3(key).translation()
 
-    def print(self,file=False, filepath=None, verbose=False):
-        output  = "*****************************\n"
-        output += "*      Dataset Summary      *\n"
-        output += "*****************************\n"
-
-        output += f"dataset name: {self.dataset.name()}\n"
-        output += f"robots: {self.dataset.robots()}\n\n"
-
-        for rid in self.dataset.robots():
-            output += f"Factors : Robot {rid}\n"
-            output += f"-----------------\n"
-            output += self.get_general(rid)
-            output += f"-----------------\n"
-            output += self.get_odometry(rid)
-            output += self.get_lc_intra(rid)
-            output += self.get_lc_inter_direct(rid)
-            output += self.get_lc_inter_indirect(rid)
-            output += "\n"
-        output += self.get_landmarks()
-
-        if verbose:
-            print(output)
-
-        if file:
-            if filepath is None:
-                file_name = f"{self.dataset.name()}_parsed.txt"
-            else:
-                file_name = filepath
-
-            with open(file_name, "w") as file:
-                file.write(output)
+    
 
     def get_general(self, rid):
         nr_poses = 0
