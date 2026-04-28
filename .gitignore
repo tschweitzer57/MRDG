@@ -6,7 +6,8 @@
 !4_Datasets/.gitkeep
 
 # Ignore generated python files
-*/__pycache__/*
+__pycache__/*
+*.pyc
 
 # Ignore Results folders
 5_Results/Computed/*
