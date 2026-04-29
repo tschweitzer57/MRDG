@@ -1,20 +1,13 @@
 import os
 import glob
-import sys
-from datetime import date
 
+import numpy as np
 import random
+from copy import copy
+
 import gtsam
 import jrl
 import json
-
-import numpy as np
-
-#from scipy.stats import chi2
-from copy import copy
-from string import ascii_letters
-
-from itertools import combinations
 
 from generator import DatasetGenerator
 """
