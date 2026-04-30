@@ -71,16 +71,16 @@ def generate_complete_config_file():
             "robots": 10,
             "poses": 250,
             "traj_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
-            "x_lim": [-30, 30],
-            "y_lim": [-30, 30],
-            "z_lim": [-30, 30]
+            "x_lim": [-40, 40],
+            "y_lim": [-40, 40],
+            "z_lim": [-40, 40]
         },
         "landmarks": {
             "seed": 57,
             "number": 30,
             "pack": "all",
-            "detection_prob": 0.4
-            "detection_num": 0.4
+            "detection_prob": 0.4,
+            "detection_num": 50
         },
         "intra-loop-closure": {
             "number": 20,
