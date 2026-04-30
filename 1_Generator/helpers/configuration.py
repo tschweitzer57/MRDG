@@ -57,63 +57,69 @@ def get_folder_paths(config_folder):
 # print(folder_path)
 # print(folder_name)
 
-def generate_default_config_file():
+def generate_complete_config_file():
     output_path="/home/workspace/configs/default.json"
     default_config = {
+        "name": "default_complete_dataset",
         "output_dir": "/home/workspace/output",
-        "name": "default_dataset",
         "dataset-options": {
             "repeats": 1,
-            "number_poses": 250,
-            "number_robots": 4,
-            "initialization_type": "noisy_gt",
-            "trajectory_seed": 43
+            "initialization_type": "noisy_gt"
         },
-        "limits": {
-            "x": [-30, 30],
-            "y": [-30, 30],
-            "z": [-30, 30]
+        "trajectory":{
+            "seed": 67,
+            "robots": 10,
+            "poses": 250,
+            "traj_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
+            "x_lim": [-30, 30],
+            "y_lim": [-30, 30],
+            "z_lim": [-30, 30]
         },
-        "odometry": {
-            "odom_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+        "landmarks": {
+            "seed": 57,
+            "number": 30,
+            "pack": "all",
+            "detection_prob": 0.4
+            "detection_num": 0.4
         },
         "intra-loop-closure": {
+            "number": 20,
             "frequency": 50,
             "index": 20
         },
         "inter-indirect-loop-closure": {
+            "number": 20,
             "frequency": 50,
             "index": 20
         },
         "inter-direct-loop-closure": {
             "pose": {
+                "number": 20,
                 "frequency": 50
             },
             "range": {
+                "number": 20,
                 "frequency": 50
             }
         },
-        "landmarks": {
-            "number": 30,
-            "seed": 57,
-            "pack": "all",
-            "probability": 0.4
-        },
         "sigmas": {
-            "initialization": [0.2, 0.2, 0.2, 1, 1, 1],
-            "prior": [0.0175, 0.0175, 0.0175, 0.01, 0.01, 0.01],
-            "robot_zero_prior": [0.0175, 0.0175, 0.0175, 0.01, 0.01, 0.01],
+            "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],
 
-            "odom": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
+            "prior": [0.05, 0.05, 0.05, 0.1, 0.1, 0.1],
+            "robot_zero_prior": [0.05, 0.05, 0.05, 0.1, 0.1, 0.1],
 
-            "lc_intra": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
-            "lc_inter_indirect": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
-            "lc_inter_direct_pose": [0.175, 0.175, 0.175, 0.05, 0.05, 0.05],
+            "odom": [0.05, 0.05, 0.05, 0.03, 0.03, 0.03],
+
+            "lc_intra": [0.10, 0.10, 0.10, 0.04, 0.04, 0.04],
+            "lc_inter_indirect": [0.25, 0.25, 0.25, 0.08, 0.08, 0.08],
+            "lc_inter_direct_pose": [0.20, 0.20, 0.20, 0.06, 0.06, 0.06],
             "lc_inter_direct_range": 0.10,
-            "landmarks": [0.05, 0.05, 0.1]
+            "landmarks": [0.03, 0.03, 0.15]
         },
         "outliers": {
-            "rate": 0.0
+            "perceptual_aliasing":10,
+            "robot_failure":1,
+            "robot_loss":1
         }
     }
 
@@ -133,11 +139,11 @@ class DatasetConfiguration():
         # Dataset-options
         self.dataset_opts = json_data.get('dataset-options')
 
-        # Limits
-        self.limits = json_data.get('limits')
-        
-        # Odometry
-        self.odometry = json_data.get('odometry')
+        # Trajectory
+        self.trajectory = json_data.get('trajectory')
+
+        # Landmarks
+        self.landmarks = json_data.get('landmarks')
 
         # Intra loop closure
         self.lc_intra = json_data.get('intra-loop-closure')
@@ -147,9 +153,6 @@ class DatasetConfiguration():
 
         # Direct inter loop closure
         self.lc_inter_direct = json_data.get('inter-direct-loop-closure')
-
-        # Landmarks
-        self.landmarks = json_data.get('landmarks')
 
         # Sigmas
         self.sigmas = json_data.get('sigmas')
@@ -167,12 +170,13 @@ class DatasetConfiguration():
 
         output += self.__json_section_str(self.limits, "Limits")
         output += self.__json_section_str(self.dataset_opts, "Dataset-options")
+        output += self.__json_section_str(self.trajectory, "Trajectory")
         output += self.__json_section_str(self.landmarks, "Landmarks")
-        output += self.__json_section_str(self.odometry, "Odometry")
         output += self.__json_section_str(self.lc_intra, "Loop closure - Intra")
         output += self.__json_section_str(self.lc_inter_indirect, "Loop closure - Inter - Indirect")
         output += self.__json_section_str(self.lc_inter_direct, "Loop closure - Inter - Direct")
         output += self.__json_section_str(self.sigmas, "Sigmas")
+        output += self.__json_section_str(self.outliers, "Outliers")
 
         return output
     
