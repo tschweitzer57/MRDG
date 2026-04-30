@@ -18,6 +18,12 @@ MRDG is also able to compute errors from computed results.
 
 ---
 
+## Installation
+...
+
+## Usage
+...
+
 ## Repository structure
 
 - [Documentation](./0_Documentation) : Contains MRDG documentation and images
