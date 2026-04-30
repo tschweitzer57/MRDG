@@ -43,10 +43,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
         self.odom_choice = {}
         
         # Setup ID's for each robot
-        self.robots = []
-        for i in range(self.config.dataset_opts['number_robots']):
-            rid = ascii_letters[i]
-            self.robots.append(rid)
+        n = self.config.trajectory['robots']
+        self.robots = list(ascii_letters[:n])
         
         # Add robot to handle landmarks
         if self.config.landmarks is not None:
@@ -68,10 +66,10 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.config.sigmas['landmarks'])
 
         # Define if dataset include outliers
-        if self.config.dataset_opts.get('outliers') == "False":
-            self.outliers = False
-        else:
+        if self.config.outliers is not None:
             self.outliers = True
+        else:
+            self.outliers = False
 
         # Rotation matrices (NED)
         Rxp = Rot3(np.array([[1, 0, 0], [0, 0, -1], [0, 1, 0]]))
@@ -280,39 +278,39 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     return None
 
     def check_limits(self, pose, dpl):
-        if pose.x() < self.config.limits['x'][0]:
+        if pose.x() < self.config.trajectory['x_lim'][0]:
             end_pose = Pose3(
-                gtsam.Rot3.Identity(), np.array([self.config.limits['x'][0], pose.y(), pose.z()])
+                gtsam.Rot3.Identity(), np.array([self.config.trajectory['x_lim'][0], pose.y(), pose.z()])
             )
             return pose.inverse().compose(end_pose)
-        elif pose.x() > self.config.limits['x'][1]:
+        elif pose.x() > self.config.trajectory['x_lim'][1]:
             end_pose = Pose3(
                 Rot3.RzRyRx(np.pi, 0, 0),
-                np.array([self.config.limits['x'][1], pose.y(), pose.z()]),
+                np.array([self.config.trajectory['x_lim'][1], pose.y(), pose.z()]),
             )
             return pose.inverse().compose(end_pose)
-        elif pose.y() < self.config.limits['y'][0]:
+        elif pose.y() < self.config.trajectory['y_lim'][0]:
             end_pose = Pose3(
                 Rot3.RzRyRx(np.pi / 2, 0, 0),
-                np.array([pose.x(), self.config.limits['y'][0], pose.z()]),
+                np.array([pose.x(), self.config.trajectory['y_lim'][0], pose.z()]),
             )
             return pose.inverse().compose(end_pose)
-        elif pose.y() > self.config.limits['y'][1]:
+        elif pose.y() > self.config.trajectory['y_lim'][1]:
             end_pose = Pose3(
                 Rot3.RzRyRx(-np.pi / 2, 0, 0),
-                np.array([pose.x(), self.config.limits['y'][1], pose.z()]),
+                np.array([pose.x(), self.config.trajectory['y_lim'][1], pose.z()]),
             )
             return pose.inverse().compose(end_pose)
-        elif pose.z() < self.config.limits['z'][0]:
+        elif pose.z() < self.config.trajectory['z_lim'][0]:
             end_pose = Pose3(
                 Rot3.RzRyRx(0, -np.pi / 2, 0),
-                np.array([pose.x(), pose.y(), self.config.limits['z'][0]]),
+                np.array([pose.x(), pose.y(), self.config.trajectory['z_lim'][0]]),
             )
             return pose.inverse().compose(end_pose)
-        elif pose.z() > self.config.limits['z'][1]:
+        elif pose.z() > self.config.trajectory['z_lim'][1]:
             end_pose = Pose3(
                 Rot3.RzRyRx(0, np.pi / 2, 0),
-                np.array([pose.x(), pose.y(), self.config.limits['z'][1]]),
+                np.array([pose.x(), pose.y(), self.config.trajectory['z_lim'][1]]),
             )
             return pose.inverse().compose(end_pose)
         else:
@@ -333,10 +331,10 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
         # Define number of poses
         if nb_poses is None:
-            nb_poses = self.config.dataset_opts['number_poses']
+            nb_poses = self.config.trajectory['poses']
         # Define initial Pose
-        if "trajectory_seed" in self.config.dataset_opts:
-            np.random.seed(self.config.dataset_opts['trajectory_seed'])
+        if "seed" in self.config.trajectory:
+            np.random.seed(self.config.trajectory['seed'])
         else:
             np.random.seed()
 
@@ -344,9 +342,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
             initial_rot = np.random.choice(self.ODOM_OPTIONS_GRIDWORLD).rotation()
             initial_position = np.array(
             [
-                np.random.uniform(self.config.limits['x'][0] / 2, self.config.limits['x'][1] / 2),
-                np.random.uniform(self.config.limits['y'][0] / 2, self.config.limits['y'][1] / 2),
-                np.random.uniform(self.config.limits['z'][0] / 2, self.config.limits['z'][1] / 2),
+                np.random.uniform(self.config.trajectory['x_lim'][0] / 2, self.config.trajectory['x_lim'][1] / 2),
+                np.random.uniform(self.config.trajectory['y_lim'][0] / 2, self.config.trajectory['y_lim'][1] / 2),
+                np.random.uniform(self.config.trajectory['z_lim'][0] / 2, self.config.trajectory['z_lim'][1] / 2),
             ])
             init_pose = gtsam.Pose3(initial_rot, initial_position)
 
