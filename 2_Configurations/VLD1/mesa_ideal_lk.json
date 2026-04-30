@@ -16,26 +16,9 @@
     },
     "landmarks": {
         "seed": 57,
-        "number": 30,
-        "pack": "all",
-        "detection_prob": 0.4,
+        "number": 10,
+        "pack": "duo",
         "detection_num": 50
-    },
-    "intra-loop-closure": {
-        "number": 20,
-        "index": 20
-    },
-    "inter-indirect-loop-closure": {
-        "number": 20,
-        "index": 20
-    },
-    "inter-direct-loop-closure": {
-        "pose": {
-            "number": 20
-        },
-        "range": {
-            "number": 20
-        }
     },
     "sigmas": {
         "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],

@@ -1,40 +1,36 @@
 {
-    "name": "mesa_plus",
-    "output_dir": "./output",
+    "name": "mesa_detection",
+    "output_dir": "/home/workspace/output",
     "dataset-options": {
         "repeats": 1,
-        "number_poses": 250,
-        "number_robots": 10,
-        "initialization_type": "noisy_gt",
-        "trajectory_seed": 67,
-        "outliers": "False"
+        "initialization_type": "noisy_gt"
     },
-    "odometry": {
-        "odom_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05]
+    "trajectory":{
+        "seed": 67,
+        "robots": 10,
+        "poses": 250,
+        "traj_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
+        "x_lim": [-40, 40],
+        "y_lim": [-40, 40],
+        "z_lim": [-40, 40]
     },
     "inter-direct-loop-closure": {
-        "pose": {
-            "frequency": 10
+        "range": {
+            "number": 50
         }
     },
     "sigmas": {
         "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],
-        
+
         "prior": [0.05, 0.05, 0.05, 0.1, 0.1, 0.1],
         "robot_zero_prior": [0.05, 0.05, 0.05, 0.1, 0.1, 0.1],
 
-        "odom": [0.03, 0.03, 0.02, 0.03, 0.03, 0.02],
+        "odom": [0.05, 0.05, 0.05, 0.03, 0.03, 0.03],
 
         "lc_intra": [0.10, 0.10, 0.10, 0.04, 0.04, 0.04],
         "lc_inter_indirect": [0.25, 0.25, 0.25, 0.08, 0.08, 0.08],
         "lc_inter_direct_pose": [0.20, 0.20, 0.20, 0.06, 0.06, 0.06],
-        "lc_inter_direct_range": 0.12,
-
+        "lc_inter_direct_range": 0.10,
         "landmarks": [0.03, 0.03, 0.15]
-    },
-    "limits": {
-        "x": [-30, 30],
-        "y": [-30, 30],
-        "z": [-30, 30]
     }
 }

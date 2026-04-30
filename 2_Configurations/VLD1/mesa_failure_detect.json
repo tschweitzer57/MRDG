@@ -14,27 +14,9 @@
         "y_lim": [-40, 40],
         "z_lim": [-40, 40]
     },
-    "landmarks": {
-        "seed": 57,
-        "number": 30,
-        "pack": "all",
-        "detection_prob": 0.4,
-        "detection_num": 50
-    },
-    "intra-loop-closure": {
-        "number": 20,
-        "index": 20
-    },
-    "inter-indirect-loop-closure": {
-        "number": 20,
-        "index": 20
-    },
     "inter-direct-loop-closure": {
         "pose": {
-            "number": 20
-        },
-        "range": {
-            "number": 20
+            "number": 50
         }
     },
     "sigmas": {

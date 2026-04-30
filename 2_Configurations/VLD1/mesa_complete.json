@@ -50,5 +50,10 @@
         "lc_inter_direct_pose": [0.20, 0.20, 0.20, 0.06, 0.06, 0.06],
         "lc_inter_direct_range": 0.10,
         "landmarks": [0.03, 0.03, 0.15]
+    },
+    "outliers": {
+        "perceptual_aliasing":10,
+        "robot_failure":1,
+        "robot_loss":1
     }
 }
