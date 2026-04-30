@@ -1,6 +1,9 @@
 # Ignore OS-Specific files
 .DS_Store
 
+# Ignore personal archive of files
+1_Generator/archive/
+
 # Ignore generated datasets
 4_Datasets/*
 !4_Datasets/.gitkeep
