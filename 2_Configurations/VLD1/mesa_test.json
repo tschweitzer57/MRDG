@@ -7,7 +7,7 @@
     },
     "trajectory":{
         "seed": 67,
-        "robots": 10,
+        "robots": 4,
         "poses": 250,
         "traj_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
         "x_lim": [-40, 40],
@@ -18,7 +18,6 @@
         "seed": 57,
         "number": 30,
         "pack": "all",
-        "detection_prob": 0.4,
         "detection_num": 50
     },
     "intra-loop-closure": {
