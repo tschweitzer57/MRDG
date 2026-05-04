@@ -428,16 +428,16 @@ class DatasetGenerator(jrl.DatasetBuilder):
         
         np.random.seed()
 
-    def get_lc_size(len_index):
+    def get_lc_size(self, len_index):
         if "size" in self.config.lc_intra: # ajouter l'option de génération aléatoire
-            return size = self.config.lc_intra['size']
+            return self.config.lc_intra['size']
         else:
-            return size = np.random.randint(low=10, high=self.config.trajectory['poses'], size=len_index)
+            return np.random.randint(low=10, high=self.config.trajectory['poses'], size=len_index)
     
-    def gen_inter_oids(len_ids):
+    def gen_inter_oids(self, len_ids, rid):
         ids = copy(self.robots)
         ids.remove(rid) 
-        return oids = np.random.choice(ids, size=len_ids)
+        return np.random.choice(ids, size=len_ids)
 
     def gen_lc_intra(self): #-> scalable si un robot est ajouté
         # Initialisation de la clé de génération
