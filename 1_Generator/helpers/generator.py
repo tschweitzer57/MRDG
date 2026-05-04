@@ -17,6 +17,7 @@ from configuration import DatasetConfiguration
 #TODO add scenario add reset add save -> same dataset with different factors
 #TODO add a mapping function generating a common map for trajectories and lks
 #TODO améliorer intégration des random seed
+#TODO Trouver un nouvel ordre de génération des mesures
 
 class DatasetGenerator(jrl.DatasetBuilder):
     def __init__(self, config_path, output_dir=None):
@@ -33,8 +34,13 @@ class DatasetGenerator(jrl.DatasetBuilder):
         # Define variables
         self.gt_poses = gtsam.Values()
         self.init_values = gtsam.Values()
-        self.odom = defaultdict(list)
         self.landmarks = gtsam.Values()
+
+        self.odom = defaultdict(list)
+        self.lc_intra = defaultdict(list)
+        self.lc_inter_direct_range = defaultdict(list)
+        self.lc_inter_direct_pose = defaultdict(list)
+        self.lc_inter_indirect = defaultdict(list)
 
         self.stamp = 0
         #self.pose_number = 0
@@ -317,10 +323,28 @@ class DatasetGenerator(jrl.DatasetBuilder):
             return dpl
 
     #--------------------------------------------
-    #   Poses and Landmarks generation functions
+    #   Generation functions
     #--------------------------------------------
 
     # Generator for groundtruth trajectories
+    def gen_gt_trajectories_2(self, nb_poses=None):
+        """
+        Generate groundtruth trajectories for all robots.
+        
+        :param nb_poses: Number of poses to generate (if None, use config file value)
+        :return: None
+        """
+
+        # Define number of poses
+        if nb_poses is None:
+            nb_poses = self.config.trajectory['poses']
+        # Define generation seed
+        if "seed" in self.config.trajectory:
+            np.random.seed(self.config.trajectory['seed'])
+        else:
+            np.random.seed()
+        print('en développement')
+
     def gen_gt_trajectories(self, nb_poses=None):
         """
         Generate groundtruth trajectories for each robot
@@ -332,7 +356,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         # Define number of poses
         if nb_poses is None:
             nb_poses = self.config.trajectory['poses']
-        # Define initial Pose
+        # Define generation seed
         if "seed" in self.config.trajectory:
             np.random.seed(self.config.trajectory['seed'])
         else:
@@ -352,14 +376,14 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.init_values.insert(gtsam.symbol(rid, 0), init_pose)
 
         # Define displacements
-        if "trajectory_seed" in self.config.dataset_opts:
-            np.random.seed(self.config.dataset_opts['trajectory_seed'])
+        if "seed" in self.config.landmarks:
+            np.random.seed(self.config.landmarks['seed'])
         else:
             np.random.seed()
 
         for rid in self.robots:
-            dpl_index = np.random.choice(np.arange(len(self.config.odometry['odom_probs'])), 
-                                   p= self.config.odometry['odom_probs'],
+            dpl_index = np.random.choice(np.arange(len(self.config.trajectory['traj_probs'])), 
+                                   p= self.config.trajectory['traj_probs'],
                                    size= nb_poses - 1)
             prev_pose = self.gt_poses.atPose3(gtsam.symbol(rid, 0))
 
@@ -395,15 +419,138 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
         for i in range(nb):
             lk_coordinates = np.array([
-                np.random.uniform(self.config.limits['x'][0], self.config.limits['x'][1]),
-                np.random.uniform(self.config.limits['y'][0], self.config.limits['y'][1]),
-                np.random.uniform(self.config.limits['z'][0], self.config.limits['z'][1])
+                np.random.uniform(self.config.trajectory['x_lim'][0], self.config.trajectory['x_lim'][1]),
+                np.random.uniform(self.config.trajectory['y_lim'][0], self.config.trajectory['y_lim'][1]),
+                np.random.uniform(self.config.trajectory['z_lim'][0], self.config.trajectory['z_lim'][1])
             ])
             lk_pose = gtsam.Point3(lk_coordinates)
             self.landmarks.insert(gtsam.symbol('#', i + 1), lk_pose)
         
         np.random.seed()
 
+    def get_lc_size(len_index):
+        if "size" in self.config.lc_intra: # ajouter l'option de génération aléatoire
+            return size = self.config.lc_intra['size']
+        else:
+            return size = np.random.randint(low=10, high=self.config.trajectory['poses'], size=len_index)
+    
+    def gen_inter_oids(len_ids):
+        ids = copy(self.robots)
+        ids.remove(rid) 
+        return oids = np.random.choice(ids, size=len_ids)
+
+    def gen_lc_intra(self): #-> scalable si un robot est ajouté
+        # Initialisation de la clé de génération
+        if "seed" in self.config.lc_intra:
+            np.random.seed(self.config.lc_intra['seed'])
+        else:
+            np.random.seed()
+
+        # loop closures périodiques
+        if self.config.lc_intra.get('frequency') is not None and self.config.lc_intra.get('number') is None:
+            freq = self.config.lc_intra['frequency']
+
+            for rid in self.robots:
+                # sélectionner les poses sur lesquelles surviennent une boucle
+                init = np.random.randint(low=0, high=freq)
+                poses = np.arange(init, self.config.trajectory['poses'], freq)
+                lc_size = self.get_lc_size(len(poses))
+                poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
+
+        # loop closures à nombre défini
+        elif self.config.lc_intra.get('number') is not None:
+            for rid in self.robots:
+                # sélectionner les poses sur lesquelles surviennent une boucle
+                poses = np.random.randint(low=0, high=self.config.trajectory['poses'], size=self.config.lc_intra.get('number'))
+                poses = np.sort(poses)
+                lc_size = self.get_lc_size(len(poses))
+                poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
+                
+        # loop closures à nombre défini périodiques -> placé en fin de boucle
+        else:
+            freq = self.config.lc_intra['frequency']
+            #self.lc_intra[(pose, pose_oid)]
+            for rid in self.robots:
+                init = np.random.randint(low=0, high=freq)
+                poses = np.arange(0, (freq*self.config.lc_intra.get('number')), freq)
+                poses += self.config.trajectory['poses'] - init
+                lc_size = self.get_lc_size(len(poses))
+                poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
+
+    def gen_lc_inter_indirect(self):
+        # Initialisation de la clé de génération
+        if "seed" in self.config.lc_inter_indirect:
+            np.random.seed(self.config.lc_inter_indirect['seed'])
+        else:
+            np.random.seed()
+
+        # Loop closures périodiques
+        if self.config.lc_inter_indirect.get('frequency'):
+
+        # Loop closures à nombre défini
+        elif self.config.lc_inter_indirect.get('number'):
+
+        # Loop closures à nombre défini périodiques
+        else:
+
+        # Add loop closure : inter - indirect
+            if self.config.lc_inter_indirect is not None:
+                for rid in self.robots:
+                    pose_oid = max(pose_num - self.config.lc_inter_indirect['index'], 0)
+                    oids = get_inter_oids(len(poses))
+                    
+                    #generate list of tuple for each var
+
+                    freq = self.config.lc_inter_indirect['frequency']
+
+                    if pose_num % freq == 0:
+                        self.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
+                        self.incr_stamp()
+
+    def gen_lc_inter_direct(self):
+        # Initialisation de la clé de génération
+        if "seed" in self.config.lc_inter_direct:
+            np.random.seed(self.config.lc_inter_direct['seed'])
+        else:
+            np.random.seed()
+                
+        # Generates range measurements
+        if self.config.lc_inter_direct.get('range') is not None:
+            freq = self.config.lc_inter_direct['range']['frequency']
+            
+            
+            if pose_num % freq == 0:
+                self.incr_stamp()
+                for ra, rb in com_map:
+                    self.add_lc_inter_direct('range', pose_num, ra, rb, modality='duplex')
+
+
+            if self.config.lc_inter_direct.get('range') is not None:
+                if self.config.lc_inter_direct.get('frequency') is not None:
+                    init_range_freq = np.random.randint(self.config.lc_inter_direct['range']['frequency'])
+                if self.config.lc_inter_direct.get('number') is not None: # Arondir à l'entier suppérieur
+                    init_range_nb = self.config.trajectory.get('poses') * 0.05
+                
+        # Generates pose measurements
+        if self.config.lc_inter_direct.get('pose') is not None:
+            freq = self.config.lc_inter_direct['pose']['frequency']
+        
+
+            if pose_num % freq == 0:
+                self.incr_stamp()
+                for ra, rb in com_map:
+                    self.add_lc_inter_direct('pose', pose_num, ra, rb, modality='duplex')
+
+
+                if self.config.lc_inter_direct.get('pose') is not None:
+                if self.config.lc_inter_direct.get('frequency') is not None:
+                    init_pose_freq = np.random.randint(self.config.lc_inter_direct['pose']['frequency'])
+                if self.config.lc_inter_direct.get('number') is not None: # Arondir à l'entier suppérieur
+                    init_pose_nb = self.config.trajectory.get('poses') * 0.05
+
+    def gen_outliers(self):
+        print('not implemented')
+            
     #--------------------------------------------
     #   Error noise generators
     #--------------------------------------------
@@ -784,7 +931,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #   Dataset generation (default)
     #--------------------------------------------
     def generate_dataset(self):
-        print("Generating dataset for config:", self.config_file_path)
+        print("Generating dataset for configuration file:\n", self.config_file_path)
         
         # Setup folders
         config_name, _ = os.path.splitext(os.path.basename(self.config_file_path))
@@ -792,28 +939,32 @@ class DatasetGenerator(jrl.DatasetBuilder):
         if not os.path.exists(self.output_dir):
             os.makedirs(self.output_dir)
         output_path = os.path.join(self.output_dir, config_name + ".jrl")
-    
-        # Initialize first poses for loops
-        if self.config.lc_inter_direct is not None:
-            if self.config.lc_inter_direct.get('range') is not None:
-                init_range_freq = np.random.randint(self.config.lc_inter_direct['range']['frequency'])
-            if self.config.lc_inter_direct.get('pose') is not None:
-                init_pose_freq = np.random.randint(self.config.lc_inter_direct['pose']['frequency'])
 
         # Generate groundTruths
         self.gen_gt_trajectories()
         
-        # Add 1 landmark
+        # Generate landmarks
         if self.config.landmarks is not None:
             # Generate landmarks
             self.gen_lk_amers()
             lks_ids = self.__pack_lid_per_rid()
 
+        # Generate loop closure : intra
+        if self.config.lc_intra is not None:
+            self.gen_lc_intra()
+        # Generate loop closure : inter - indirect
+        if self.config.lc_inter_direct is not None:
+            self.gen_lc_inter_direct()
+        # Generate loop closure : inter - direct
+        if self.config.lc_inter_indirect is not None:
+            self.gen_lc_inter_indirect()
+
+        # Add priors
         for rid in self.robots:
             self.add_prior(rid, 0)
         self.incr_stamp()
 
-        for pose_num in range(1, self.config.dataset_opts['number_poses']):
+        for pose_num in range(1, self.config.trajectory['poses']):
             
             # Add odometry measurements
             for rid in self.robots:

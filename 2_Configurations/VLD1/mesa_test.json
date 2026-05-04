@@ -21,18 +21,22 @@
         "detection_num": 50
     },
     "intra-loop-closure": {
+        "seed": 30,
         "number": 20,
-        "index": 20
+        "size": 20
     },
     "inter-indirect-loop-closure": {
+        "seed": 30,
         "number": 20,
-        "index": 20
+        "size": 20
     },
     "inter-direct-loop-closure": {
         "pose": {
+            "seed": 30,
             "number": 20
         },
         "range": {
+            "seed": 30,
             "number": 20
         }
     },
