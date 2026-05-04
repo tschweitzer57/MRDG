@@ -436,10 +436,19 @@ class DatasetGenerator(jrl.DatasetBuilder):
     
     def gen_inter_oids(self, len_ids, rid):
         ids = copy(self.robots)
-        ids.remove(rid) 
+        ids.remove(rid)
         return np.random.choice(ids, size=len_ids)
 
     def gen_lc_intra(self): #-> scalable si un robot est ajouté
+        
+        # Exportation des données
+        def export_data(rid, poses, poses_2nd):
+            # Export data
+            output = list(zip(poses, poses_2nd))
+            for data in output:
+                pose, pose_2nd = data
+                self.lc_intra[(rid, pose)] = pose_2nd
+                
         # Initialisation de la clé de génération
         if "seed" in self.config.lc_intra:
             np.random.seed(self.config.lc_intra['seed'])
@@ -456,6 +465,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 poses = np.arange(init, self.config.trajectory['poses'], freq)
                 lc_size = self.get_lc_size(len(poses))
                 poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
+                export_data(rid, poses, poses_2nd)
 
         # loop closures à nombre défini
         elif self.config.lc_intra.get('number') is not None:
@@ -465,19 +475,30 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 poses = np.sort(poses)
                 lc_size = self.get_lc_size(len(poses))
                 poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
+                export_data(rid, poses, poses_2nd)
                 
         # loop closures à nombre défini périodiques -> placé en fin de boucle
         else:
             freq = self.config.lc_intra['frequency']
-            #self.lc_intra[(pose, pose_oid)]
+            
             for rid in self.robots:
                 init = np.random.randint(low=0, high=freq)
                 poses = np.arange(0, (freq*self.config.lc_intra.get('number')), freq)
                 poses += self.config.trajectory['poses'] - init
                 lc_size = self.get_lc_size(len(poses))
                 poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
+                export_data(rid, poses, poses_2nd)
 
     def gen_lc_inter_indirect(self):
+        
+        # Exportation des données
+        def export_data(rid, poses, oid, poses_oid):
+            # Export data
+            output = list(zip(poses, poses_oid))
+            for data in output:
+                pose, pose_oid = data
+                self.lc_intra[(rid, pose)] = (oid, pose_oid)
+                
         # Initialisation de la clé de génération
         if "seed" in self.config.lc_inter_indirect:
             np.random.seed(self.config.lc_inter_indirect['seed'])
@@ -486,26 +507,26 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
         # Loop closures périodiques
         if self.config.lc_inter_indirect.get('frequency'):
-
+            freq = self.config.lc_inter_indirect['frequency']
+            
         # Loop closures à nombre défini
         elif self.config.lc_inter_indirect.get('number'):
-
+            
         # Loop closures à nombre défini périodiques
         else:
 
         # Add loop closure : inter - indirect
-            if self.config.lc_inter_indirect is not None:
-                for rid in self.robots:
-                    pose_oid = max(pose_num - self.config.lc_inter_indirect['index'], 0)
-                    oids = get_inter_oids(len(poses))
-                    
-                    #generate list of tuple for each var
+        for rid in self.robots:
+            pose_oid = max(pose_num - self.config.lc_inter_indirect['index'], 0)
+            oids = get_inter_oids(len(poses))
+            
+            #generate list of tuple for each var
 
-                    freq = self.config.lc_inter_indirect['frequency']
+            freq = self.config.lc_inter_indirect['frequency']
 
-                    if pose_num % freq == 0:
-                        self.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
-                        self.incr_stamp()
+            if pose_num % freq == 0:
+                self.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
+                self.incr_stamp()
 
     def gen_lc_inter_direct(self):
         # Initialisation de la clé de génération
