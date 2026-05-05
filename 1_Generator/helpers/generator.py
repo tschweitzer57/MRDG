@@ -327,9 +327,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #--------------------------------------------
 
     # Generator for groundtruth trajectories
-    def gen_gt_trajectories_2(self, nb_poses=None):
+    def gen_gt_trajectories2(self, nb_poses=None):
         """
-        Generate groundtruth trajectories for all robots.
+        Generate groundtruth trajectories for each robot
         
         :param nb_poses: Number of poses to generate (if None, use config file value)
         :return: None
@@ -338,13 +338,55 @@ class DatasetGenerator(jrl.DatasetBuilder):
         # Define number of poses
         if nb_poses is None:
             nb_poses = self.config.trajectory['poses']
-        # Define generation seed
+            
+        # Define limits
+        if "x_lim" in self.config.trajectory and "x_lim" in self.config.trajectory and "x_lim" in self.config.trajectory:
+            limits = True
+        else:
+            limits = False
+            
+        # Define generation seeds
         if "seed" in self.config.trajectory:
             np.random.seed(self.config.trajectory['seed'])
+            seeds = np.random.choice(2**32-1, size=len(self.robots), replace=False)
         else:
             np.random.seed()
-        print('en développement')
+            
+        for i, rid in enumerate(self.robots):
+            if seeds in vars():
+                np.random.seed(seeds[i])
+            
+            # Define initial position
+            initial_rot = np.random.choice(self.ODOM_OPTIONS_GRIDWORLD).rotation()
+            initial_position = np.array(
+            [
+                np.random.uniform(self.config.trajectory['x_lim'][0] / 2, self.config.trajectory['x_lim'][1] / 2),
+                np.random.uniform(self.config.trajectory['y_lim'][0] / 2, self.config.trajectory['y_lim'][1] / 2),
+                np.random.uniform(self.config.trajectory['z_lim'][0] / 2, self.config.trajectory['z_lim'][1] / 2),
+            ])
+            init_pose = gtsam.Pose3(initial_rot, initial_position)
 
+            self.gt_poses.insert(gtsam.symbol(rid, 0), init_pose)
+            self.init_values.insert(gtsam.symbol(rid, 0), init_pose)
+            
+            # Define displacements
+            dpl = np.random.choice(np.arange(len(self.config.trajectory['traj_probs'])), 
+                                   p= self.config.trajectory['traj_probs'],
+                                   size= nb_poses - 1)
+            prev_pose = init_pose
+            
+            for i, pose_nb in enumerate(dpl):
+                if limits:
+                    odom = self.check_limits(prev_pose, self.ODOM_OPTIONS_GRIDWORLD[i])
+                else:
+                    odom = self.ODOM_OPTIONS_GRIDWORLD[i]
+                self.odom[rid].append(odom)
+                
+                # Compute new pose
+                new_pose = prev_pose.compose(odom)
+                self.gt_poses.insert(gtsam.symbol(rid, pose_nb + 1), new_pose)
+                prev_pose = new_pose
+                
     def gen_gt_trajectories(self, nb_poses=None):
         """
         Generate groundtruth trajectories for each robot
@@ -1039,7 +1081,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         output_path = os.path.join(self.output_dir, config_name + ".jrl")
 
         # Generate groundTruths
-        self.gen_gt_trajectories()
+        self.gen_gt_trajectories2()
         
         # Generate landmarks
         if self.config.landmarks is not None:
@@ -1070,50 +1112,56 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.incr_stamp()
 
             # Add loop closure : intra
-            if self.lc_intra is not None:
-                for rid in self.robots:
-                    pose_oid = max(pose_num - self.config.lc_intra['index'], 0)
+            if not not self.lc_intra: # L'objet n'est pas vide
+                print('intra lc détecté')
+                # for rid in self.robots:
+                #     pose_oid = max(pose_num - self.config.lc_intra['index'], 0)
 
-                    # TODO initialize all freqs at beginning
-                    freq = self.config.lc_intra['frequency']
+                #     # TODO initialize all freqs at beginning
+                #     freq = self.config.lc_intra['frequency']
 
-                    if pose_num % freq == 0:
-                        self.add_lc_intra(rid, pose_num, pose_oid)
-                        self.incr_stamp()
+                #     if pose_num % freq == 0:
+                #         self.add_lc_intra(rid, pose_num, pose_oid)
+                #         self.incr_stamp()
 
             # Add loop closure : inter - indirect
-            if self.config.lc_inter_indirect is not None:
-                for rid in self.robots:
-                    pose_oid = max(pose_num - self.config.lc_inter_indirect['index'], 0)
-                    ids = copy(self.robots)
-                    ids.remove(rid) 
-                    oid = np.random.choice(ids)
-                    #generate list of tuple for each var
+            if not not self.lc_inter_indirect:
+                print('indirect lc détecté')
+                # for rid in self.robots:
+                #     pose_oid = max(pose_num - self.config.lc_inter_indirect['index'], 0)
+                #     ids = copy(self.robots)
+                #     ids.remove(rid) 
+                #     oid = np.random.choice(ids)
+                #     #generate list of tuple for each var
 
-                    freq = self.config.lc_inter_indirect['frequency']
+                #     freq = self.config.lc_inter_indirect['frequency']
 
-                    if pose_num % freq == 0:
-                        self.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
-                        self.incr_stamp()
+                #     if pose_num % freq == 0:
+                #         self.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
+                #         self.incr_stamp()
 
             # Add loop closure : intrer - direct
-            if self.config.lc_inter_direct is not None:
+            if not not self.lc_inter_direct_range:
+                print('direct range détecté')
+                
+            if not not self.lc_inter_direct_pose:
+                print('direct pose détecté')
 
                 # Add range measurement
-                if self.config.lc_inter_direct.get('range') is not None:
-                    freq = self.config.lc_inter_direct['range']['frequency']
-                    if pose_num % freq == 0:
-                        self.incr_stamp()
-                        for ra, rb in com_map:
-                            self.add_lc_inter_direct('range', pose_num, ra, rb, modality='duplex')
+                # if self.config.lc_inter_direct.get('range') is not None:
+                #     freq = self.config.lc_inter_direct['range']['frequency']
+                #     if pose_num % freq == 0:
+                #         self.incr_stamp()
+                #         for ra, rb in com_map:
+                #             self.add_lc_inter_direct('range', pose_num, ra, rb, modality='duplex')
                 
                 # Add pose measurement
-                if self.config.lc_inter_direct.get('pose') is not None:
-                    freq = self.config.lc_inter_direct['pose']['frequency']
-                    if pose_num % freq == 0:
-                        self.incr_stamp()
-                        for ra, rb in com_map:
-                            self.add_lc_inter_direct('pose', pose_num, ra, rb, modality='duplex')
+                # if self.config.lc_inter_direct.get('pose') is not None:
+                #     freq = self.config.lc_inter_direct['pose']['frequency']
+                #     if pose_num % freq == 0:
+                #         self.incr_stamp()
+                #         for ra, rb in com_map:
+                #             self.add_lc_inter_direct('pose', pose_num, ra, rb, modality='duplex')
             
             # Add landmarks
             if self.config.landmarks is not None:
