@@ -348,12 +348,12 @@ class DatasetGenerator(jrl.DatasetBuilder):
         # Define generation seeds
         if "seed" in self.config.trajectory:
             np.random.seed(self.config.trajectory['seed'])
-            seeds = np.random.choice(2**32-1, size=len(self.robots), replace=False)
+            seeds = np.random.choice(2000, size=len(self.robots), replace=False)
         else:
             np.random.seed()
             
         for i, rid in enumerate(self.robots):
-            if seeds in vars():
+            if 'seeds' in vars():
                 np.random.seed(seeds[i])
             
             # Define initial position
@@ -375,7 +375,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                                    size= nb_poses - 1)
             prev_pose = init_pose
             
-            for i, pose_nb in enumerate(dpl):
+            for pose_nb, i in enumerate(dpl):
                 if limits:
                     odom = self.check_limits(prev_pose, self.ODOM_OPTIONS_GRIDWORLD[i])
                 else:
@@ -1163,7 +1163,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 #         for ra, rb in com_map:
                 #             self.add_lc_inter_direct('pose', pose_num, ra, rb, modality='duplex')
             
-            # Add landmarks
+            # Add landmarks measurements
             if self.config.landmarks is not None:
 
                 # Add landmark measurement
