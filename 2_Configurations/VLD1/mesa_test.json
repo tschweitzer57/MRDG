@@ -41,10 +41,10 @@
         }
     },
     "sigmas": {
+        "seed":20,
         "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],
 
         "prior": [0.05, 0.05, 0.05, 0.1, 0.1, 0.1],
-        "robot_zero_prior": [0.05, 0.05, 0.05, 0.1, 0.1, 0.1],
 
         "odom": [0.05, 0.05, 0.05, 0.03, 0.03, 0.03],
 
@@ -55,6 +55,7 @@
         "landmarks": [0.03, 0.03, 0.15]
     },
     "outliers": {
+        "seed":15,
         "perceptual_aliasing":10,
         "robot_failure":1,
         "robot_loss":1
