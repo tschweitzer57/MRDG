@@ -438,7 +438,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 pose, pose_2nd = data
                 self.lc_intra[(rid, pose)] = pose_2nd
                 
-        def get_lc_size(self, len_index):
+        def get_lc_size(len_index):
             if "size" in self.config.lc_intra: # ajouter l'option de génération aléatoire
                 return self.config.lc_intra['size']
             else:
@@ -483,23 +483,25 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 lc_size = get_lc_size(len(poses))
                 poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
                 export_data(rid, poses, poses_2nd)
+        
+        np.random.seed()
 
     def gen_lc_inter_indirect(self):
         
         # Exportation des données
         def export_data(rid, poses, oids, poses_oid):
             # Export data
-            output = list(zip(poses, poses_oid))
+            output = list(zip(poses, oids, poses_oid))
             for data in output:
-                pose, pose_oid = data
+                pose, oid, pose_oid = data
                 self.lc_inter_indirect[(rid, pose)] = (oid, pose_oid)
                 
-        def gen_oids(self, len_ids, rid):
+        def gen_oids(len_ids, rid):
             ids = copy(self.robots)
             ids.remove(rid)
             return np.random.choice(ids, size=len_ids)
         
-        def get_lc_size(self, len_index):
+        def get_lc_size(len_index):
             if "size" in self.config.lc_inter_indirect: # ajouter l'option de génération aléatoire
                 return self.config.lc_inter_indirect['size']
             else:
@@ -547,6 +549,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 poses_oid = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
                 oids = gen_oids(len(poses_oid),rid)
                 export_data(rid, poses, oids, poses_oid)
+        
+        np.random.seed()
             
     def gen_lc_inter_direct(self):
         # Initialisation de la clé de génération
@@ -567,7 +571,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             for pose in poses:
                 self.lc_inter_direct_pose[(rid, pose)] = (oid, 'duplex')
             
-        def gen_oids(self, len_ids, rid):
+        def gen_oids(len_ids, rid):
             ids = copy(self.robots)
             ids.remove(rid)
             return np.random.choice(ids, size=len_ids)
@@ -639,6 +643,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     poses += self.config.trajectory['poses'] - init
                     oids = gen_oids(len(poses),rid)
                     export_pose_data(rid, poses, oids)
+                    
+        np.random.seed()
 
     def gen_outliers(self):
         print('not implemented')
@@ -1064,7 +1070,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.incr_stamp()
 
             # Add loop closure : intra
-            if self.config.lc_intra is not None:
+            if self.lc_intra is not None:
                 for rid in self.robots:
                     pose_oid = max(pose_num - self.config.lc_intra['index'], 0)
 
