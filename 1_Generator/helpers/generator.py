@@ -428,17 +428,6 @@ class DatasetGenerator(jrl.DatasetBuilder):
         
         np.random.seed()
 
-    def get_lc_size(self, len_index):
-        if "size" in self.config.lc_intra: # ajouter l'option de génération aléatoire
-            return self.config.lc_intra['size']
-        else:
-            return np.random.randint(low=10, high=self.config.trajectory['poses'], size=len_index)
-    
-    def gen_inter_oids(self, len_ids, rid):
-        ids = copy(self.robots)
-        ids.remove(rid)
-        return np.random.choice(ids, size=len_ids)
-
     def gen_lc_intra(self): #-> scalable si un robot est ajouté
         
         # Exportation des données
@@ -448,6 +437,12 @@ class DatasetGenerator(jrl.DatasetBuilder):
             for data in output:
                 pose, pose_2nd = data
                 self.lc_intra[(rid, pose)] = pose_2nd
+                
+        def get_lc_size(self, len_index):
+            if "size" in self.config.lc_intra: # ajouter l'option de génération aléatoire
+                return self.config.lc_intra['size']
+            else:
+                return np.random.randint(low=10, high=self.config.trajectory['poses'], size=len_index)
                 
         # Initialisation de la clé de génération
         if "seed" in self.config.lc_intra:
@@ -463,7 +458,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 # sélectionner les poses sur lesquelles surviennent une boucle
                 init = np.random.randint(low=0, high=freq)
                 poses = np.arange(init, self.config.trajectory['poses'], freq)
-                lc_size = self.get_lc_size(len(poses))
+                lc_size = get_lc_size(len(poses))
                 poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
                 export_data(rid, poses, poses_2nd)
 
@@ -473,7 +468,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 # sélectionner les poses sur lesquelles surviennent une boucle
                 poses = np.random.randint(low=0, high=self.config.trajectory['poses'], size=self.config.lc_intra.get('number'))
                 poses = np.sort(poses)
-                lc_size = self.get_lc_size(len(poses))
+                lc_size = get_lc_size(len(poses))
                 poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
                 export_data(rid, poses, poses_2nd)
                 
@@ -485,19 +480,30 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 init = np.random.randint(low=0, high=freq)
                 poses = np.arange(0, (freq*self.config.lc_intra.get('number')), freq)
                 poses += self.config.trajectory['poses'] - init
-                lc_size = self.get_lc_size(len(poses))
+                lc_size = get_lc_size(len(poses))
                 poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
                 export_data(rid, poses, poses_2nd)
 
     def gen_lc_inter_indirect(self):
         
         # Exportation des données
-        def export_data(rid, poses, oid, poses_oid):
+        def export_data(rid, poses, oids, poses_oid):
             # Export data
             output = list(zip(poses, poses_oid))
             for data in output:
                 pose, pose_oid = data
-                self.lc_intra[(rid, pose)] = (oid, pose_oid)
+                self.lc_inter_indirect[(rid, pose)] = (oid, pose_oid)
+                
+        def gen_oids(self, len_ids, rid):
+            ids = copy(self.robots)
+            ids.remove(rid)
+            return np.random.choice(ids, size=len_ids)
+        
+        def get_lc_size(self, len_index):
+            if "size" in self.config.lc_inter_indirect: # ajouter l'option de génération aléatoire
+                return self.config.lc_inter_indirect['size']
+            else:
+                return np.random.randint(low=10, high=self.config.trajectory['poses'], size=len_index)
                 
         # Initialisation de la clé de génération
         if "seed" in self.config.lc_inter_indirect:
@@ -506,68 +512,133 @@ class DatasetGenerator(jrl.DatasetBuilder):
             np.random.seed()
 
         # Loop closures périodiques
-        if self.config.lc_inter_indirect.get('frequency'):
+        if self.config.lc_inter_indirect.get('frequency') is not None and self.config.lc_inter_indirect.get('number') is None:
             freq = self.config.lc_inter_indirect['frequency']
             
+            for rid in self.robots:
+                # sélectionner les poses sur lesquelles surviennent les boucles
+                init = np.random.randint(low=0, high=freq)
+                poses = np.arange(init, self.config.trajectory['poses'], freq)
+                lc_size = get_lc_size(len(poses))
+                poses_oid = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
+                oids = gen_oids(len(poses_oid),rid)
+                export_data(rid, poses, oids, poses_oid)
+            
         # Loop closures à nombre défini
-        elif self.config.lc_inter_indirect.get('number'):
+        elif self.config.lc_inter_indirect.get('number') is not None:
+            for rid in self.robots:
+                # sélectionner les poses sur lesquelles surviennent une boucle
+                poses = np.random.randint(low=0, high=self.config.trajectory['poses'], size=self.config.lc_inter_indirect.get('number'))
+                poses = np.sort(poses)
+                lc_size = get_lc_size(len(poses))
+                poses_oid = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
+                oids = gen_oids(len(poses_oid),rid)
+                export_data(rid, poses, oids, poses_oid)
             
         # Loop closures à nombre défini périodiques
         else:
-
-        # Add loop closure : inter - indirect
-        for rid in self.robots:
-            pose_oid = max(pose_num - self.config.lc_inter_indirect['index'], 0)
-            oids = get_inter_oids(len(poses))
-            
-            #generate list of tuple for each var
-
             freq = self.config.lc_inter_indirect['frequency']
-
-            if pose_num % freq == 0:
-                self.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
-                self.incr_stamp()
-
+            
+            for rid in self.robots:
+                init = np.random.randint(low=0, high=freq)
+                poses = np.arange(0, (freq*self.config.lc_inter_indirect.get('number')), freq)
+                poses += self.config.trajectory['poses'] - init
+                lc_size = get_lc_size(len(poses))
+                poses_oid = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
+                oids = gen_oids(len(poses_oid),rid)
+                export_data(rid, poses, oids, poses_oid)
+            
     def gen_lc_inter_direct(self):
         # Initialisation de la clé de génération
         if "seed" in self.config.lc_inter_direct:
             np.random.seed(self.config.lc_inter_direct['seed'])
         else:
             np.random.seed()
+            
+        # Exportation des données de range
+        def export_range_data(rid, poses, oid):
+            # Export data
+            for pose in poses:
+                self.lc_inter_direct_range[(rid, pose)] = (oid, 'duplex')
+                
+        # Exportation des données de pose
+        def export_pose_data(rid, poses, oid):
+            # Export data
+            for pose in poses:
+                self.lc_inter_direct_pose[(rid, pose)] = (oid, 'duplex')
+            
+        def gen_oids(self, len_ids, rid):
+            ids = copy(self.robots)
+            ids.remove(rid)
+            return np.random.choice(ids, size=len_ids)
                 
         # Generates range measurements
         if self.config.lc_inter_direct.get('range') is not None:
-            freq = self.config.lc_inter_direct['range']['frequency']
             
+            # Mesures périodiques
+            if self.config.lc_inter_direct['range'].get('frequency') is not None and self.config.lc_inter_direct['range'].get('number') is None:
+                freq = self.config.lc_inter_direct['range']['frequency']
             
-            if pose_num % freq == 0:
-                self.incr_stamp()
-                for ra, rb in com_map:
-                    self.add_lc_inter_direct('range', pose_num, ra, rb, modality='duplex')
-
-
-            if self.config.lc_inter_direct.get('range') is not None:
-                if self.config.lc_inter_direct.get('frequency') is not None:
-                    init_range_freq = np.random.randint(self.config.lc_inter_direct['range']['frequency'])
-                if self.config.lc_inter_direct.get('number') is not None: # Arondir à l'entier suppérieur
-                    init_range_nb = self.config.trajectory.get('poses') * 0.05
+                for rid in self.robots:
+                    # sélectionner les poses sur lesquelles surviennent les mesures
+                    init = np.random.randint(low=0, high=freq)
+                    poses = np.arange(init, self.config.trajectory['poses'], freq)
+                    oids = gen_oids(len(poses),rid)
+                    export_range_data(rid, poses, oids)
+            
+            # Mesures à nombre défini
+            elif self.config.lc_inter_direct['range'].get('number') is not None:
+                for rid in self.robots:
+                    # sélectionner les poses sur lesquelles surviennent une boucle
+                    poses = np.random.randint(low=0, high=self.config.trajectory['poses'], size=self.config.lc_inter_direct['range']['number'])
+                    poses = np.sort(poses)
+                    oids = gen_oids(len(poses),rid)
+                    export_range_data(rid, poses, oids)
+            
+            # Mesures à nombre défini périodiques
+            else:
+                freq = self.config.lc_inter_direct['range']['frequency']
+                
+                for rid in self.robots:
+                    init = np.random.randint(low=0, high=freq)
+                    poses = np.arange(0, (freq*self.config.lc_inter_direct['range']['number']), freq)
+                    poses += self.config.trajectory['poses'] - init
+                    oids = gen_oids(len(poses),rid)
+                    export_range_data(rid, poses, oids)
                 
         # Generates pose measurements
         if self.config.lc_inter_direct.get('pose') is not None:
-            freq = self.config.lc_inter_direct['pose']['frequency']
-        
-
-            if pose_num % freq == 0:
-                self.incr_stamp()
-                for ra, rb in com_map:
-                    self.add_lc_inter_direct('pose', pose_num, ra, rb, modality='duplex')
-
-
-                if self.config.lc_inter_direct.get('pose') is not None:
-                if self.config.lc_inter_direct.get('frequency') is not None:
-                    init_pose_freq = np.random.randint(self.config.lc_inter_direct['pose']['frequency'])
-                if self.config.lc_inter_direct.get('number') is not None: # Arondir à l'entier suppérieur
-                    init_pose_nb = self.config.trajectory.get('poses') * 0.05
+            
+            # Mesures périodiques
+            if self.config.lc_inter_direct['pose'].get('frequency') is not None and self.config.lc_inter_direct['pose'].get('number') is None:
+                freq = self.config.lc_inter_direct['pose']['frequency']
+            
+                for rid in self.robots:
+                    # sélectionner les poses sur lesquelles surviennent les mesures
+                    init = np.random.randint(low=0, high=freq)
+                    poses = np.arange(init, self.config.trajectory['poses'], freq)
+                    oids = gen_oids(len(poses),rid)
+                    export_pose_data(rid, poses, oids)
+            
+            # Mesures à nombre défini
+            elif self.config.lc_inter_direct['pose'].get('number') is not None:
+                for rid in self.robots:
+                    # sélectionner les poses sur lesquelles surviennent une boucle
+                    poses = np.random.randint(low=0, high=self.config.trajectory['poses'], size=self.config.lc_inter_direct['pose']['number'])
+                    poses = np.sort(poses)
+                    oids = gen_oids(len(poses),rid)
+                    export_pose_data(rid, poses, oids)
+            
+            # Mesures à nombre défini périodiques
+            else:
+                freq = self.config.lc_inter_direct['pose']['frequency']
+                
+                for rid in self.robots:
+                    init = np.random.randint(low=0, high=freq)
+                    poses = np.arange(0, (freq*self.config.lc_inter_direct['pose']['number']), freq)
+                    poses += self.config.trajectory['poses'] - init
+                    oids = gen_oids(len(poses),rid)
+                    export_pose_data(rid, poses, oids)
 
     def gen_outliers(self):
         print('not implemented')
