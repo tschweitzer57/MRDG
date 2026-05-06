@@ -380,7 +380,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     odom = self.check_limits(prev_pose, self.ODOM_OPTIONS_GRIDWORLD[i])
                 else:
                     odom = self.ODOM_OPTIONS_GRIDWORLD[i]
-                self.odom[rid].append(odom)
+                
+                noise = self.odom_noise_gen()
+                self.odom[rid].append((odom, noise))
                 
                 # Compute new pose
                 new_pose = prev_pose.compose(odom)
@@ -436,15 +438,16 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     odom = self.check_limits(prev_pose, self.ODOM_OPTIONS_GRIDWORLD[i])
                 else:
                     odom = self.ODOM_OPTIONS_GRIDWORLD[i]
+                
                 self.odom[rid].append(odom)
                 
                 new_pose = prev_pose.compose(odom)
                 self.gt_poses.insert(gtsam.symbol(rid, pose_nb + 1), new_pose)
                 prev_pose = new_pose
     
-    # Generator for landmarks amers
+    # Generator for landmarks used as amers
     # minimum distance between landmarks $d_{min}$
-    def gen_lk_amers(self, nb=None):
+    def gen_gt_lk(self, nb=None):
         """
         Generate landmarks
 
@@ -479,12 +482,18 @@ class DatasetGenerator(jrl.DatasetBuilder):
             for data in output:
                 pose, pose_2nd = data
                 self.lc_intra[(rid, pose)] = pose_2nd
-                
+        
+        # Définition de la taille des loop closures
         def get_lc_size(len_index):
             if "size" in self.config.lc_intra: # ajouter l'option de génération aléatoire
                 return self.config.lc_intra['size']
             else:
                 return np.random.randint(low=10, high=self.config.trajectory['poses'], size=len_index)
+        
+        def gen_noises():
+            for key in self.lc_intra.keys():
+                noise = self.loop_noise_gen()
+                self.lc_intra[key] = (self.lc_intra[key], noise)
                 
         # Initialisation de la clé de génération
         if "seed" in self.config.lc_intra:
@@ -526,6 +535,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
                 export_data(rid, poses, poses_2nd)
         
+        gen_noises()
         np.random.seed()
 
     def gen_lc_inter_indirect(self):
@@ -548,6 +558,11 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 return self.config.lc_inter_indirect['size']
             else:
                 return np.random.randint(low=10, high=self.config.trajectory['poses'], size=len_index)
+        
+        def gen_noises():
+            for key in self.lc_inter_indirect.keys():
+                noise = self.loop_inter_noise_gen()
+                self.lc_inter_indirect[key] = (self.lc_inter_indirect[key][0], self.lc_inter_indirect[key][1], noise)
                 
         # Initialisation de la clé de génération
         if "seed" in self.config.lc_inter_indirect:
@@ -592,6 +607,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 oids = gen_oids(len(poses_oid),rid)
                 export_data(rid, poses, oids, poses_oid)
         
+        gen_noises()
         np.random.seed()
             
     def gen_lc_inter_direct(self):
@@ -617,7 +633,16 @@ class DatasetGenerator(jrl.DatasetBuilder):
             ids = copy(self.robots)
             ids.remove(rid)
             return np.random.choice(ids, size=len_ids)
-                
+
+        def gen_noises():
+            for key in self.lc_inter_direct_range.keys():
+                noise = self.range_loop_noise_gen()
+                self.lc_inter_direct_range[key] = (self.lc_inter_direct_range[key][0], self.lc_inter_direct_range[key][1], noise)
+
+            for key in self.lc_inter_direct_pose.keys():
+                noise = self.pose_loop_noise_gen()
+                self.lc_inter_direct_pose[key] = (self.lc_inter_direct_pose[key][0], self.lc_inter_direct_pose[key][1], noise)
+
         # Generates range measurements
         if self.config.lc_inter_direct.get('range') is not None:
             
@@ -685,7 +710,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     poses += self.config.trajectory['poses'] - init
                     oids = gen_oids(len(poses),rid)
                     export_pose_data(rid, poses, oids)
-                    
+        
+        gen_noises()
         np.random.seed()
 
     def gen_outliers(self):
@@ -720,6 +746,20 @@ class DatasetGenerator(jrl.DatasetBuilder):
     def loop_noise_gen(self, sigma = None):
         if sigma == None:
             sigma = self.config.sigmas['lc_intra']
+
+        noise = np.random.multivariate_normal(
+                    np.zeros((6,)), np.diag(np.array(sigma) ** 2)
+                )
+
+        if not self.outliers:
+            noise = np.minimum(noise, np.array(sigma))
+            noise = np.maximum(noise, -np.array(sigma))
+
+        return Pose3.Expmap(noise)
+
+    def loop_inter_noise_gen(self, sigma = None):
+        if sigma == None:
+            sigma = self.config.sigmas['lc_inter_indirect']
 
         noise = np.random.multivariate_normal(
                     np.zeros((6,)), np.diag(np.array(sigma) ** 2)
@@ -771,9 +811,10 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #    Factor generators
     #--------------------------------------------
 
-    def make_range_factor(self, k1, k2):
+    def make_range_factor(self, k1, k2, noise):
         fg = gtsam.NonlinearFactorGraph()
-        noise = self.range_loop_noise_gen()
+        if noise is None: 
+            noise = self.range_loop_noise_gen()
         noise_model = self.range_loop_noise_model
 
         measure = (
@@ -785,18 +826,20 @@ class DatasetGenerator(jrl.DatasetBuilder):
         fg.add(gtsam.RangeFactorPose3(k1, k2, measure, noise_model))
         return fg
     
-    def make_pose_factor(self, k1, k2):
+    def make_pose_factor(self, k1, k2, noise):
         fg = gtsam.NonlinearFactorGraph()
-        noise = self.pose_loop_noise_gen()
+        if noise is None:
+            noise = self.pose_loop_noise_gen()
         noise_model = self.pose_loop_noise_model
 
         measure = self.gt_poses.atPose3(k1).inverse().compose(self.gt_poses.atPose3(k2)).compose(noise)
         fg.add(gtsam.BetweenFactorPose3(k1, k2, measure, noise_model))
         return fg
 
-    def make_lc_factor(self,k1,k2):
+    def make_lc_factor(self, k1, k2, noise):
         fg = gtsam.NonlinearFactorGraph()
-        noise = self.loop_noise_gen()
+        if noise is None:
+            noise = self.loop_noise_gen()
         noise_model = self.loop_noise_model
 
         measure = self.gt_poses.atPose3(k1).inverse().compose(self.gt_poses.atPose3(k2)).compose(noise)
@@ -839,8 +882,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         k1 = gtsam.symbol(rid, p1)
         k2 = gtsam.symbol(rid, p2)
         
-        odom = self.odom[rid][p1]
-        noise = self.odom_noise_gen()
+        odom, noise = self.odom[rid][p1]
         measure = odom.compose(noise)
 
         gt_pose = self.gt_poses.atPose3(k2)
@@ -873,19 +915,19 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             raise Exception("Invalid Initialization_type")
 
-    def add_lc_intra(self, rid, pose_number, prev_pose_number):
+    def add_lc_intra(self, rid, pose_number, prev_pose_number, noise=None):
         key = gtsam.symbol(rid, pose_number)
         prev_key = gtsam.symbol(rid, prev_pose_number)
 
         self.addEntry(
             rid,
             self.stamp,
-            self.make_lc_factor(key, prev_key),
+            self.make_lc_factor(key, prev_key, noise),
             [jrl.BetweenFactorPose3Tag],
             {},
         )
 
-    def add_lc_inter_direct(self, type, pose_number, ra, rb, modality='duplex'):
+    def add_lc_inter_direct(self, type, pose_number, ra, rb, modality='duplex', noise=None):
         ka = gtsam.symbol(ra, pose_number)
         kb = gtsam.symbol(rb, pose_number)
 
@@ -900,12 +942,12 @@ class DatasetGenerator(jrl.DatasetBuilder):
         est_val_rb.insert(kb, self.init_values.atPose3(kb))
 
         if type == 'pose':
-            factor_ab = self.make_pose_factor(ka,kb)
-            factor_ba = self.make_pose_factor(kb,ka)
+            factor_ab = self.make_pose_factor(ka,kb,noise)
+            factor_ba = self.make_pose_factor(kb,ka,noise)
             tag = jrl.BetweenFactorPose3Tag
         elif type == 'range':
-            factor_ab = self.make_range_factor(ka,kb)
-            factor_ba = self.make_range_factor(kb,ka)
+            factor_ab = self.make_range_factor(ka,kb,noise)
+            factor_ba = self.make_range_factor(kb,ka,noise)
             tag = jrl.RangeFactorPose3Tag
         else:
             raise Exception("Invalid type")
@@ -960,7 +1002,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             raise Exception("Invalid modality")
 
-    def add_lc_inter_indirect(self, ra, pn_a, rb, pn_b, modality='duplex'):
+    def add_lc_inter_indirect(self, ra, pn_a, rb, pn_b, modality='duplex', noise=None):
         ka = gtsam.symbol(ra, pn_a)
         kb = gtsam.symbol(rb, pn_b)
 
@@ -978,14 +1020,14 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.addEntry(
                 ra,
                 self.stamp,
-                self.make_pose_factor(ka,kb),
+                self.make_pose_factor(ka,kb,noise),
                 [jrl.BetweenFactorPose3Tag],
                 {},
             )
             self.addEntry(
                 rb,
                 self.stamp,
-                self.make_pose_factor(kb,ka),
+                self.make_pose_factor(kb,ka,noise),
                 [jrl.BetweenFactorPose3Tag],
                 {},
             )
@@ -1001,7 +1043,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.addEntry(
                 ra,
                 self.stamp,
-                self.make_pose_factor(ka,kb),
+                self.make_pose_factor(ka,kb,noise),
                 [jrl.BetweenFactorPose3Tag],
                 {},
             )
@@ -1013,7 +1055,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.addEntry(
                 rb,
                 self.stamp,
-                self.make_pose_factor(kb,ka),
+                self.make_pose_factor(kb,ka,noise),
                 [jrl.BetweenFactorPose3Tag],
                 {},
             )
@@ -1024,7 +1066,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             raise Exception("Invalid modality")
 
-    def add_lk(self, lid, rid, pose_number, outlier=(False, None)):
+    def add_lk(self, lid, rid, pose_number, noise=None):
+        
         r_key = gtsam.symbol(rid, pose_number)
         l_key = lid
 
@@ -1032,9 +1075,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         fg = gtsam.NonlinearFactorGraph()
         gt_val_lk = gtsam.Values()
         est_val_lk = gtsam.Values()
-        if outlier[0]:
-            noise = self.bearing_range_noise_gen(force_outlier=outlier[1])
-        else:
+        if noise is None:
             noise = self.bearing_range_noise_gen()
         noise_model = self.bearing_range_noise_model
 
@@ -1067,6 +1108,50 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.addGroundTruth(rid, jrl.TypedValues(gt_val_lk, {l_key: jrl.Point3Tag}))
             self.addInitialization(rid, jrl.TypedValues(est_val_lk, {l_key: jrl.Point3Tag}))
 
+    # def add_lk_old(self, lid, rid, pose_number, outlier=(False, None)):
+        
+    #     r_key = gtsam.symbol(rid, pose_number)
+    #     l_key = lid
+
+    #     # Initialize noise and fg
+    #     fg = gtsam.NonlinearFactorGraph()
+    #     gt_val_lk = gtsam.Values()
+    #     est_val_lk = gtsam.Values()
+    #     if outlier[0]:
+    #         noise = self.bearing_range_noise_gen(force_outlier=outlier[1])
+    #     else:
+    #         noise = self.bearing_range_noise_gen()
+    #     noise_model = self.bearing_range_noise_model
+
+    #     # Get robot pose and landmark
+    #     pose_r = self.gt_poses.atPose3(r_key)
+    #     point_l = self.landmarks.atPoint3(l_key)
+
+    #     # Compute measurement
+    #     t_br = gtsam.BearingRange3D.Measure(pose_r, point_l)
+    #     noise_rot = gtsam.Rot3.Ypr(noise[0], noise[1], 0)
+    #     m_bearing = noise_rot.rotate(t_br.bearing())
+    #     m_range = t_br.range() + noise[2]
+    #     fg.add(gtsam.BearingRangeFactor3D(r_key, l_key, m_bearing, m_range, noise_model))
+
+    #     # init gt and init vals
+    #     odom_pose_r = self.init_values.atPose3(r_key)
+    #     m_lk = odom_pose_r.transformFrom(m_range * m_bearing.point3())
+    #     gt_val_lk.insert(l_key, point_l)
+    #     est_val_lk.insert(l_key, m_lk)
+
+    #     self.addEntry(
+    #         rid,
+    #         self.stamp,
+    #         fg,
+    #         [jrl.BearingRangeFactor3DTag],
+    #         {},
+    #     )
+
+    #     if not self.is_key_in(rid, l_key):
+    #         self.addGroundTruth(rid, jrl.TypedValues(gt_val_lk, {l_key: jrl.Point3Tag}))
+    #         self.addInitialization(rid, jrl.TypedValues(est_val_lk, {l_key: jrl.Point3Tag}))
+
     #--------------------------------------------
     #   Dataset generation (default)
     #--------------------------------------------
@@ -1086,7 +1171,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
         # Generate landmarks
         if self.config.landmarks is not None:
             # Generate landmarks
-            self.gen_lk_amers()
+            self.gen_gt_lk()
+            self.gen_lk_measurements()
             lks_ids = self.__pack_lid_per_rid()
 
         # Generate loop closure : intra
