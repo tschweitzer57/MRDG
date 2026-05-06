@@ -1111,15 +1111,17 @@ class DatasetGenerator(jrl.DatasetBuilder):
             np.random.seed()
             
         # Exportation des données de range
-        def export_range_data(rid, poses, oid):
-            # Export data
-            for pose in poses:
+        def export_range_data(rid, poses, oids):
+            output = list(zip(poses, oids))
+            for data in output:
+                pose, oid = data
                 self.lc_inter_direct_range[(rid, pose)] = (oid, 'double')
                 
         # Exportation des données de pose
-        def export_pose_data(rid, poses, oid):
-            # Export data
-            for pose in poses:
+        def export_pose_data(rid, poses, oids):
+            output = list(zip(poses, oids))
+            for data in output:
+                pose, oid = data
                 self.lc_inter_direct_pose[(rid, pose)] = (oid, 'double')
             
         def gen_oids(len_ids, rid):
@@ -1257,77 +1259,49 @@ class DatasetGenerator(jrl.DatasetBuilder):
             # Add odometry measurements
             for rid in self.robots:
                 self.add_odom_step(rid, pose_num)
+            
+            # Add other measurements:
+            for rid in self.robots:
+                # Add loop closure : intra
+                if bool(self.lc_intra) and (rid, pose_num) in self.lc_intra.keys(): # L'objet n'est pas vide
+                    # print("Intra")
+                    # print(self.lc_intra[(rid, pose_num)])
+                    pose_2nd = self.lc_intra[(rid, pose_num)][0]
+                    noise = self.lc_intra[(rid, pose_num)][1]
+                    self.add_lc_intra(rid, pose_num, pose_2nd, noise=noise)
                 
                 # Add loop closure : inter - indirect
-                if bool(self.lc_inter_indirect):
-                    print('indirect lc détecté')
-                    # for rid in self.robots:
-                    #     pose_oid = max(pose_num - self.config.lc_inter_indirect['index'], 0)
-                    #     ids = copy(self.robots)
-                    #     ids.remove(rid)
-                    #     oid = np.random.choice(ids)
-                    #     #generate list of tuple for each var
-
-                    #     freq = self.config.lc_inter_indirect['frequency']
-
-                    #     if pose_num % freq == 0:
-                    #         self.add_lc_inter_indirect(rid, pose_num, oid, pose_oid)
-                    #         self.incr_stamp()
-                    
-                # Add loop closure : intra
-                if bool(self.lc_intra): # L'objet n'est pas vide
-                    print('intra lc détecté')
-                    # for rid in self.robots:
-                    #     pose_oid = max(pose_num - self.config.lc_intra['index'], 0)
-
-                    #     # TODO initialize all freqs at beginning
-                    #     freq = self.config.lc_intra['frequency']
-
-                    #     if pose_num % freq == 0:
-                    #         self.add_lc_intra(rid, pose_num, pose_oid)
-                    #         self.incr_stamp()
-                    
-                # Add loop closure : intra
-                if bool(self.lc_intra): # L'objet n'est pas vide
-                    print('intra lc détecté')
-                    # for rid in self.robots:
-                    #     pose_oid = max(pose_num - self.config.lc_intra['index'], 0)
-
-                    #     # TODO initialize all freqs at beginning
-                    #     freq = self.config.lc_intra['frequency']
-
-                    #     if pose_num % freq == 0:
-                    #         self.add_lc_intra(rid, pose_num, pose_oid)
-                    #         self.incr_stamp()
+                if bool(self.lc_inter_indirect) and (rid, pose_num) in self.lc_inter_indirect.keys():
+                    # print("Inter Indirect")
+                    # print(self.lc_inter_indirect[(rid, pose_num)])
+                    oid = self.lc_inter_indirect[(rid, pose_num)][0]
+                    pose_oid = self.lc_inter_indirect[(rid, pose_num)][1]
+                    noise = self.lc_inter_indirect[(rid, pose_num)][2]
+                    self.add_lc_inter_indirect(rid, pose_num, oid, pose_oid, noise=noise)
                     
                 # Add loop closure : intrer - direct
-                if bool(self.lc_inter_direct_range):
-                    print('direct range détecté')
+                if bool(self.lc_inter_direct_range) and (rid, pose_num) in self.lc_inter_direct_range.keys():
+                    # print("Inter Direct Range")
+                    # print(self.lc_inter_direct_range[(rid, pose_num)])
+                    oid = self.lc_inter_direct_range[(rid, pose_num)][0]
+                    noise = self.lc_inter_direct_range[(rid, pose_num)][2]
+                    self.add_lc_inter_direct('range', pose_num, rid, oid, modality='double', noise=noise)
                 
-                if bool(self.lc_inter_direct_pose):
-                    print('direct pose détecté')
-
-                    # Add range measurement
-                    # if self.config.lc_inter_direct.get('range') is not None:
-                    #     freq = self.config.lc_inter_direct['range']['frequency']
-                    #     if pose_num % freq == 0:
-                    #         self.incr_stamp()
-                    #         for ra, rb in com_map:
-                    #             self.add_lc_inter_direct('range', pose_num, ra, rb, modality='double')
-                    
-                    # Add pose measurement
-                    # if self.config.lc_inter_direct.get('pose') is not None:
-                    #     freq = self.config.lc_inter_direct['pose']['frequency']
-                    #     if pose_num % freq == 0:
-                    #         self.incr_stamp()
-                    #         for ra, rb in com_map:
-                    #             self.add_lc_inter_direct('pose', pose_num, ra, rb, modality='double')
+                if bool(self.lc_inter_direct_pose) and (rid, pose_num) in self.lc_inter_direct_pose.keys():
+                    # print("Inter Direct Pose")
+                    # print(self.lc_inter_direct_pose[(rid, pose_num)])
+                    oid = self.lc_inter_direct_pose[(rid, pose_num)][0]
+                    noise = self.lc_inter_direct_pose[(rid, pose_num)][2]
+                    self.add_lc_inter_direct('pose', pose_num, rid, oid, modality='simple-a', noise=noise)
             
                 # Add landmarks measurements
-                if bool(self.lk_measurements):
-                    print('landmarks détectés')
-                    
-                    
+                if bool(self.lk_measurements) and (rid, pose_num) in self.lk_measurements.keys():
+                    # print("Landmarks")
+                    # print(self.lk_measurements[(rid, pose_num)])
+                    lid = self.lk_measurements[(rid, pose_num)][0]
+                    noise = self.lk_measurements[(rid, pose_num)][1]
+                    self.add_lk(lid, rid, pose_num, noise=noise)
+                         
             self.incr_stamp()
 
         # Build dataset and generate jrl file
