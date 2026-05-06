@@ -621,13 +621,13 @@ class DatasetGenerator(jrl.DatasetBuilder):
         def export_range_data(rid, poses, oid):
             # Export data
             for pose in poses:
-                self.lc_inter_direct_range[(rid, pose)] = (oid, 'duplex')
+                self.lc_inter_direct_range[(rid, pose)] = (oid, 'double')
                 
         # Exportation des données de pose
         def export_pose_data(rid, poses, oid):
             # Export data
             for pose in poses:
-                self.lc_inter_direct_pose[(rid, pose)] = (oid, 'duplex')
+                self.lc_inter_direct_pose[(rid, pose)] = (oid, 'double')
             
         def gen_oids(len_ids, rid):
             ids = copy(self.robots)
@@ -927,7 +927,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             {},
         )
 
-    def add_lc_inter_direct(self, type, pose_number, ra, rb, modality='duplex', noise=None):
+    def add_lc_inter_direct(self, type, pose_number, ra, rb, modality='double', noise=None):
         ka = gtsam.symbol(ra, pose_number)
         kb = gtsam.symbol(rb, pose_number)
 
@@ -952,7 +952,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             raise Exception("Invalid type")
 
-        if modality == 'duplex':
+        if modality == 'double':
             self.addEntry(
                 ra,
                 self.stamp,
@@ -975,7 +975,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 self.addInitialization(rb, jrl.TypedValues(est_val_ra, {ka: jrl.Pose3Tag}))
                 self.addGroundTruth(rb, jrl.TypedValues(gt_val_ra, {ka: jrl.Pose3Tag}))
             
-        elif modality == 'simplex-a':
+        elif modality == 'simple-a':
             self.addEntry(
                 ra,
                 self.stamp,
@@ -987,7 +987,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 self.addInitialization(ra, jrl.TypedValues(est_val_rb, {kb: jrl.Pose3Tag}))
                 self.addGroundTruth(ra, jrl.TypedValues(gt_val_rb, {kb: jrl.Pose3Tag}))
 
-        elif modality == 'simplex-b':
+        elif modality == 'simple-b':
             self.addEntry(
                 rb,
                 self.stamp,
@@ -1002,7 +1002,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             raise Exception("Invalid modality")
 
-    def add_lc_inter_indirect(self, ra, pn_a, rb, pn_b, modality='duplex', noise=None):
+    def add_lc_inter_indirect(self, ra, pn_a, rb, pn_b, modality='double', noise=None):
         ka = gtsam.symbol(ra, pn_a)
         kb = gtsam.symbol(rb, pn_b)
 
@@ -1016,7 +1016,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         est_val_rb = gtsam.Values()
         est_val_rb.insert(kb, self.init_values.atPose3(kb))
 
-        if modality == 'duplex':
+        if modality == 'double':
             self.addEntry(
                 ra,
                 self.stamp,
@@ -1039,7 +1039,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 self.addInitialization(rb, jrl.TypedValues(est_val_ra, {ka: jrl.Pose3Tag}))
                 self.addGroundTruth(rb, jrl.TypedValues(gt_val_ra, {ka: jrl.Pose3Tag}))
 
-        elif modality == 'simplex-a':
+        elif modality == 'simple-a':
             self.addEntry(
                 ra,
                 self.stamp,
@@ -1051,7 +1051,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 self.addInitialization(ra, jrl.TypedValues(est_val_rb, {kb: jrl.Pose3Tag}))
                 self.addGroundTruth(ra, jrl.TypedValues(gt_val_rb, {kb: jrl.Pose3Tag}))
 
-        elif modality == 'simplex-b':
+        elif modality == 'simple-b':
             self.addEntry(
                 rb,
                 self.stamp,
@@ -1239,7 +1239,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 #     if pose_num % freq == 0:
                 #         self.incr_stamp()
                 #         for ra, rb in com_map:
-                #             self.add_lc_inter_direct('range', pose_num, ra, rb, modality='duplex')
+                #             self.add_lc_inter_direct('range', pose_num, ra, rb, modality='double')
                 
                 # Add pose measurement
                 # if self.config.lc_inter_direct.get('pose') is not None:
@@ -1247,7 +1247,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 #     if pose_num % freq == 0:
                 #         self.incr_stamp()
                 #         for ra, rb in com_map:
-                #             self.add_lc_inter_direct('pose', pose_num, ra, rb, modality='duplex')
+                #             self.add_lc_inter_direct('pose', pose_num, ra, rb, modality='double')
             
             # Add landmarks measurements
             if self.config.landmarks is not None:
