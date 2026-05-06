@@ -138,37 +138,6 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     edge = (min(rid,oid),max(rid,oid))
                     edges.add(edge)
         return edges
-
-    def __pack_lid_per_rid(self, group_type='all'):
-        '''
-        Pack landmark IDs per robot ID based on grouping type
-        '''
-        nb_lks = self.config.landmarks['number']
-        lk_ids = [gtsam.symbol('#', i + 1) for i in range(nb_lks)]
-        lid_dict = {}
-
-        if group_type == 'edges':
-            edges = self.__get_all_edges()
-            batch_nb = nb_lks // len(edges)
-
-            # init structure
-            for rid in self.robots:
-                lid_dict[rid] = set()
-
-            for index, edge in enumerate(edges):
-                lks = [lk_ids[index * batch_nb + i] for i in range(batch_nb)]
-                for lk in lks:
-                    lid_dict[edge[0]].add(lk)
-                    lid_dict[edge[1]].add(lk)
-            
-            for rid in self.robots:
-                lid_dict[rid] = list(lid_dict[rid])
-
-        elif group_type == 'all':
-            for rid in self.robots:
-                lid_dict[rid] = lk_ids
-
-        return lid_dict
     
     def incr_stamp(self):
         self.stamp += 1
@@ -910,12 +879,92 @@ class DatasetGenerator(jrl.DatasetBuilder):
         np.random.seed()
         
     def gen_lk_measurements(self):
-        print('Not implemented')
-        # Add landmark measurement
-        # for rid in self.robots:
-        #     if np.random.rand() < self.config.landmarks['probability']:
-        #         lid = random.choice(lks_ids[rid])
-        #         self.add_lk(lid, rid, pose_num)
+        
+        # Exportation des données
+        def export_data(rid, poses, lids):
+            # Export data
+            output = list(zip(poses, lids))
+            for data in output:
+                pose, lid = data
+                self.lk_measurements[(rid, pose)] = lid # (lid, noise)
+                
+        def gen_noises():
+            for key in self.lk_measurements.keys():
+                noise = self.bearing_range_noise_gen()
+                self.lk_measurements[key] = (self.lk_measurements[key], noise)
+        
+        def pack_lid_per_rid(group_type='all'):
+            nb_lks = self.config.landmarks['number']
+            lk_ids = [gtsam.symbol('#', i + 1) for i in range(nb_lks)]
+            lid_dict = {}
+
+            if group_type == 'edges':
+                edges = self.__get_all_edges()
+                batch_nb = nb_lks // len(edges)
+
+                # init structure
+                for rid in self.robots:
+                    lid_dict[rid] = set()
+
+                for index, edge in enumerate(edges):
+                    lks = [lk_ids[index * batch_nb + i] for i in range(batch_nb)]
+                    for lk in lks:
+                        lid_dict[edge[0]].add(lk)
+                        lid_dict[edge[1]].add(lk)
+                
+                for rid in self.robots:
+                    lid_dict[rid] = list(lid_dict[rid])
+
+            elif group_type == 'all':
+                for rid in self.robots:
+                    lid_dict[rid] = lk_ids
+
+            return lid_dict
+        
+        def get_unique_pairs(poses_pool, lids_pool, n):
+            all_pairs = [(p, l) for p in poses_pool for l in lids_pool]
+            chosen = random.sample(all_pairs, min(n, len(all_pairs)))
+            poses, lids = zip(*chosen) if chosen else ([], [])
+            return np.array(poses), np.array(lids)
+        
+        def get_random_poses(probability=0.4):
+            rd = np.random.rand(self.config.trajectory['poses'])
+            poses = np.where(rd > probability)[0]
+            return poses
+        
+        # Initialisation de la clé de génération
+        if "seed" in self.config.lc_intra:
+            np.random.seed(self.config.lc_intra['seed'])
+        else:
+            np.random.seed()
+            
+        # Landmarks packs for robots detections
+        if self.config.landmarks.get('pack') is not None:
+            lks_ids = pack_lid_per_rid(group_type=self.config.landmarks['pack'])
+        else: 
+            lks_ids = pack_lid_per_rid() # all
+            
+        # Landmark measurements -> risque de double détections
+        for rid in self.robots:
+            poses_pool = range(self.config.trajectory['poses'])
+            lids_pool = lks_ids[rid]
+            
+            if "detection_num" in self.config.landmarks:
+                n = self.config.landmarks['detection_num']
+                poses, lids = get_unique_pairs(poses_pool, lids_pool, n)
+                
+            elif "detection_prob" in self.config.landmarks:
+                poses = get_random_poses(self.config.landmarks['poses'])
+                poses, lids = get_unique_pairs(poses, lids_pool, len(poses))
+                
+            else:
+                poses = get_random_poses()
+                poses, lids = get_unique_pairs(poses, lids_pool, len(poses))
+            
+            export_data(rid, poses, lids)
+        
+        gen_noises()
+        np.random.seed()
 
     def gen_lc_intra(self): #-> scalable si un robot est ajouté
         
@@ -1210,12 +1259,12 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 self.add_odom_step(rid, pose_num)
                 
                 # Add loop closure : inter - indirect
-                if not not self.lc_inter_indirect:
+                if bool(self.lc_inter_indirect):
                     print('indirect lc détecté')
                     # for rid in self.robots:
                     #     pose_oid = max(pose_num - self.config.lc_inter_indirect['index'], 0)
                     #     ids = copy(self.robots)
-                    #     ids.remove(rid) 
+                    #     ids.remove(rid)
                     #     oid = np.random.choice(ids)
                     #     #generate list of tuple for each var
 
@@ -1226,7 +1275,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     #         self.incr_stamp()
                     
                 # Add loop closure : intra
-                if not not self.lc_intra: # L'objet n'est pas vide
+                if bool(self.lc_intra): # L'objet n'est pas vide
                     print('intra lc détecté')
                     # for rid in self.robots:
                     #     pose_oid = max(pose_num - self.config.lc_intra['index'], 0)
@@ -1239,7 +1288,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     #         self.incr_stamp()
                     
                 # Add loop closure : intra
-                if not not self.lc_intra: # L'objet n'est pas vide
+                if bool(self.lc_intra): # L'objet n'est pas vide
                     print('intra lc détecté')
                     # for rid in self.robots:
                     #     pose_oid = max(pose_num - self.config.lc_intra['index'], 0)
@@ -1252,10 +1301,10 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     #         self.incr_stamp()
                     
                 # Add loop closure : intrer - direct
-                if not not self.lc_inter_direct_range:
+                if bool(self.lc_inter_direct_range):
                     print('direct range détecté')
                 
-                if not not self.lc_inter_direct_pose:
+                if bool(self.lc_inter_direct_pose):
                     print('direct pose détecté')
 
                     # Add range measurement
@@ -1275,7 +1324,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     #             self.add_lc_inter_direct('pose', pose_num, ra, rb, modality='double')
             
                 # Add landmarks measurements
-                if self.lk_measurements is not None:
+                if bool(self.lk_measurements):
                     print('landmarks détectés')
                     
                     
