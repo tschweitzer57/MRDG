@@ -168,7 +168,6 @@ class DatasetConfiguration():
         output += f"Output directory : {self.output_dir}\n"
         output += f"\n"
 
-        output += self.__json_section_str(self.limits, "Limits")
         output += self.__json_section_str(self.dataset_opts, "Dataset-options")
         output += self.__json_section_str(self.trajectory, "Trajectory")
         output += self.__json_section_str(self.landmarks, "Landmarks")
