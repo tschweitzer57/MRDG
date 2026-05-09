@@ -149,6 +149,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             return True
 
+    @staticmethod
     def get_close_pose_idx(vals, rid, pose_index, index_tresh, dist_thresh):
         current_pose = vals.atPose3(gtsam.symbol(rid, pose_index))
         close_pose_indexes = []
@@ -164,6 +165,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             return None
 
+    @staticmethod
     def get_comm_robot(vals, robots, rid, pose_index, dist_thresh):
         current_pose = vals[rid].atPose3(gtsam.symbol(rid, pose_index))
         shuffled_robots = copy(robots)
@@ -178,6 +180,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     return other_rid
         return None
 
+    @staticmethod
     def get_available_comms(vals, robots, pose_index, dist_thresh):
         # should give tuple of comms for all robots in range of communication
         available = copy(robots)
@@ -217,25 +220,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 l_key = key
         return l_key
 
-    def get_close_pose_keys(self, vals, rid, pose_index, index_tresh, dist_thresh):
-        current_pose = vals[rid].atPose3(gtsam.symbol(rid, pose_index))
-        close_pose_keys = []
-        for oid in vals.keys():
-            if oid != rid:
-                for i in range(pose_index - (index_tresh + 1)):
-                    key = gtsam.symbol(oid, i)
-                    pose = vals[oid].atPose3(key)
-                    if (
-                        np.linalg.norm(current_pose.inverse().compose(pose).translation())
-                        < dist_thresh
-                    ):
-                        close_pose_keys.append(key)
-                if len(close_pose_keys) > 1:
-                    return np.random.choice(close_pose_keys)
-                else:
-                    return None
-
-    def get_close_pose_keys(self, vals, rid, pose_index, index_tresh, dist_thresh):
+    @staticmethod
+    def get_close_pose_keys(vals, rid, pose_index, index_tresh, dist_thresh):
         current_pose = vals[rid].atPose3(gtsam.symbol(rid, pose_index))
         close_pose_keys = []
         for oid in vals.keys():
