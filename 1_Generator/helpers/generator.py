@@ -1196,7 +1196,47 @@ class DatasetGenerator(jrl.DatasetBuilder):
         np.random.seed()
 
     def gen_outliers(self):
-        print('not implemented')
+        # Initialisation de la clé de génération
+        if "seed" in self.config.outliers:
+            np.random.seed(self.config.outliers['seed'])
+        else:
+            np.random.seed()
+            
+        if self.config.outliers.get('false_matching') is not None:
+            print("Generating false matching outliers...")
+            for rid in self.config.outliers['false_matching']['robots']:
+                print(f"Generating false matching outliers for robot {rid}...")
+
+        if self.config.outliers.get('out_of_bounds') is not None:
+            print("Generating out of bounds outliers...")
+            for rid in self.config.outliers['out_of_bounds']['robots']:
+                print(f"Generating out of bounds outliers for robot {rid}...")
+
+        if self.config.outliers.get('robot_loss') is not None:
+            print("Generating robot loss outliers...")
+            for rid, pose_num in self.config.outliers['robot_loss']:
+                print(f"Generating robot loss outlier for robot {rid} at pose {pose_num}...")
+
+    #     "outliers": {
+    #     "seed":15,
+    #     "false_matching": {
+    #         "robots": ['a'],
+    #         "intra": 10,
+    #         "inter_indirect": 10,
+    #         "inter_direct_range": 10,
+    #         "inter_direct_pose": 10,
+    #         "landmarks": 10
+    #     },
+    #     "out_of_bounds": {
+    #         "robots": ['a'],
+    #         "intra": 10,
+    #         "inter_indirect": 10,
+    #         "inter_direct_range": 10,
+    #         "inter_direct_pose": 10,
+    #         "landmarks": 10
+    #     },
+    #     "robot_loss": [('a', 200)]
+    # }
 
     #--------------------------------------------
     #   Dataset generation (default)

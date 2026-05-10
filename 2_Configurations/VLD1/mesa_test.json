@@ -55,8 +55,22 @@
     },
     "outliers": {
         "seed":15,
-        "perceptual_aliasing":10,
-        "robot_failure":1,
-        "robot_loss":1
+        "false_matching": {
+            "robots": ["a"],
+            "intra": 10,
+            "inter_indirect": 10,
+            "inter_direct_range": 10,
+            "inter_direct_pose": 10,
+            "landmarks": 10
+        },
+        "out_of_bounds": {
+            "robots": ["a"],
+            "intra": 10,
+            "inter_indirect": 10,
+            "inter_direct_range": 10,
+            "inter_direct_pose": 10,
+            "landmarks": 10
+        },
+        "robot_loss": [["a", 200], ["b", 200]]
     }
 }
