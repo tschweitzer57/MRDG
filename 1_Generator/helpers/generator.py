@@ -11,6 +11,7 @@ import random
 
 from configuration import DatasetConfiguration
 
+#TODO utiliser la nouvelle API aléatoire de Numpy
 #TODO Extraire Landmarks / Groundtruth / Initialization / Noise sous forme de classes
 #TODO transform gt var into simple gtsam.Values (dont require rid since there is a key)
 #TODO init start point
@@ -36,12 +37,15 @@ class DatasetGenerator(jrl.DatasetBuilder):
         self.init_values = gtsam.Values()
         self.landmarks = gtsam.Values()
 
+        # Topologie des mesures
         self.odom = defaultdict(list)
         self.lk_measurements = defaultdict(list)
         self.lc_intra = defaultdict(list)
         self.lc_inter_direct_range = defaultdict(list)
         self.lc_inter_direct_pose = defaultdict(list)
         self.lc_inter_indirect = defaultdict(list)
+        
+        # Topologie des outliers
 
         self.stamp = 0
         #self.pose_number = 0
@@ -281,6 +285,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
     #--------------------------------------------
     #   Error noise generators
     #--------------------------------------------
+    # TODO: Factoriser les fonctions
 
     def init_noise_gen(self, sigma = None):
         if sigma == None:
@@ -291,87 +296,113 @@ class DatasetGenerator(jrl.DatasetBuilder):
             )
         )
 
-    def odom_noise_gen(self, sigma = None):
+    def odom_noise_gen(self, sigma=None, outlier_amp=None):
         if sigma == None:
             sigma = self.config.sigmas['odom']
-        
-        noise = np.random.multivariate_normal(
-                    np.zeros((6,)), np.diag(np.array(sigma) ** 2)
-                )
+            
+        if outlier_amp is not None:
+            amplitude = outlier_amp * np.random.choice([-1, 1], size=len(sigma))
+            noise = np.array(sigma) * amplitude
+        else:
+            noise = np.random.multivariate_normal(
+                        np.zeros((6,)), np.diag(np.array(sigma) ** 2)
+                    )
 
-        if not self.outliers:
+            # avoid outliers
             noise = np.minimum(noise, np.array(sigma))
             noise = np.maximum(noise, -np.array(sigma))
+        
         return Pose3.Expmap(noise)
 
-    def loop_noise_gen(self, sigma = None):
+    def loop_noise_gen(self, sigma = None, outlier_amp=None):
         if sigma == None:
             sigma = self.config.sigmas['lc_intra']
-
-        noise = np.random.multivariate_normal(
+            
+        if outlier_amp is not None:
+            amplitude = outlier_amp * np.random.choice([-1, 1], size=len(sigma))
+            noise = np.array(sigma) * amplitude
+        else:
+            noise = np.random.multivariate_normal(
                     np.zeros((6,)), np.diag(np.array(sigma) ** 2)
                 )
 
-        if not self.outliers:
+            # avoid outliers
             noise = np.minimum(noise, np.array(sigma))
             noise = np.maximum(noise, -np.array(sigma))
 
         return Pose3.Expmap(noise)
 
-    def loop_inter_noise_gen(self, sigma = None):
+    def loop_inter_noise_gen(self, sigma = None, outlier_amp=None):
         if sigma == None:
             sigma = self.config.sigmas['lc_inter_indirect']
+            
+        if outlier_amp is not None:
+            amplitude = outlier_amp * np.random.choice([-1, 1], size=len(sigma))
+            noise = np.array(sigma) * amplitude
+        else:
+            noise = np.random.multivariate_normal(
+                        np.zeros((6,)), np.diag(np.array(sigma) ** 2)
+                    )
 
-        noise = np.random.multivariate_normal(
-                    np.zeros((6,)), np.diag(np.array(sigma) ** 2)
-                )
-
-        if not self.outliers:
+            # avoid outliers
             noise = np.minimum(noise, np.array(sigma))
             noise = np.maximum(noise, -np.array(sigma))
 
         return Pose3.Expmap(noise)
 
-    def range_loop_noise_gen(self, sigma = None):
+    def range_loop_noise_gen(self, sigma = None, outlier_amp=None):
         if sigma == None:
             sigma = self.config.sigmas['lc_inter_direct_range']
-        
-        noise = np.random.normal(0, sigma)
+            
+        if outlier_amp is not None:
+            amplitude = outlier_amp * np.random.choice([-1, 1])
+            noise = np.array(sigma) * amplitude
+        else:
+            noise = np.random.normal(0, sigma)
 
-        if not self.outliers:
+            # avoid outliers
             noise = np.minimum(noise, np.array(sigma))
             noise = np.maximum(noise, -np.array(sigma))
 
         return noise
     
-    def pose_loop_noise_gen(self, sigma = None):
+    def pose_loop_noise_gen(self, sigma = None, outlier_amp=None):
         if sigma == None:
             sigma = self.config.sigmas['lc_inter_direct_pose']
-
-        noise = np.random.multivariate_normal(
-                    np.zeros((6,)), np.diag(np.array(sigma) ** 2)
-                )
+            
+        if outlier_amp is not None:
+            amplitude = outlier_amp * np.random.choice([-1, 1], size=len(sigma))
+            noise = np.array(sigma) * amplitude
+        else:
+            noise = np.random.multivariate_normal(
+                        np.zeros((6,)), np.diag(np.array(sigma) ** 2)
+                    )
+            
+            # avoid outliers
+            noise = np.minimum(noise, np.array(sigma))
+            noise = np.maximum(noise, -np.array(sigma))
 
         return Pose3.Expmap(noise)
     
-    def bearing_range_noise_gen(self, sigma = None, force_outlier = None):
+    def bearing_range_noise_gen(self, sigma = None, outlier_amp=None):
         if sigma == None:
             sigma = self.config.sigmas['landmarks']
-
-        noise = np.random.normal(np.zeros(3,),np.array(sigma))
-
-        if not self.outliers and force_outlier is not None:
+            
+        if outlier_amp is not None:
+            amplitude = outlier_amp * np.random.choice([-1, 1], size=len(sigma))
+            noise = np.array(sigma) * amplitude
+        else:
+            noise = np.random.normal(np.zeros(3,),np.array(sigma))
+            
+            # avoid outliers
             noise = np.minimum(noise, np.array(sigma))
             noise = np.maximum(noise, -np.array(sigma))
-        elif force_outlier is not None:
-            noise = np.maximum(noise, force_outlier * np.array(sigma))
-            noise = np.minimum(noise, -force_outlier * np.array(sigma))
+
         return noise
     
     #--------------------------------------------
     #    Factor generators
     #--------------------------------------------
-
     def make_range_factor(self, k1, k2, noise):
         fg = gtsam.NonlinearFactorGraph()
         if noise is None: 
@@ -405,6 +436,16 @@ class DatasetGenerator(jrl.DatasetBuilder):
 
         measure = self.gt_poses.atPose3(k1).inverse().compose(self.gt_poses.atPose3(k2)).compose(noise)
         fg.add(gtsam.BetweenFactorPose3(k1, k2, measure, noise_model))
+        return fg
+    
+    def make_false_matching_factor(self, k1, k2, fk2, noise):
+        fg = gtsam.NonlinearFactorGraph()
+        if noise is None:
+            noise = self.loop_noise_gen()
+        noise_model = self.loop_noise_model
+
+        measure = self.gt_poses.atPose3(k1).inverse().compose(self.gt_poses.atPose3(k2)).compose(noise)
+        fg.add(gtsam.BetweenFactorPose3(k1, fk2, measure, noise_model))
         return fg
 
     #--------------------------------------------
@@ -872,12 +913,16 @@ class DatasetGenerator(jrl.DatasetBuilder):
             output = list(zip(poses, lids))
             for data in output:
                 pose, lid = data
-                self.lk_measurements[(rid, pose)] = lid # (lid, noise)
+                if (rid, pose) in self.lk_measurements:
+                    self.lk_measurements[(rid, pose)].append(lid)
+                else:
+                    self.lk_measurements[(rid, pose)] = [lid] # (lid, noise)
                 
         def gen_noises():
             for key in self.lk_measurements.keys():
-                noise = self.bearing_range_noise_gen()
-                self.lk_measurements[key] = (self.lk_measurements[key], noise)
+                for i, data in enumerate(self.lk_measurements[key]):
+                    noise = self.bearing_range_noise_gen()
+                    self.lk_measurements[key][i] = (data, noise)
         
         def pack_lid_per_rid(group_type='all'):
             nb_lks = self.config.landmarks['number']
@@ -909,7 +954,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
         
         def get_unique_pairs(poses_pool, lids_pool, n):
             all_pairs = [(p, l) for p in poses_pool for l in lids_pool]
-            chosen = random.sample(all_pairs, min(n, len(all_pairs)))
+            indexes = np.random.choice(range(len(all_pairs)), size=min(n, len(all_pairs)), replace=False)
+            chosen = [all_pairs[i] for i in indexes]
             poses, lids = zip(*chosen) if chosen else ([], [])
             return np.array(poses), np.array(lids)
         
@@ -919,8 +965,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
             return poses
         
         # Initialisation de la clé de génération
-        if "seed" in self.config.lc_intra:
-            np.random.seed(self.config.lc_intra['seed'])
+        if "seed" in self.config.landmarks:
+            np.random.seed(self.config.landmarks['seed'])
         else:
             np.random.seed()
             
@@ -996,7 +1042,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         elif self.config.lc_intra.get('number') is not None:
             for rid in self.robots:
                 # sélectionner les poses sur lesquelles surviennent une boucle
-                poses = np.random.randint(low=0, high=self.config.trajectory['poses'], size=self.config.lc_intra.get('number'))
+                poses = np.random.choice(range(self.config.trajectory['poses']), size=self.config.lc_intra.get('number'), replace=False)
                 poses = np.sort(poses)
                 lc_size = get_lc_size(len(poses))
                 poses_2nd = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
@@ -1066,7 +1112,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         elif self.config.lc_inter_indirect.get('number') is not None:
             for rid in self.robots:
                 # sélectionner les poses sur lesquelles surviennent une boucle
-                poses = np.random.randint(low=0, high=self.config.trajectory['poses'], size=self.config.lc_inter_indirect.get('number'))
+                poses = np.random.choice(range(self.config.trajectory['poses']), size=self.config.lc_inter_indirect.get('number'), replace = False)
                 poses = np.sort(poses)
                 lc_size = get_lc_size(len(poses))
                 poses_oid = np.maximum((poses - lc_size), np.zeros((len(poses),), dtype=int))
@@ -1142,7 +1188,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             elif self.config.lc_inter_direct['range'].get('number') is not None:
                 for rid in self.robots:
                     # sélectionner les poses sur lesquelles surviennent une boucle
-                    poses = np.random.randint(low=0, high=self.config.trajectory['poses'], size=self.config.lc_inter_direct['range']['number'])
+                    poses = np.random.choice(range(self.config.trajectory['poses']), size=self.config.lc_inter_direct['range']['number'], replace=False)
                     poses = np.sort(poses)
                     oids = gen_oids(len(poses),rid)
                     export_range_data(rid, poses, oids)
@@ -1176,7 +1222,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             elif self.config.lc_inter_direct['pose'].get('number') is not None:
                 for rid in self.robots:
                     # sélectionner les poses sur lesquelles surviennent une boucle
-                    poses = np.random.randint(low=0, high=self.config.trajectory['poses'], size=self.config.lc_inter_direct['pose']['number'])
+                    poses = np.random.choice(range(self.config.trajectory['poses']), size=self.config.lc_inter_direct['pose']['number'], replace=False)
                     poses = np.sort(poses)
                     oids = gen_oids(len(poses),rid)
                     export_pose_data(rid, poses, oids)
@@ -1202,41 +1248,60 @@ class DatasetGenerator(jrl.DatasetBuilder):
         else:
             np.random.seed()
             
-        if self.config.outliers.get('false_matching') is not None:
-            print("Generating false matching outliers...")
-            for rid in self.config.outliers['false_matching']['robots']:
-                print(f"Generating false matching outliers for robot {rid}...")
+        if 'out_of_bounds' in self.config.outliers:
+            # Initialisation des robots concernés par ces outliers
+            if 'robots' in self.config.outliers['out_of_bounds']:
+                robots_oob = self.config.outliers['out_of_bounds']['robots']
+            else:
+                robots_oob = self.robots
+                
+            # Définition de l'amplification pour les outliers
+            amp = 5
+            
+            # Génération des valeurs out of bounds
+            for rid in robots_oob:
+                if 'odometry' in self.config.outliers['out_of_bounds']:
+                    rate = self.config.outliers['out_of_bounds']['odometry']
+                    n = int(np.ceil((rate/100) * len(self.odom[rid])))
+                    selected_poses = np.random.choice(range(self.config.trajectory['poses']), size=n, replace=False)
+                    for pose in selected_poses:
+                        outlier_noise = self.odom_noise_gen(outlier_amp=amp)
+                        self.odom[rid][pose] = (self.odom[rid][pose][0], outlier_noise)
+                    
+                if 'intra' in self.config.outliers['out_of_bounds']:
+                    rate = self.config.outliers['out_of_bounds']['intra']
+                    keys = [key for key in self.lc_intra if key[0] == rid]
+                    print(len(keys))
+                    
+                if 'inter_indirect' in self.config.outliers['out_of_bounds']:
+                    rate = self.config.outliers['out_of_bounds']['inter_indirect']
+                    keys = [key for key in self.lc_inter_indirect if key[0] == rid]
+                    print(len(keys))
+                    
+                if 'inter_direct_range' in self.config.outliers['out_of_bounds']:
+                    rate = self.config.outliers['out_of_bounds']['inter_direct_range']
+                    keys = [key for key in self.lc_inter_direct_range if key[0] == rid]
+                    print(len(keys))
+                    
+                if 'inter_direct_pose' in self.config.outliers['out_of_bounds']:
+                    rate = self.config.outliers['out_of_bounds']['inter_direct_pose']
+                    keys = [key for key in self.lc_inter_direct_pose if key[0] == rid]
+                    print(len(keys))
+                    
+                if 'landmarks' in self.config.outliers['out_of_bounds']:
+                    rate = self.config.outliers['out_of_bounds']['landmarks']
+                    keys = [key for key in self.lk_measurements if key[0] == rid]
+                    print(len(keys))
+                
+        # if self.config.outliers.get('false_matching') is not None:
+        #     print("Generating false matching outliers...")
+        #     for rid in self.config.outliers['false_matching']['robots']:
+        #         print(f"Generating false matching outliers for robot {rid}...")
 
-        if self.config.outliers.get('out_of_bounds') is not None:
-            print("Generating out of bounds outliers...")
-            for rid in self.config.outliers['out_of_bounds']['robots']:
-                print(f"Generating out of bounds outliers for robot {rid}...")
-
-        if self.config.outliers.get('robot_loss') is not None:
-            print("Generating robot loss outliers...")
-            for rid, pose_num in self.config.outliers['robot_loss']:
-                print(f"Generating robot loss outlier for robot {rid} at pose {pose_num}...")
-
-    #     "outliers": {
-    #     "seed":15,
-    #     "false_matching": {
-    #         "robots": ['a'],
-    #         "intra": 10,
-    #         "inter_indirect": 10,
-    #         "inter_direct_range": 10,
-    #         "inter_direct_pose": 10,
-    #         "landmarks": 10
-    #     },
-    #     "out_of_bounds": {
-    #         "robots": ['a'],
-    #         "intra": 10,
-    #         "inter_indirect": 10,
-    #         "inter_direct_range": 10,
-    #         "inter_direct_pose": 10,
-    #         "landmarks": 10
-    #     },
-    #     "robot_loss": [('a', 200)]
-    # }
+        # if 'robot_loss' in self.config.outliers:
+        #     print("Function robot loss (outliers) not yet implemented ...")
+        #     for rid, pose_num in self.config.outliers['robot_loss']:
+        #         print(f"Robot loss outlier for robot {rid} at pose {pose_num} detected")
 
     #--------------------------------------------
     #   Dataset generation (default)
@@ -1324,9 +1389,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 if bool(self.lk_measurements) and (rid, pose_num) in self.lk_measurements.keys():
                     # print("Landmarks")
                     # print(self.lk_measurements[(rid, pose_num)])
-                    lid = self.lk_measurements[(rid, pose_num)][0]
-                    noise = self.lk_measurements[(rid, pose_num)][1]
-                    self.add_lk(lid, rid, pose_num, noise=noise)
+                    data = self.lk_measurements[(rid, pose_num)]
+                    for lid, noise in data:
+                        self.add_lk(lid, rid, pose_num, noise=noise)
                          
             self.incr_stamp()
 

@@ -55,15 +55,16 @@
     },
     "outliers": {
         "seed":15,
-        "false_matching": {
+        "out_of_bounds": {
             "robots": ["a"],
+            "odometry": 10,
             "intra": 10,
             "inter_indirect": 10,
             "inter_direct_range": 10,
             "inter_direct_pose": 10,
             "landmarks": 10
         },
-        "out_of_bounds": {
+        "false_matching": {
             "robots": ["a"],
             "intra": 10,
             "inter_indirect": 10,
