@@ -19,6 +19,7 @@ from configuration import DatasetConfiguration
 #TODO add a mapping function generating a common map for trajectories and lks
 #TODO améliorer intégration des random seed
 #TODO Trouver un nouvel ordre de génération des mesures
+#TODO créer une classe dataset topology pour gérer les différentes topologies de mesure (ex: gridworld, random comms, etc.) et les différentes topologies d'outliers
 
 class DatasetGenerator(jrl.DatasetBuilder):
     def __init__(self, config_path, output_dir=None):
@@ -1271,29 +1272,57 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 if 'intra' in self.config.outliers['out_of_bounds']:
                     rate = self.config.outliers['out_of_bounds']['intra']
                     keys = [key for key in self.lc_intra if key[0] == rid]
-                    print(len(keys))
+                    n = int(np.ceil((rate/100) * len(keys)))
+                    indexes = np.random.choice(range(len(keys)), size=n, replace=False)
+                    for key in [keys[i] for i in indexes]:
+                        outlier_noise = self.loop_noise_gen(outlier_amp=amp)
+                        self.lc_intra[key] = (self.lc_intra[key][0], outlier_noise)
                     
                 if 'inter_indirect' in self.config.outliers['out_of_bounds']:
                     rate = self.config.outliers['out_of_bounds']['inter_indirect']
                     keys = [key for key in self.lc_inter_indirect if key[0] == rid]
-                    print(len(keys))
-                    
+                    n = int(np.ceil((rate/100) * len(keys)))
+                    indexes = np.random.choice(range(len(keys)), size=n, replace=False)
+                    for key in [keys[i] for i in indexes]:
+                        outlier_noise = self.loop_inter_noise_gen(outlier_amp=amp)
+                        self.lc_inter_indirect[key] = (self.lc_inter_indirect[key][0], self.lc_inter_indirect[key][1], outlier_noise)
+
                 if 'inter_direct_range' in self.config.outliers['out_of_bounds']:
                     rate = self.config.outliers['out_of_bounds']['inter_direct_range']
                     keys = [key for key in self.lc_inter_direct_range if key[0] == rid]
-                    print(len(keys))
+                    n = int(np.ceil((rate/100) * len(keys)))
+                    indexes = np.random.choice(range(len(keys)), size=n, replace=False)
+                    for key in [keys[i] for i in indexes]:
+                        outlier_noise = self.range_loop_noise_gen(outlier_amp=amp)
+                        self.lc_inter_direct_range[key] = (self.lc_inter_direct_range[key][0], self.lc_inter_direct_range[key][1], outlier_noise)
                     
                 if 'inter_direct_pose' in self.config.outliers['out_of_bounds']:
                     rate = self.config.outliers['out_of_bounds']['inter_direct_pose']
                     keys = [key for key in self.lc_inter_direct_pose if key[0] == rid]
-                    print(len(keys))
+                    n = int(np.ceil((rate/100) * len(keys)))
+                    indexes = np.random.choice(range(len(keys)), size=n, replace=False)
+                    for key in [keys[i] for i in indexes]:
+                        outlier_noise = self.pose_loop_noise_gen(outlier_amp=amp)
+                        self.lc_inter_direct_pose[key] = (self.lc_inter_direct_pose[key][0], self.lc_inter_direct_pose[key][1], outlier_noise)
                     
                 if 'landmarks' in self.config.outliers['out_of_bounds']:
                     rate = self.config.outliers['out_of_bounds']['landmarks']
-                    keys = [key for key in self.lk_measurements if key[0] == rid]
-                    print(len(keys))
-                
-        # if self.config.outliers.get('false_matching') is not None:
+                    keys = []
+                    for key in self.lk_measurements.keys():
+                        if key[0] == rid:
+                            for data in self.lk_measurements[key]:
+                                keys.append((key[0], key[1], data[0])) # (rid, pose, lid)
+                    n = int(np.ceil((rate/100) * len(keys)))
+                    indexes = np.random.choice(range(len(keys)), size=n, replace=False)
+                    for key in [keys[i] for i in indexes]:
+                        outlier_noise = self.bearing_range_noise_gen(outlier_amp=amp)
+                        rid, pose, lid = key
+                        data = self.lk_measurements[(rid, pose)]
+                        for i, d in enumerate(data):
+                            if d[0] == lid:
+                                self.lk_measurements[(rid, pose)][i] = (d[0], outlier_noise)
+
+        # if self.config.outliers.get('false_matching') is not None: # Perceptual aliasing
         #     print("Generating false matching outliers...")
         #     for rid in self.config.outliers['false_matching']['robots']:
         #         print(f"Generating false matching outliers for robot {rid}...")
@@ -1302,6 +1331,21 @@ class DatasetGenerator(jrl.DatasetBuilder):
         #     print("Function robot loss (outliers) not yet implemented ...")
         #     for rid, pose_num in self.config.outliers['robot_loss']:
         #         print(f"Robot loss outlier for robot {rid} at pose {pose_num} detected")
+    
+    #--------------------------------------------
+    #   Asynchronous Evaluation functions
+    #--------------------------------------------
+    def gen_edges_lk(self):
+        print("Not yet implemented ...")
+    
+    def gen_edges_pose(self):
+        print("Not yet implemented ...")
+
+    def gen_shared_lk(self):
+        print("Not yet implemented ...")
+    
+    def gen_shared_pose(self):
+        print("Not yet implemented ...")
 
     #--------------------------------------------
     #   Dataset generation (default)
