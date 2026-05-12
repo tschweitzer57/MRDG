@@ -47,6 +47,11 @@ class DatasetGenerator(jrl.DatasetBuilder):
         self.lc_inter_indirect = defaultdict(list)
         
         # Topologie des outliers
+        self.outliers_intra_fm = defaultdict(list)
+        self.outliers_inter_fm = defaultdict(list)
+        self.outliers_pose_fm = defaultdict(list)
+        self.outliers_range_fm = defaultdict(list)
+        self.outliers_lk_fm = defaultdict(list)
 
         self.stamp = 0
         #self.pose_number = 0
@@ -1157,9 +1162,10 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 pose, oid = data
                 self.lc_inter_direct_pose[(rid, pose)] = (oid, 'double')
             
-        def gen_oids(len_ids, rid):
+        def gen_oids(len_ids, rid=None):
             ids = copy(self.robots)
-            ids.remove(rid)
+            if rid is not None:
+                ids.remove(rid)
             return np.random.choice(ids, size=len_ids)
 
         def gen_noises():
@@ -1238,6 +1244,20 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     poses += self.config.trajectory['poses'] - init
                     oids = gen_oids(len(poses),rid)
                     export_pose_data(rid, poses, oids)
+                    
+        # Generates shared pose measurements
+        if 'pose_shared' in self.config.lc_inter_direct:
+            
+            # Mesures à nombre défini
+            print('pose_shared détecté')
+            if self.config.lc_inter_direct['pose'].get('number') is not None:
+                poses = np.random.choice(range(self.config.trajectory['poses']), size=self.config.lc_inter_direct['pose']['number'], replace=False)
+                poses = np.sort(poses)
+                oids = gen_oids(len(poses))
+                
+                for rid in self.robots:
+                    self_oids = [gen_oids(1,rid) if oid == rid else oid for oid in oids]
+                    export_pose_data(rid, poses, self_oids)
         
         gen_noises()
         np.random.seed()
@@ -1322,30 +1342,73 @@ class DatasetGenerator(jrl.DatasetBuilder):
                             if d[0] == lid:
                                 self.lk_measurements[(rid, pose)][i] = (d[0], outlier_noise)
 
-        # if self.config.outliers.get('false_matching') is not None: # Perceptual aliasing
-        #     print("Generating false matching outliers...")
-        #     for rid in self.config.outliers['false_matching']['robots']:
-        #         print(f"Generating false matching outliers for robot {rid}...")
+        # Perceptual aliasing
+        # TODO: Eviter de prendre les mêmes mesures que précédemment
+        if 'false_matching' in self.config.outliers:
+            # Initialisation des robots concernés par ces outliers
+            if 'robots' in self.config.outliers['false_matching']:
+                robots_fm = self.config.outliers['false_matching']['robots']
+            else:
+                robots_fm = self.robots
+                
+            # Génération des fausses détections
+            for rid in robots_fm:
+                if 'intra' in self.config.outliers['false_matching']:
+                    rate = self.config.outliers['false_matching']['intra']
+                    keys = [key for key in self.lc_intra if key[0] == rid]
+                    n = int(np.ceil((rate/100) * len(keys)))
+                    indexes = np.random.choice(range(len(keys)), size=n, replace=False)
+                    selected_keys = [keys[i] for i in indexes]
+                    for key in selected_keys:
+                        self.outliers_intra_fm[key] = self.lc_intra.pop(key)
+                    
+                if 'inter_indirect' in self.config.outliers['false_matching']:
+                    rate = self.config.outliers['false_matching']['inter_indirect']
+                    keys = [key for key in self.lc_inter_indirect if key[0] == rid]
+                    n = int(np.ceil((rate/100) * len(keys)))
+                    indexes = np.random.choice(range(len(keys)), size=n, replace=False)
+                    selected_keys = [keys[i] for i in indexes]
+                    for key in selected_keys:
+                        self.outliers_inter_fm[key] = self.lc_inter_indirect.pop(key)
+                    
+                if 'inter_direct_range' in self.config.outliers['false_matching']:
+                    rate = self.config.outliers['false_matching']['inter_direct_range']
+                    keys = [key for key in self.lc_inter_direct_range if key[0] == rid]
+                    n = int(np.ceil((rate/100) * len(keys)))
+                    indexes = np.random.choice(range(len(keys)), size=n, replace=False)
+                    selected_keys = [keys[i] for i in indexes]
+                    for key in selected_keys:
+                        self.outliers_range_fm[key] = self.lc_inter_direct_range.pop(key)
+                    
+                if 'inter_direct_pose' in self.config.outliers['false_matching']:
+                    rate = self.config.outliers['false_matching']['inter_direct_pose']
+                    keys = [key for key in self.lc_inter_direct_pose if key[0] == rid]
+                    n = int(np.ceil((rate/100) * len(keys)))
+                    indexes = np.random.choice(range(len(keys)), size=n, replace=False)
+                    selected_keys = [keys[i] for i in indexes]
+                    for key in selected_keys:
+                        self.outliers_pose_fm[key] = self.lc_inter_direct_pose.pop(key)
+                    
+                if 'landmarks' in self.config.outliers['false_matching']: # attention aux potentielles doubles mesures
+                    rate = self.config.outliers['false_matching']['landmarks']
+                    keys = []
+                    for key in self.lk_measurements.keys():
+                        if key[0] == rid:
+                            for data in self.lk_measurements[key]:
+                                keys.append((key[0], key[1], data[0])) # (rid, pose, lid)
+                    n = int(np.ceil((rate/100) * len(keys)))
+                    indexes = np.random.choice(range(len(keys)), size=n, replace=False)
+                    for key in [keys[i] for i in indexes]:
+                        rid, pose, lid = key
+                        if len(self.lk_measurements[(rid, pose)]) == 1:
+                            self.outliers_lk_fm[(rid, pose)] = self.lk_measurements.pop((rid, pose))
+                        else:
+                            for i, d in enumerate(self.lk_measurements[(rid, pose)]):
+                                if d[0] == lid:
+                                    self.outliers_lk_fm[(rid, pose)] = self.lk_measurements[(rid, pose)].pop(i)
 
-        # if 'robot_loss' in self.config.outliers:
-        #     print("Function robot loss (outliers) not yet implemented ...")
-        #     for rid, pose_num in self.config.outliers['robot_loss']:
-        #         print(f"Robot loss outlier for robot {rid} at pose {pose_num} detected")
-    
-    #--------------------------------------------
-    #   Asynchronous Evaluation functions
-    #--------------------------------------------
-    def gen_edges_lk(self):
-        print("Not yet implemented ...")
-    
-    def gen_edges_pose(self):
-        print("Not yet implemented ...")
-
-    def gen_shared_lk(self):
-        print("Not yet implemented ...")
-    
-    def gen_shared_pose(self):
-        print("Not yet implemented ...")
+        if 'robot_loss' in self.config.outliers:
+            print('Function robot loss not yet implemented')
 
     #--------------------------------------------
     #   Dataset generation (default)
@@ -1376,6 +1439,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         # Generate loop closure : inter - indirect
         if self.config.lc_inter_direct is not None:
             self.gen_lc_inter_direct()
+            # self.gen_shared_pose()
         # Generate loop closure : inter - direct
         if self.config.lc_inter_indirect is not None:
             self.gen_lc_inter_indirect()
@@ -1399,16 +1463,12 @@ class DatasetGenerator(jrl.DatasetBuilder):
             for rid in self.robots:
                 # Add loop closure : intra
                 if bool(self.lc_intra) and (rid, pose_num) in self.lc_intra.keys(): # L'objet n'est pas vide
-                    # print("Intra")
-                    # print(self.lc_intra[(rid, pose_num)])
                     pose_2nd = self.lc_intra[(rid, pose_num)][0]
                     noise = self.lc_intra[(rid, pose_num)][1]
                     self.add_lc_intra(rid, pose_num, pose_2nd, noise=noise)
                 
                 # Add loop closure : inter - indirect
                 if bool(self.lc_inter_indirect) and (rid, pose_num) in self.lc_inter_indirect.keys():
-                    # print("Inter Indirect")
-                    # print(self.lc_inter_indirect[(rid, pose_num)])
                     oid = self.lc_inter_indirect[(rid, pose_num)][0]
                     pose_oid = self.lc_inter_indirect[(rid, pose_num)][1]
                     noise = self.lc_inter_indirect[(rid, pose_num)][2]
@@ -1416,23 +1476,17 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     
                 # Add loop closure : intrer - direct
                 if bool(self.lc_inter_direct_range) and (rid, pose_num) in self.lc_inter_direct_range.keys():
-                    # print("Inter Direct Range")
-                    # print(self.lc_inter_direct_range[(rid, pose_num)])
                     oid = self.lc_inter_direct_range[(rid, pose_num)][0]
                     noise = self.lc_inter_direct_range[(rid, pose_num)][2]
                     self.add_lc_inter_direct('range', pose_num, rid, oid, modality='double', noise=noise)
                 
                 if bool(self.lc_inter_direct_pose) and (rid, pose_num) in self.lc_inter_direct_pose.keys():
-                    # print("Inter Direct Pose")
-                    # print(self.lc_inter_direct_pose[(rid, pose_num)])
                     oid = self.lc_inter_direct_pose[(rid, pose_num)][0]
                     noise = self.lc_inter_direct_pose[(rid, pose_num)][2]
                     self.add_lc_inter_direct('pose', pose_num, rid, oid, modality='simple-a', noise=noise)
             
                 # Add landmarks measurements
                 if bool(self.lk_measurements) and (rid, pose_num) in self.lk_measurements.keys():
-                    # print("Landmarks")
-                    # print(self.lk_measurements[(rid, pose_num)])
                     data = self.lk_measurements[(rid, pose_num)]
                     for lid, noise in data:
                         self.add_lk(lid, rid, pose_num, noise=noise)

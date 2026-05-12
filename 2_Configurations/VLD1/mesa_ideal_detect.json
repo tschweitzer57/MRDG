@@ -16,6 +16,7 @@
     },
     "inter-direct-loop-closure": {
         "pose": {
+            "seed": 30,
             "number": 50
         }
     },

@@ -17,7 +17,7 @@
     "landmarks": {
         "seed": 57,
         "number": 10,
-        "pack": "duo",
+        "pack": "edges",
         "detection_num": 50
     },
     "sigmas": {

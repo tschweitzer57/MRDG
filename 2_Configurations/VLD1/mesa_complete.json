@@ -7,7 +7,7 @@
     },
     "trajectory":{
         "seed": 67,
-        "robots": 10,
+        "robots": 4,
         "poses": 250,
         "traj_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
         "x_lim": [-40, 40],
@@ -18,22 +18,25 @@
         "seed": 57,
         "number": 30,
         "pack": "all",
-        "detection_prob": 0.4,
         "detection_num": 50
     },
     "intra-loop-closure": {
+        "seed": 30,
         "number": 20,
-        "index": 20
+        "size": 20
     },
     "inter-indirect-loop-closure": {
+        "seed": 30,
         "number": 20,
-        "index": 20
+        "size": 20
     },
     "inter-direct-loop-closure": {
         "pose": {
+            "seed": 30,
             "number": 20
         },
         "range": {
+            "seed": 30,
             "number": 20
         }
     },
@@ -41,7 +44,6 @@
         "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],
 
         "prior": [0.05, 0.05, 0.05, 0.1, 0.1, 0.1],
-        "robot_zero_prior": [0.05, 0.05, 0.05, 0.1, 0.1, 0.1],
 
         "odom": [0.05, 0.05, 0.05, 0.03, 0.03, 0.03],
 
@@ -52,8 +54,24 @@
         "landmarks": [0.03, 0.03, 0.15]
     },
     "outliers": {
-        "perceptual_aliasing":10,
-        "robot_failure":1,
-        "robot_loss":1
+        "seed":15,
+        "out_of_bounds": {
+            "robots": ["a"],
+            "odometry": 10,
+            "intra": 10,
+            "inter_indirect": 10,
+            "inter_direct_range": 10,
+            "inter_direct_pose": 10,
+            "landmarks": 10
+        },
+        "false_matching": {
+            "robots": ["a"],
+            "intra": 10,
+            "inter_indirect": 10,
+            "inter_direct_range": 10,
+            "inter_direct_pose": 10,
+            "landmarks": 10
+        },
+        "robot_loss": [["a", 200], ["b", 200]]
     }
 }
