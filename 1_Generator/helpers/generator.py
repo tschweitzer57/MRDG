@@ -930,7 +930,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     noise = self.bearing_range_noise_gen()
                     self.lk_measurements[key][i] = (data, noise)
         
-        def pack_lid_per_rid(group_type='all'):
+        def pack_lid_per_rid(group_type='shared'):
             nb_lks = self.config.landmarks['number']
             lk_ids = [gtsam.symbol('#', i + 1) for i in range(nb_lks)]
             lid_dict = {}
@@ -952,7 +952,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 for rid in self.robots:
                     lid_dict[rid] = list(lid_dict[rid])
 
-            elif group_type == 'all':
+            elif group_type == 'shared':
                 for rid in self.robots:
                     lid_dict[rid] = lk_ids
 
@@ -980,7 +980,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         if self.config.landmarks.get('pack') is not None:
             lks_ids = pack_lid_per_rid(group_type=self.config.landmarks['pack'])
         else: 
-            lks_ids = pack_lid_per_rid() # all
+            lks_ids = pack_lid_per_rid() # shared by default
             
         # Landmark measurements -> risque de double détections
         for rid in self.robots:
