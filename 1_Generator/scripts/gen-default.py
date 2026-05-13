@@ -10,6 +10,6 @@ if __name__ == "__main__":
     #     dataset = DatasetGenerator(file_path)
     #     dataset.generate_dataset()
 
-    file_path = './configs/VLD1/mesa_test.json'
+    file_path = './configs/DEFAULT/default.json'
     dataset = DatasetGenerator(file_path)
     dataset.generate_dataset()
