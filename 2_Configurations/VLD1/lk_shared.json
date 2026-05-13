@@ -1,5 +1,5 @@
 {
-    "name": "mesa_detection_failure",
+    "name": "lk_shared",
     "output_dir": "/home/workspace/output",
     "dataset-options": {
         "repeats": 1,
@@ -14,11 +14,11 @@
         "y_lim": [-40, 40],
         "z_lim": [-40, 40]
     },
-    "inter-direct-loop-closure": {
-        "pose_shared": {
-            "seed": 30,
-            "number": 50
-        }
+    "landmarks": {
+        "seed": 57,
+        "number": 10,
+        "pack": "shared",
+        "detection_num": 50
     },
     "sigmas": {
         "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],

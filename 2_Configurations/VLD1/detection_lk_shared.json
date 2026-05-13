@@ -1,5 +1,5 @@
 {
-    "name": "mesa_lk_failure",
+    "name": "detection_lk_shared",
     "output_dir": "/home/workspace/output",
     "dataset-options": {
         "repeats": 1,
@@ -16,9 +16,14 @@
     },
     "landmarks": {
         "seed": 57,
-        "number": 10,
-        "pack": "all",
+        "number": 30,
+        "pack": "shared",
         "detection_num": 50
+    },
+    "inter-direct-loop-closure": {
+        "pose_shared": {
+            "number": 20
+        }
     },
     "sigmas": {
         "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],
