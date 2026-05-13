@@ -1249,14 +1249,13 @@ class DatasetGenerator(jrl.DatasetBuilder):
         if 'pose_shared' in self.config.lc_inter_direct:
             
             # Mesures à nombre défini
-            print('pose_shared détecté')
-            if self.config.lc_inter_direct['pose'].get('number') is not None:
-                poses = np.random.choice(range(self.config.trajectory['poses']), size=self.config.lc_inter_direct['pose']['number'], replace=False)
+            if self.config.lc_inter_direct['pose_shared'].get('number') is not None:
+                poses = np.random.choice(range(self.config.trajectory['poses']), size=self.config.lc_inter_direct['pose_shared']['number'], replace=False)
                 poses = np.sort(poses)
                 oids = gen_oids(len(poses))
                 
                 for rid in self.robots:
-                    self_oids = [gen_oids(1,rid) if oid == rid else oid for oid in oids]
+                    self_oids = [gen_oids(1,rid)[0] if oid == rid else oid for oid in oids]
                     export_pose_data(rid, poses, self_oids)
         
         gen_noises()
