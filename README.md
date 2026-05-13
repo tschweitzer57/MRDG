@@ -34,9 +34,12 @@ MRDG runs inside **Dev Containers** — no manual dependency installation is req
 
    | Container | Purpose | Docker image |
    |---|---|---|
-   | `dataset-gen-v3` | Dataset generation *(recommended)* | `tschweitzer57/gtsam:4.3a0-ros2jazzy-mirage` |
-   | `dataset-gen` | Dataset generation (legacy) | `tschweitzer57/gtsam:base-20.04` |
-   | `error-metrics` | Metrics computation & visualization | `tschweitzer57/gtsam:base-20.04` + `evo` |
+   | `dataset-gen` | Dataset generation | `tschweitzer57/gtsam:base-20.04` |
+   | `error-metrics` | Metrics computation & visualization | `tschweitzer57/gtsam:base-20.04` |
+   | `dataset-gen-v2` | Dataset generation *(to be removed)* | `tschweitzer57/gtsam:4.3a0-ros2-jrl` |
+   | `dataset-gen-v3` | Dataset generation *(under developement)* | `tschweitzer57/gtsam:4.3a0-ros2jazzy-mirage` |
+   | `metrics-v2` | Metrics computation & visualization *(to be removed)* | `tschweitzer57/gtsam:4.3a0-ros2-jrl` |
+   | `metrics-v3` | Metrics computation & visualization *(under developement)* | `tschweitzer57/gtsam:4.3a0-ros2jazzy-mirage` |
 
 3. **Wait for the container to build.** The workspace, helpers, scripts, configuration files, and output folders are automatically bind-mounted inside the container — no extra setup is needed.
 
@@ -48,7 +51,7 @@ MRDG covers two main workflows: **dataset generation** and **metrics computation
 
 ### 1. Dataset generation
 
-Open the `dataset-gen-v3` (or `dataset-gen`) Dev Container.
+Open the `dataset-gen` Dev Container.
 
 #### Generate a dataset from the default configuration
 
