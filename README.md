@@ -69,7 +69,7 @@ cd scripts
 python gen-vld1.py
 ```
 
-This iterates over all `.json` files in `2_Configurations/VLD1/` and generates one dataset per configuration.
+This iterates over all `.json` files in `2_Configurations/VLD1/` and generates one dataset per configuration file.
 
 #### Parse and visualize a generated dataset
 
