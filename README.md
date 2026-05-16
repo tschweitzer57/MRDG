@@ -20,7 +20,7 @@ MRDG is also able to compute errors from computed results.
 
 ## Installation
 
-MRDG runs inside **Dev Containers** — no manual dependency installation is required. The only prerequisites are [Docker](https://docs.docker.com/get-docker/) and the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) for VS Code.
+MRDG runs inside **Dev Containers** — no manual dependency installation is required. The only prerequisites are [Docker](https://docs.docker.com/get-docker/), the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) for VS Code and X11 server.
 
 ### Steps
 
