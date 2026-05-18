@@ -84,6 +84,9 @@ class DatasetParser():
         else:
             raise ValueError("Unknown error type")
 
+        key = gtsam.symbol('i', 143)
+        print(self.initializations['j'].atPose3(key))
+
         colors = sb.color_palette("colorblind", len(self.robots))
         ax = plt.figure().add_subplot(projection='3d')
         for idx, rid in enumerate(self.robots):
@@ -104,7 +107,7 @@ class DatasetParser():
                 color=colors[idx],
                 label=f'Robot {rid}'
             )
-            if landmarks.any(): ax.scatter(landmarks[0], landmarks[1], landmarks[2], color=colors[idx]) 
+            if landmarks: ax.scatter(landmarks[0], landmarks[1], landmarks[2], color=colors[idx])
             ax.legend()
         plt.axis('equal')
         plt.show()
