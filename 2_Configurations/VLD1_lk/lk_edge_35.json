@@ -1,5 +1,5 @@
 {
-    "name": "detection_edge",
+    "name": "lk_edge_35",
     "output_dir": "/home/workspace/output",
     "dataset-options": {
         "repeats": 1,
@@ -7,18 +7,18 @@
     },
     "trajectory":{
         "seed": 67,
-        "robots": 10,
+        "robots": 35,
         "poses": 250,
         "traj_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
         "x_lim": [-40, 40],
         "y_lim": [-40, 40],
         "z_lim": [-40, 40]
     },
-    "inter-direct-loop-closure": {
-        "pose": {
-            "seed": 30,
-            "number": 50
-        }
+    "landmarks": {
+        "seed": 57,
+        "number": 17850,
+        "pack": "edges",
+        "detection_num": 50
     },
     "sigmas": {
         "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],
