@@ -94,8 +94,39 @@ class Results2():
                 estimation_1 = self.iteration_results[iteration].robot_solutions[edge[0]].values.atPoint3(key)
                 estimation_2 = self.iteration_results[iteration].robot_solutions[edge[1]].values.atPoint3(key)
                 error[edge].append(np.linalg.norm(estimation_1 - estimation_2))
-        
+
         return error
+
+    def get_mean_consensus_all_lk(self):
+        """Mean consensus error per edge, averaged over all shared Point3 (#) landmarks.
+
+        Only pairs where both robots actually hold the landmark at a given iteration
+        contribute to the average. Returns {} if no shared landmarks exist.
+        """
+        lk_keys = [k for k in self.shared_variables
+                   if chr(gtsam.Symbol(k).chr()) == '#']
+        if not lk_keys:
+            return {}
+
+        n_iter = len(self.iteration_results)
+        sorted_iters = sorted(self.iteration_results.keys())
+
+        acc   = defaultdict(lambda: np.zeros(n_iter))
+        count = defaultdict(lambda: np.zeros(n_iter))
+
+        for key in lk_keys:
+            for it_idx, iteration in enumerate(sorted_iters):
+                for edge in self.comm_edges:
+                    v1 = self.iteration_results[iteration].robot_solutions[edge[0]].values
+                    v2 = self.iteration_results[iteration].robot_solutions[edge[1]].values
+                    if key in v1.keys() and key in v2.keys():
+                        acc[edge][it_idx]   += np.linalg.norm(v1.atPoint3(key) - v2.atPoint3(key))
+                        count[edge][it_idx] += 1
+
+        return {
+            edge: np.where(count[edge] > 0, acc[edge] / count[edge], 0.0).tolist()
+            for edge in acc
+        }
 
     def __get_comm_edges(self):
         edges = set()
