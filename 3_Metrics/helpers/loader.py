@@ -1,5 +1,6 @@
 import os
 import glob
+import re
 import sys
 
 class DatasetGroup():
@@ -51,7 +52,10 @@ class Loader():
             for result_path in results_paths:
                 for dataset_path in datasets_paths:
                     dataset_name = os.path.splitext(os.path.basename(dataset_path))[0]
-                    if dataset_name in os.path.basename(result_path) and solver in os.path.basename(result_path):
+                    basename = os.path.basename(result_path)
+                    dataset_match = re.search(r'(?<![a-zA-Z0-9])' + re.escape(dataset_name) + r'(?![a-zA-Z0-9])', basename)
+                    solver_match = re.search(r'(?<![a-zA-Z0-9])' + re.escape(solver) + r'(?![a-zA-Z0-9])', basename)
+                    if dataset_match and solver_match:
                         dataGroups.append(DatasetGroup(solver, dataset_name, result_path, dataset_path))
         return dataGroups
     
