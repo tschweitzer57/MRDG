@@ -3,7 +3,7 @@ from configuration import get_config_paths
 
 if __name__ == "__main__":
 
-    config_folder = './configs/VLD1'
+    config_folder = './configs/VLD1_detection'
     config_paths = get_config_paths(config_folder)
 
     for file_path in config_paths:
