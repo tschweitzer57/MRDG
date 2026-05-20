@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from results import Results, Results2
+from results import Results, Results2, Results3, GroupResults
 from loader import Loader
 from display_metrics import DisplayMetrics
 
@@ -20,6 +20,9 @@ loader = Loader(SOLVERS, RESULTS_FOLDER, DATASET_FOLDER)
 
 for dg in loader:
     print(f"\n[{dg.dataset}] solver={dg.solver}")
+
+    test = GroupResults('value')
+    print(test)
 
     # ---- RTE & APE via final trajectory results ----
     # res = Results(dg.result_path, dg.dataset_path, OUTPUT_FOLDER)

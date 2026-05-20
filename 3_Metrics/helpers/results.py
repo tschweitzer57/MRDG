@@ -12,6 +12,81 @@ import gtsam
 # Custom librairies
 from metrics import Metrics
 
+class GroupResults():
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name
+        
+class Results3():
+    def __init__(self, results_path, dataset_path):
+        print('init results')
+
+        # paths
+        self.path_results = results_path
+        self.path_dataset = dataset_path
+        self.path_cache = './output'
+
+        # Variables d'intérêt
+        self.metrics_ae_ptdist = {}
+        self.metrics_ae_rotdeg = {}
+        self.metrics_re_ptdist = {}
+        self.metrics_re_rotdeg = {}
+        self.metrics_consensus = {}
+
+    def generate_intermediate_results(self):
+        # Generate folder
+        folder = 'intermediate'
+        self.intermediate_path = os.path.join(self.path_cache, folder)
+
+        # Save grountruth and estimates data
+        for rid in self.results.robots:
+            path_rid = os.path.join(self.intermediate_path, rid)
+            os.makedirs(path_rid , exist_ok=True)
+
+            gt_fname = os.path.join(path_rid, rid + '_groundtruth.txt')
+            est_fname = os.path.join(path_rid, rid + '_estimates.txt')
+            init_fname = os.path.join(path_rid, rid + '_initialization.txt')
+
+            f_es = open(est_fname,'w')
+            f_gt = open(gt_fname,'w')
+            f_init = open(init_fname,'w')
+
+            f_es.write("# time x y z qx qy qz qw\n")
+            f_gt.write("# time x y z qx qy qz qw\n")
+            f_init.write("# time x y z qx qy qz qw\n")
+            
+            estimates = self.results.robot_solutions[rid].values
+            groundtruths = self.dataset.groundTruth(rid)
+            initializations = self.dataset.initialization(rid)
+            
+            pose_num = 0
+            key = gtsam.symbol(rid, pose_num)
+
+            while key in estimates.keys() and key in groundtruths.keys() and key in initializations.keys():
+
+                # Export estimates
+                line = self.__format_dataline(pose_num, estimates.atPose3(key))
+                f_es.write(' '.join(map(str, line)) + '\n')
+
+                # Export groundtruth
+                line = self.__format_dataline(pose_num, groundtruths.atPose3(key))
+                f_gt.write(' '.join(map(str, line)) + '\n')
+                
+                # Export initialization
+                line = self.__format_dataline(pose_num, initializations.atPose3(key))
+                f_init.write(' '.join(map(str, line)) + '\n')
+            
+                # Next key
+                pose_num += 1
+                key = gtsam.symbol(rid, pose_num)
+    
+    def __format_dataline(self, pose_nr, val):
+        tr = val.translation()
+        quat = val.rotation().toQuaternion()
+        return [pose_nr, tr.T[0], tr.T[1], tr.T[2], quat.x(), quat.y(),quat.z(), quat.w()]
+
 class Data():
     def __init__(self, Results):
         # initialize structure
@@ -294,10 +369,7 @@ class Results():
         file_name = '0'*(12-len(str(iteration))) + str(iteration) + '.jrr.cbor'
         return file_name
     
-    def __format_dataline(self, pose_nr, val):
-        tr = val.translation()
-        quat = val.rotation().toQuaternion()
-        return [pose_nr, tr.T[0], tr.T[1], tr.T[2], quat.x(), quat.y(),quat.z(), quat.w()]
+
 
     def __get_metrics(self, pose_type, error_type, init):
         statistics = {}
