@@ -1,28 +1,47 @@
 import os
 import numpy as np
 
-from results import Results, Results2, Results3, GroupResults
+from results import Results, Results2, Results3, ResultsGroup
 from loader import Loader
 from display_metrics import DisplayMetrics
 
 # ============================================================
 #  Configuration — adapt these paths for each experiment
 # ============================================================
-DATASET_FOLDER = './datasets/VLD1_detection'
-RESULTS_FOLDER = './input/VLD1_detection_2026_05_19_01_50'
+DATASET_FOLDER_1 = './datasets/VLD1_detection'
+DATASET_FOLDER_2 = './datasets/VLD1_detection_lk'
+DATASET_FOLDER_3 = './datasets/VLD1_lk'
+
+RESULTS_FOLDER_1 = './input/VLD1_detection_2026_05_19_01_50'
+RESULTS_FOLDER_2 = './input/VLD1_detection_2026_05_19_12_09'
+RESULTS_FOLDER_3 = './input/VLD1_detection_lk_2026_05_19_02_55'
+RESULTS_FOLDER_4 = './input/VLD1_detection_lk_2026_05_19_13_39'
+RESULTS_FOLDER_5 = './input/VLD1_lk_2026_05_19_03_59'
+
+# ============================================================
+DATASET_FOLDERS = [DATASET_FOLDER_1, DATASET_FOLDER_2, DATASET_FOLDER_3]
+RESULTS_FOLDERS = [RESULTS_FOLDER_1, RESULTS_FOLDER_2, RESULTS_FOLDER_3,
+                   RESULTS_FOLDER_4, RESULTS_FOLDER_5]
+SOLVERS        = ['geodesic-mesa-2', 'geodesic-pyxis']
 OUTPUT_FOLDER  = 'saved_output'
-SOLVERS        = ['mesa-2']
 
 # ============================================================
 #  Pipeline
 # ============================================================
-loader = Loader(SOLVERS, RESULTS_FOLDER, DATASET_FOLDER)
+# loader = Loader(SOLVERS, RESULTS_FOLDER, DATASET_FOLDER)
+DataGroup = ResultsGroup(SOLVERS, RESULTS_FOLDERS, DATASET_FOLDERS)
 
-for dg in loader:
-    print(f"\n[{dg.dataset}] solver={dg.solver}")
+for key in DataGroup.sorted_results.keys():
+    print(f'Solver: {key}')
+    for result in DataGroup.sorted_results[key]:
+        print(result.dataset_name)
+        result.compute_metrics()
+        break
+    break
+#     print(f"\n[{dg.dataset}] solver={dg.solver}")
 
-    test = GroupResults('value')
-    print(test)
+#     test = GroupResults('value')
+#     print(test)
 
     # ---- RTE & APE via final trajectory results ----
     # res = Results(dg.result_path, dg.dataset_path, OUTPUT_FOLDER)
