@@ -1,88 +1,162 @@
 import os
 import numpy as np
+from collections import defaultdict
+import matplotlib.cm as cm
 
 from results import Results, Results2, Results3, ResultsGroup
-from loader import Loader
 from display_metrics import DisplayMetrics
 
 # ============================================================
-#  Configuration — adapt these paths for each experiment
+#  Dataset folder paths — adapt these paths for each experiment
 # ============================================================
 DATASET_FOLDER_1 = './datasets/VLD1_detection'
 DATASET_FOLDER_2 = './datasets/VLD1_detection_lk'
 DATASET_FOLDER_3 = './datasets/VLD1_lk'
 
-RESULTS_FOLDER_1 = './input/VLD1_detection_2026_05_19_01_50'
-RESULTS_FOLDER_2 = './input/VLD1_detection_2026_05_19_12_09'
-RESULTS_FOLDER_3 = './input/VLD1_detection_lk_2026_05_19_02_55'
-RESULTS_FOLDER_4 = './input/VLD1_detection_lk_2026_05_19_13_39'
-RESULTS_FOLDER_5 = './input/VLD1_lk_2026_05_19_03_59'
-
 # ============================================================
+#  C-SLAM results folder paths — adapt these paths for each experiment
+# ============================================================
+RESULTS_FOLDER_1 = './input/VLD1_detection_lk_mesa_2026_05_19_02_55'
+RESULTS_FOLDER_2 = './input/VLD1_detection_lk_pyxis3_2026_05_19_13_39'
+RESULTS_FOLDER_3 = './input/VLD1_detection_mesa_2026_05_19_01_50'
+RESULTS_FOLDER_4 = './input/VLD1_detection_pyxis3_2026_05_19_12_09'
+RESULTS_FOLDER_5 = './input/VLD1_lk_mesa_2026_05_19_03_59'
+RESULTS_FOLDER_6 = './input/VLD1_lk_pyxis3_2026_05_20_09_37'
+
 DATASET_FOLDERS = [DATASET_FOLDER_1, DATASET_FOLDER_2, DATASET_FOLDER_3]
 RESULTS_FOLDERS = [RESULTS_FOLDER_1, RESULTS_FOLDER_2, RESULTS_FOLDER_3,
-                   RESULTS_FOLDER_4, RESULTS_FOLDER_5]
+                   RESULTS_FOLDER_4, RESULTS_FOLDER_5, RESULTS_FOLDER_6]
 SOLVERS        = ['geodesic-mesa-2', 'geodesic-pyxis']
 OUTPUT_FOLDER  = 'saved_output'
 
+# Check detection_lk before detection (more specific)
+SCENARIOS = ['detection_lk', 'detection', 'lk']
+ROBOTS    = [5, 15, 25, 35, 45, 55]
+
+# 2 base colormaps — one per solver
+SOLVER_CMAPS = {
+    'geodesic-mesa-2': cm.Blues,
+    'geodesic-pyxis':  cm.Oranges,
+}
+
 # ============================================================
-#  Pipeline
+#  Helper functions
 # ============================================================
-# loader = Loader(SOLVERS, RESULTS_FOLDER, DATASET_FOLDER)
+
+def parse_dataset_name(name):
+    """Return (scenario, dtype) extracted from a dataset name, or (None, None)."""
+    scenario = next((s for s in SCENARIOS if s in name), None)
+    if '_edge_' in name or name.endswith('_edge'):
+        dtype = 'edge'
+    elif '_shared_' in name or name.endswith('_shared'):
+        dtype = 'shared'
+    else:
+        dtype = None
+    return scenario, dtype
+
+
+def extract_robot_count(dataset_name):
+    """Return the numeric suffix of a dataset name, e.g. 'detection_edge_25' -> 25."""
+    try:
+        return int(dataset_name.rsplit('_', 1)[-1])
+    except ValueError:
+        return 0
+
+
+def build_colors(group):
+    """Return {label: rgba} mapping.
+
+    Each solver gets its own colormap; within a solver, shades are spread
+    across the sorted robot counts present in this group.
+    """
+    solver_counts = defaultdict(set)
+    for lbl, r in group:
+        solver_counts[r.solver].add(extract_robot_count(r.dataset_name))
+    solver_sorted = {s: sorted(c) for s, c in solver_counts.items()}
+
+    colors = {}
+    for lbl, r in group:
+        cmap = SOLVER_CMAPS.get(r.solver, cm.Greys)
+        sorted_counts = solver_sorted[r.solver]
+        n = len(sorted_counts)
+        idx = sorted_counts.index(extract_robot_count(r.dataset_name))
+        t = 0.35 + (idx / max(n - 1, 1)) * 0.50  # shade range [0.35, 0.85]
+        colors[lbl] = cmap(t)
+    return colors
+
+
+# ============================================================
+#  Build groups: (scenario, dtype) -> [(label, result)]
+# ============================================================
 DataGroup = ResultsGroup(SOLVERS, RESULTS_FOLDERS, DATASET_FOLDERS)
+dsp = DisplayMetrics(OUTPUT_FOLDER)
 
-for key in DataGroup.sorted_results.keys():
-    print(f'Solver: {key}')
-    for result in DataGroup.sorted_results[key]:
-        print(result.dataset_name)
-        result.compute_metrics()
-        break
-    break
-#     print(f"\n[{dg.dataset}] solver={dg.solver}")
+groups = defaultdict(list)
 
-#     test = GroupResults('value')
-#     print(test)
+for solver, results in DataGroup.sorted_results.items():
+    for result in results:
+        scenario, dtype = parse_dataset_name(result.dataset_name)
+        if scenario and dtype:
+            print(f"Computing metrics: {result.dataset_name} [{solver}]")
+            result.compute_metrics()
+            n_robots = extract_robot_count(result.dataset_name)
+            label = f"{n_robots} robots ({solver})"
+            groups[(scenario, dtype)].append((label, result))
 
-    # ---- RTE & APE via final trajectory results ----
-    # res = Results(dg.result_path, dg.dataset_path, OUTPUT_FOLDER)
-    # res.generate_intermediate_results()
-    # res.generate_metrics_results(minimal=False, pose_types=['point_distance'])
+# ============================================================
+#  5 plots per (scenario, dtype) group
+# ============================================================
+for scenario in SCENARIOS:
+    for dtype in ['edge', 'shared']:
+        group = groups.get((scenario, dtype), [])
+        if not group:
+            continue
 
-    # rte_errors = res.errors['point_distance_rpe']   # {'Robot a': [...], ...}
-    # ape_errors = res.errors['point_distance_ape']   # {'Robot a': [...], ...}
+        tag    = f"{scenario}_{dtype}"
+        colors = build_colors(group)
+        print(f"\nPlotting: {tag}  ({len(group)} results)")
 
-    # print("  Mean RTE per robot:")
-    # for robot, errs in rte_errors.items():
-    #     print(f"    {robot}: {np.mean(errs):.4f} m  (std={np.std(errs):.4f})")
+        rpe_ptdist   = {lbl: r.metrics_re_ptdist for lbl, r in group}
+        ape_ptdist   = {lbl: r.metrics_ae_ptdist for lbl, r in group}
+        rpe_deg      = {lbl: r.metrics_re_rotdeg for lbl, r in group}
+        ape_deg      = {lbl: r.metrics_ae_rotdeg for lbl, r in group}
+        consensus_lk = {
+            lbl: {it: v['landmarks'] for it, v in r.metrics_consensus.items()}
+            for lbl, r in group
+        }
 
-    # print("  Mean APE per robot:")
-    # for robot, errs in ape_errors.items():
-    #     print(f"    {robot}: {np.mean(errs):.4f} m  (std={np.std(errs):.4f})")
-
-    # ---- Consensus via iteration-based results (shared landmarks only) ----
-    # res2 = Results2(dg.result_path, dg.dataset_path, OUTPUT_FOLDER)
-    # cs_errors = res2.get_mean_consensus_all_lk()
-
-    # if cs_errors:
-    #     print("  Mean consensus error per pair (averaged over all shared landmarks):")
-    #     for pair, errs in cs_errors.items():
-    #         print(f"    {pair[0]}-{pair[1]}: {np.mean(errs):.4f} m  (std={np.std(errs):.4f})")
-    # else:
-    #     print("  No shared landmarks — consensus not computed.")
-
-    # ---- Visualizations ----
-    # tag = f"{dg.dataset}_{dg.solver}"
-    # dsp = DisplayMetrics(OUTPUT_FOLDER)
-
-    # dsp.plot_rte_ape_per_robot(
-    #     rte_errors, ape_errors,
-    #     title=f"RTE & APE par robot  ({dg.dataset} — {dg.solver})",
-    #     fig_name=f"rte_ape_{tag}",
-    # )
-
-    # if cs_errors:
-    #     dsp.plot_consensus_per_pair(
-    #         cs_errors,
-    #         title=f"Consensus par paire  ({dg.dataset} — {dg.solver})",
-    #         fig_name=f"consensus_{tag}",
-    #     )
+        dsp.plot_error_over_iterations(
+            rpe_ptdist,
+            ylabel='RPE point distance (m)',
+            title=f"RPE point distance — {tag}",
+            fig_name=f"rpe_ptdist_{tag}",
+            colors=colors,
+        )
+        dsp.plot_error_over_iterations(
+            ape_ptdist,
+            ylabel='APE point distance (m)',
+            title=f"APE point distance — {tag}",
+            fig_name=f"ape_ptdist_{tag}",
+            colors=colors,
+        )
+        dsp.plot_error_over_iterations(
+            rpe_deg,
+            ylabel='RPE rotation (°)',
+            title=f"RPE rotation — {tag}",
+            fig_name=f"rpe_rotdeg_{tag}",
+            colors=colors,
+        )
+        dsp.plot_error_over_iterations(
+            ape_deg,
+            ylabel='APE rotation (°)',
+            title=f"APE rotation — {tag}",
+            fig_name=f"ape_rotdeg_{tag}",
+            colors=colors,
+        )
+        dsp.plot_error_over_iterations(
+            consensus_lk,
+            ylabel='Consensus landmarks (m)',
+            title=f"Consensus landmarks — {tag}",
+            fig_name=f"consensus_lk_{tag}",
+            colors=colors,
+        )

@@ -107,6 +107,7 @@ class Metrics():
         if err_type is not None:
             stat_type = self.__statisticsType(err_type)
             rpe_stat = self.rpe_metric.get_statistic(stat_type)
+            return rpe_stat
             # print('RPE [',err_type,'] :',rpe_stat)
         
 
@@ -117,7 +118,8 @@ class Metrics():
         if err_type is not None:
             stat_type = self.__statisticsType(err_type)
             ape_stat = self.ape_metric.get_statistic(stat_type)
-            # print('APE [',err_type,'] :',ape_stat)
+            return ape_stat
+            # print('APE ['err_type,'] :',ape_stat)
 
     def compute_stats(self):
         self.compute_rpe()

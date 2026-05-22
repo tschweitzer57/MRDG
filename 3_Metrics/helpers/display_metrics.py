@@ -68,6 +68,45 @@ class DisplayMetrics:
 
         self._save(fig, fig_name)
 
+    def plot_error_over_iterations(self, metrics_data, ylabel='Error', title=None,
+                                    fig_name='error_over_iterations', colors=None):
+        """Line plot of one or several error series over iterations.
+
+        Args:
+            metrics_data: dict {iteration: error}  — single series
+                       or dict {label: {iteration: error}} — multiple series
+            colors: optional dict {label: color} overriding automatic palette
+        """
+        # Normalise to multi-series format
+        first = next(iter(metrics_data.values()))
+        if isinstance(first, dict):
+            series = metrics_data
+        else:
+            series = {'': metrics_data}
+
+        n = len(series)
+        auto_colors = sns.color_palette("colorblind", min(n, 10)) if n <= 10 \
+                      else sns.color_palette("husl", n)
+
+        plt.style.use('bmh')
+        fig, ax = plt.subplots(figsize=(10, 5))
+
+        for idx, (label, data) in enumerate(series.items()):
+            color = colors[label] if (colors and label in colors) else auto_colors[idx]
+            iters = sorted(data.keys())
+            errors = [data[i] for i in iters]
+            ax.plot(iters, errors, color=color, linewidth=1.5,
+                    marker='o', markersize=3, label=label if label else None)
+
+        ax.set_xlabel('Iteration')
+        ax.set_ylabel(ylabel)
+        if n > 1 or next(iter(series)) != '':
+            ax.legend(fontsize=8)
+        if title:
+            ax.set_title(title)
+
+        self._save(fig, fig_name)
+
     def plot_consensus_per_pair(self, cs_errors, title=None, fig_name='consensus_per_pair'):
         """Two-panel figure: consensus evolution (left) and mean per pair (right).
 

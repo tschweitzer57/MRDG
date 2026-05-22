@@ -1,5 +1,6 @@
 # General librairies
 import os
+from pathlib import Path
 import shutil
 import re
 import sys
@@ -33,6 +34,18 @@ class ResultsGroup():
         self.sorted_results = self.group_by_solvers()
         
     def group_by_solvers(self):
+        sorted_results = {}
+        
+        # initialize dict
+        for solver in self.solvers:
+            sorted_results[solver] = []
+            
+        for result3 in self.results:
+            sorted_results[result3.solver].append(result3)
+        
+        return sorted_results
+
+    def group_scenario(self):
         sorted_results = {}
         
         # initialize dict
@@ -122,13 +135,28 @@ class Results3():
         
         # Utilities
         self.__parser = jrl.Parser()
+        self.__results = None
+        self.__iterationNb = None
+        self.__dataset = None
+
+        # Intermediate folders -> dict['est'][rid]:path
+        self.__gtrPathCache = None
+        self.__iniPathCache = None
+        self.__estPathCache = None
     
     def compute_metrics(self):
         self.__get_dataset_data()
         for path in self.path_iterations:
-            self.__generate_intermediate_results(path)
-            break
-            
+            self.__update_results(path)
+            self.__generate_intermediate_results()
+            self.__get_metrics('mean')
+            self.__get_consensus()
+            if self.__iterationNb > 50:
+                break
+    
+    def __update_results(self, path):
+        self.__results = self.__parser.parseResults(path, True)
+        self.__iterationNb = self.__get_itaration_nb(path)
         
     def __get_iteration_paths(self):
         iterations_dir = os.path.join(self.path_results, 'iterations')
@@ -140,40 +168,59 @@ class Results3():
         # Dataset data
         self.__dataset = self.__parser.parseDataset(self.path_dataset, False)
         
-    def __get_results_data(self, iteration):
-        if iteration == 'final':
-            results_path = os.path.join(self.input_path, 'final_results.jrr.cbor')
-        else:
-            results_path = os.path.join(self.input_path, 'iterations',self.__get_jrr_name(iteration))
-            print(results_path)
-        
-             
     def __get_shared_variables(self):
-        print('not implemented')
+        occurences = defaultdict(list)
+        for rid in self.__results.robots:
+            for key in self.__results.robot_solutions[rid].values.keys():
+                occurences[key].append(rid)
+        return {key: rids for key, rids in occurences.items() if len(rids) > 1}
 
-    def __generate_intermediate_results(self, path): # Eviter de réécrire gt et init
-        # Get results data
-        self.results = self.__parser.parseResults(path, True)
+    def __get_consensus(self):
+        if self.__iterationNb == 0:
+            self.shared_variables = self.__get_shared_variables()
+
+        self.metrics_consensus[self.__iterationNb] = {}
+        errors_g = []
+        errors_l = []
+        for key, rids in self.shared_variables.items():
+            vals = [self.__results.robot_solutions[rid].values for rid in rids]
+            is_landmark = chr(gtsam.Symbol(key).chr()) == '#'
+            errors_k = []
+
+            for i in range(len(rids)):
+                for j in range(i + 1, len(rids)):
+                    if is_landmark:
+                        err = np.linalg.norm(vals[i].atPoint3(key) - vals[j].atPoint3(key))
+                        errors_l.append(err)
+                    else:
+                        err = np.linalg.norm(vals[i].atPose3(key).translation() - vals[j].atPose3(key).translation())
+                    errors_g.append(err)
+                    errors_k.append(err)
+            
+            self.metrics_consensus[self.__iterationNb][key] = np.mean(errors_k)
+        self.metrics_consensus[self.__iterationNb]['all'] = np.mean(errors_g) if errors_g else 0.0
+        self.metrics_consensus[self.__iterationNb]['landmarks'] = np.mean(errors_l) if errors_l else 0.0
+
+
+    def __generate_intermediate_results(self): # Eviter de réécrire gt et init
         
         # Generate folder architecture
-        shutil.rmtree(self.path_cache)
-        estimation_dir = os.path.join(self.path_cache, 'est/')
-        initialization_dir = os.path.join(self.path_cache, 'ini/')
-        groundtruth_dir = os.path.join(self.path_cache, 'gtr/')
+        if os.path.isdir(self.path_cache):
+            shutil.rmtree(self.path_cache)
+        self.__estPathCache = os.path.join(self.path_cache, 'est/')
+        self.__iniPathCache = os.path.join(self.path_cache, 'ini/')
+        self.__gtrPathCache = os.path.join(self.path_cache, 'gtr/')
         
-        os.makedirs(estimation_dir)
-        os.makedirs(initialization_dir)
-        os.makedirs(groundtruth_dir)
+        os.makedirs(self.__estPathCache)
+        os.makedirs(self.__iniPathCache)
+        os.makedirs(self.__gtrPathCache)
 
         # Save grountruth and estimates data
-        for rid in self.results.robots:
-        
-            # path_rid = os.path.join(self.path_cache, rid.rstrip('/'))
-            # os.makedirs(path_rid , exist_ok=True)
+        for rid in self.__results.robots:
 
-            gt_fname = os.path.join(groundtruth_dir, rid + '_groundtruth.txt')
-            est_fname = os.path.join(estimation_dir, rid + '_estimates.txt')
-            init_fname = os.path.join(initialization_dir, rid + '_initialization.txt')
+            gt_fname = os.path.join(self.__gtrPathCache, rid + '_groundtruth.txt')
+            est_fname = os.path.join(self.__estPathCache, rid + '_estimates.txt')
+            init_fname = os.path.join(self.__iniPathCache, rid + '_initialization.txt')
 
             f_es = open(est_fname,'w')
             f_gt = open(gt_fname,'w')
@@ -183,7 +230,7 @@ class Results3():
             f_gt.write("# time x y z qx qy qz qw\n")
             f_init.write("# time x y z qx qy qz qw\n")
             
-            estimates = self.results.robot_solutions[rid].values
+            estimates = self.__results.robot_solutions[rid].values
             groundtruths = self.__dataset.groundTruth(rid)
             initializations = self.__dataset.initialization(rid)
             
@@ -207,119 +254,42 @@ class Results3():
                 # Next key
                 pose_num += 1
                 key = gtsam.symbol(rid, pose_num)
-                
-    def __get_metrics(self, pose_type, error_type, init):
-        statistics = {}
-        errors = {}
 
-        for rid in self.results.robots:
-            
-            if init:
-                input_path = os.path.join(self.intermediate_path, rid, rid + '_initialization.txt')
-            else:
-                input_path = os.path.join(self.intermediate_path, rid, rid + '_estimates.txt')
-            gt_path = os.path.join(self.intermediate_path, rid, rid + '_groundtruth.txt')
-            
-            index = 'Robot ' + rid
-            
-            # Get pose errors
-            metrics = Metrics(input_path, gt_path)
-            metrics.set_poseRelation(pose_type)
+    def __get_metrics(self, statistic_type):
+        temp_ape_ptdist = []
+        temp_rpe_ptdist = []
+        temp_ape_deg = []
+        temp_rpe_deg = []
+
+        for rid in self.__results.robots:
+            gt_file = os.path.join(self.__gtrPathCache, rid + '_groundtruth.txt')
+            input_file = os.path.join(self.__estPathCache, rid + '_estimates.txt')
+            init_file = os.path.join(self.__iniPathCache, rid + '_initialization.txt')
+
+            metrics = Metrics(input_file, gt_file)
+            metrics.set_poseRelation('point_distance')
             metrics.compute_stats()
-            if error_type == 'ape':
-                statistics[index] = metrics.ape_stats
-                errors[index] = metrics.ape_metric.error.tolist()
-            elif error_type == 'rpe':
-                statistics[index] = metrics.rpe_stats
-                errors[index] = metrics.rpe_metric.error.tolist()
-            else:
-                raise ValueError("Unknown error type")
-
-        return statistics, errors
-    
-    def generate_metrics_results(self, minimal=True, pose_types=None, export=False):
-
-        # Generate folders
-        # folder = 'metrics'
-        # self.metrics_path = os.path.join(self.output_path, folder)
-        # self.raw_metrics_path = os.path.join(self.metrics_path, 'raw')
-        # os.makedirs(self.raw_metrics_path , exist_ok=True)
-
-        # generate dict to store errors
-        self.errors = {}
-
-        if minimal:
-            pose_types = ['rot_angle_deg','point_distance']
-            error_types = ['ape','rpe']
-        elif pose_types is not None:
-            error_types = ['ape','rpe']
-        else:
-            pose_types = ['translation','transformation','rotation','rot_angle_deg','point_distance','rot_angle_rad']
-            error_types = ['ape','rpe']
-
-        for pose_type in pose_types:
-            for error_type in error_types:
-
-                metrics, errors = self.__get_metrics(pose_type, error_type, self.init_opt)
-                self.errors[pose_type + '_' + error_type] = errors
-
-                if export:
-                    # Chemin des fichiers JSON
-                    file_name = pose_type + '_' + error_type
-                    metrics_path = os.path.join(self.metrics_path, file_name + '.json')
-                    raw_errors_path = os.path.join(self.raw_metrics_path, file_name + '_raw.json')
-
-                    # Export metrics in JSON file
-                    with open(metrics_path, 'w', encoding='utf-8') as json_file:
-                        json.dump(metrics, json_file, ensure_ascii=False, indent=4)
-
-                    # Export raw errors in JSON file
-                    with open(raw_errors_path, 'w', encoding='utf-8') as json_file:
-                        json.dump(errors, json_file, ensure_ascii=False, indent=4)
-                        
-    def get_errors(self, rng='base'):
-        # reduce amount of computation
-        if rng == 'base':
-            self.generate_intermediate_results()
-            self.generate_metrics_results(minimal=True)
-        elif rng == 'all':
-            self.generate_intermediate_results()
-            self.generate_metrics_results(minimal=False)
-        return self.errors
-    
-    def __get_metrics(self, pose_type, error_type, init):
-        statistics = {}
-        errors = {}
-
-        for rid in self.results.robots:
-            
-            if init:
-                input_path = os.path.join(self.intermediate_path, rid, rid + '_initialization.txt')
-            else:
-                input_path = os.path.join(self.intermediate_path, rid, rid + '_estimates.txt')
-            gt_path = os.path.join(self.intermediate_path, rid, rid + '_groundtruth.txt')
-            
-            index = 'Robot ' + rid
-            
-            # Get pose errors
-            metrics = Metrics(input_path, gt_path)
-            metrics.set_poseRelation(pose_type)
+            temp_ape_ptdist.append(metrics.compute_ape(err_type=statistic_type))
+            temp_rpe_ptdist.append(metrics.compute_rpe(err_type=statistic_type))
+            metrics.set_poseRelation('rot_angle_deg')
             metrics.compute_stats()
-            if error_type == 'ape':
-                statistics[index] = metrics.ape_stats
-                errors[index] = metrics.ape_metric.error.tolist()
-            elif error_type == 'rpe':
-                statistics[index] = metrics.rpe_stats
-                errors[index] = metrics.rpe_metric.error.tolist()
-            else:
-                raise ValueError("Unknown error type")
-
-        return statistics, errors
+            temp_ape_deg.append(metrics.compute_ape(err_type=statistic_type))
+            temp_rpe_deg.append(metrics.compute_rpe(err_type=statistic_type))
+        
+        # Save iteration data
+        self.metrics_ae_ptdist[self.__iterationNb] = np.mean(temp_ape_ptdist)
+        self.metrics_ae_rotdeg[self.__iterationNb] = np.mean(temp_ape_deg)
+        self.metrics_re_ptdist[self.__iterationNb] = np.mean(temp_rpe_ptdist)
+        self.metrics_re_rotdeg[self.__iterationNb] = np.mean(temp_rpe_deg)
+        
     
     def __format_dataline(self, pose_nr, val):
         tr = val.translation()
         quat = val.rotation().toQuaternion()
         return [pose_nr, tr.T[0], tr.T[1], tr.T[2], quat.x(), quat.y(),quat.z(), quat.w()]
+
+    def __get_itaration_nb(self, path):
+        return int(Path(path).name.split('.')[0])
     
     def __get_jrr_name(self, iteration):
         file_name = '0'*(12-len(str(iteration))) + str(iteration) + '.jrr.cbor'
