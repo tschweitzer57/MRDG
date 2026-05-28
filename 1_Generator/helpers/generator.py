@@ -695,7 +695,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
         t_br = gtsam.BearingRange3D.Measure(pose_r, point_l)
         noise_rot = gtsam.Rot3.Ypr(noise[0], noise[1], 0)
         m_bearing = noise_rot.rotate(t_br.bearing())
-        m_range = t_br.range() + noise[2]
+        m_range = t_br.range() * noise[2]
         fg.add(gtsam.BearingRangeFactor3D(r_key, l_key, m_bearing, m_range, noise_model))
 
         # init gt and init vals
