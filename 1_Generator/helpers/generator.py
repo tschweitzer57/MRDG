@@ -73,12 +73,15 @@ class DatasetGenerator(jrl.DatasetBuilder):
         # Define noise models
         self.odom_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
             self.config.sigmas['odom'])
-        self.loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
-            self.config.sigmas['lc_intra'])
-        self.pose_loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
-            self.config.sigmas['lc_inter_direct_pose'])
-        self.range_loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
-            [self.config.sigmas['lc_inter_direct_range']])
+        if 'lc_intra' in self.config.sigmas:
+            self.loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
+                self.config.sigmas['lc_intra'])
+        if 'lc_inter_direct_pose' in self.config.sigmas:
+            self.pose_loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
+                self.config.sigmas['lc_inter_direct_pose'])
+        if 'lc_inter_direct_range' in self.config.sigmas:
+            self.range_loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
+                [self.config.sigmas['lc_inter_direct_range']])
         self.bearing_range_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
             self.config.sigmas['landmarks'])
 
