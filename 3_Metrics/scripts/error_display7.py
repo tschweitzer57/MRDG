@@ -14,14 +14,12 @@ DATASET_FOLDER_1 = './datasets/LK_INIT'
 # ============================================================
 #  C-SLAM results folder paths — adapt these paths for each experiment
 # ============================================================
-RESULTS_FOLDER_1 = './input/LK_INIT_hadmm2_2026_06_03_16_10'
-RESULTS_FOLDER_2 = './input/LK_INIT_hadmm-mesa_2026_06_04_22_15'
-RESULTS_FOLDER_3 = './input/LK_INIT_mbadmm200_2026_06_02_13_54'
-RESULTS_FOLDER_4 = './input/LK_INIT_mesa_2026_06_02_11_37'
+RESULTS_FOLDER_1 = './input/LK_INIT_hadmm-10gr_2026_06_08_12_41'
+RESULTS_FOLDER_2 = './input/LK_INIT_hadmm-mesa_2026_06_08_11_36'
 
 DATASET_FOLDERS = [DATASET_FOLDER_1]
-RESULTS_FOLDERS = [RESULTS_FOLDER_2]
-SOLVERS        = ['geodesic-pyxis', 'geodesic-mesa-2', 'geodesic-hadmm']
+RESULTS_FOLDERS = [RESULTS_FOLDER_1]
+SOLVERS        = ['geodesic-mbadmm', 'geodesic-mesa', 'geodesic-hadmm']
 OUTPUT_FOLDER  = 'saved_output'
 
 # Check detection_lk before detection (more specific)
@@ -30,8 +28,8 @@ ROBOTS    = [5, 55]
 
 # 2 base colormaps — one per solver
 SOLVER_CMAPS = {
-    'geodesic-pyxis': cm.Blues,
-    'geodesic-mesa-2':  cm.Oranges,
+    'geodesic-mbadmm': cm.Blues,
+    'geodesic-mesa':  cm.Oranges,
     'geodesic-hadmm': cm.Greens,
 }
 

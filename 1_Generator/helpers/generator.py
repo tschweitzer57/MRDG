@@ -59,7 +59,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
         
         self.odom_choice = {}
         
-        # Setup ID's for each robot
+        # Setup ID's for each robot (max 52 robots)
+        # string.printable (max 100 robots)
         n = self.config.trajectory['robots']
         self.robots = list(ascii_letters[:n])
         

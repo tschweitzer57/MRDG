@@ -4,6 +4,7 @@
 ---
 
 ## 1. Generator
+- [ ] Résoudre le problème de clés pour robots
 - [ ] Ajouter différents patterns de trajectoires
 - [ ] Ajouter des outliers (mesures, perceptual aliasing)
 - [x] Générer dataset avec landmarks 2 - 2
