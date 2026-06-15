@@ -6,8 +6,8 @@
         "initialization_type": "odom"
     },
     "trajectory":{
-        "seed": 67,
-        "robots": 55,
+        "seed": 57,
+        "robots": 50,
         "poses": 250,
         "traj_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
         "x_lim": [-40, 40],
@@ -15,7 +15,7 @@
         "z_lim": [-40, 40]
     },
     "landmarks": {
-        "seed": 57,
+        "seed": 45,
         "number": 30,
         "pack": "shared",
         "detection_num": 50
