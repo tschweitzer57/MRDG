@@ -1,5 +1,6 @@
 {
-    "name": "mesa_detection",
+    "comment": "Ce fichier de configuration a toutes les options actives",
+    "name": "complete",
     "output_dir": "/home/workspace/output",
     "dataset-options": {
         "repeats": 1,
@@ -17,7 +18,7 @@
     "landmarks": {
         "seed": 57,
         "number": 30,
-        "pack": "all",
+        "pack": "shared",
         "detection_num": 50
     },
     "intra-loop-closure": {
