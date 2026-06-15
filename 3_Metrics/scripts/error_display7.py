@@ -14,11 +14,11 @@ DATASET_FOLDER_1 = './datasets/LK_INIT'
 # ============================================================
 #  C-SLAM results folder paths — adapt these paths for each experiment
 # ============================================================
-RESULTS_FOLDER_1 = './input/LK_INIT_hadmm-10gr_2026_06_08_12_41'
-RESULTS_FOLDER_2 = './input/LK_INIT_hadmm-mesa_2026_06_08_11_36'
+RESULTS_FOLDER_1 = './input/LK_INIT_mbadmm_2026_06_12_13_10'
+RESULTS_FOLDER_2 = './input/LK_INIT_mesa_2026_06_12_11_18'
 
 DATASET_FOLDERS = [DATASET_FOLDER_1]
-RESULTS_FOLDERS = [RESULTS_FOLDER_1]
+RESULTS_FOLDERS = [RESULTS_FOLDER_1, RESULTS_FOLDER_2]
 SOLVERS        = ['geodesic-mbadmm', 'geodesic-mesa', 'geodesic-hadmm']
 OUTPUT_FOLDER  = 'saved_output'
 
