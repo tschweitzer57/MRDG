@@ -459,13 +459,13 @@ class DatasetGenerator(jrl.DatasetBuilder):
         return fg
 
     def make_pose_false_matching_factor(self, k1, k2, fk2, noise):
-    """
-    Generate a false matching pose detection factor
+        """
+        Generate a false matching pose detection factor
 
-    :k1: Key of robot making the detection
-    :k2: Key of the robot detected (truth)
-    :fk2: Fake Key of the robot detected (measurement)
-    """
+        :k1: Key of robot making the detection
+        :k2: Key of the robot detected (truth)
+        :fk2: Fake Key of the robot detected (measurement)
+        """
         fg = gtsam.NonlinearFactorGraph()
         if noise is None:
             noise = self.pose_loop_noise_gen()
@@ -781,9 +781,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
             {},
         )
 
-        if not self.is_key_in(rid, l_key):
+        if not self.is_key_in(rid, l_key) and not self.is_key_in(rid, fl_key):
             self.addGroundTruth(rid, jrl.TypedValues(gt_val_lk, {l_key: jrl.Point3Tag}))
-            self.addInitialization(rid, jrl.TypedValues(est_val_lk, {l_key: jrl.Point3Tag}))
+            self.addInitialization(rid, jrl.TypedValues(est_val_lk, {fl_key: jrl.Point3Tag}))
     
     #--------------------------------------------
     #   Generation functions
@@ -1311,10 +1311,11 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 if 'odometry' in self.config.outliers['out_of_bounds']:
                     rate = self.config.outliers['out_of_bounds']['odometry']
                     n = int(np.ceil((rate/100) * len(self.odom[rid])))
-                    selected_poses = np.random.choice(range(self.config.trajectory['poses']), size=n, replace=False)
+                    selected_poses = np.random.choice(range(len(self.odom[rid])), size=n, replace=False)
                     for pose in selected_poses:
                         outlier_noise = self.odom_noise_gen(outlier_amp=amp)
                         self.odom[rid][pose] = (self.odom[rid][pose][0], outlier_noise)
+
                     
                 if 'intra' in self.config.outliers['out_of_bounds']:
                     rate = self.config.outliers['out_of_bounds']['intra']
@@ -1432,7 +1433,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
                         else:
                             for i, d in enumerate(self.lk_measurements[(rid, pose)]):
                                 if d[0] == lid:
-                                    self.outliers_lk_fm[(rid, pose)] = self.lk_measurements[(rid, pose)].pop(i)
+                                    self.outliers_lk_fm[(rid, pose)] = [self.lk_measurements[(rid, pose)].pop(i)]
 
         if 'robot_loss' in self.config.outliers:
             print('Function robot loss not yet implemented')
