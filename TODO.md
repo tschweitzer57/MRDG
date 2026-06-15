@@ -20,6 +20,7 @@
 - [ ] Ajouter une section pour les patterns de trajectoire
 - [ ] Ajouter section pour les outliers
 - [ ] Retirer nom des paramètres de configuration
+- [ ] Ajouter un paramètre options (shared, ...)
 
 ---
 
