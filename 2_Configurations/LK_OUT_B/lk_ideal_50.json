@@ -31,9 +31,6 @@
         "out_of_bounds": {
             "odometry": 20,
             "landmarks": 20
-        },
-        "false_matching": {
-            "landmarks": 20
         }
     }
 }
