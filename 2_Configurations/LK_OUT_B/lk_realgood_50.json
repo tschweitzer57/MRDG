@@ -1,9 +1,9 @@
 {
-    "name": "lk_ideal_50",
+    "name": "lk_realgood_55",
     "output_dir": "/home/workspace/output",
     "dataset-options": {
         "repeats": 1,
-        "initialization_type": "noisy_gt"
+        "initialization_type": "odom"
     },
     "trajectory":{
         "seed": 57,
@@ -21,9 +21,19 @@
         "detection_num": 50
     },
     "sigmas": {
-        "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],
+        "initialization": [1, 1, 1, 0.5, 0.5, 0.5],
         "prior": [0.05, 0.05, 0.01, 0.1, 0.1, 0.3],
-        "odom": [0.05, 0.05, 0.04, 0.012, 0.012, 0.035],
-        "landmarks": [0.03, 0.03, 0.3]
+        "odom": [0.015, 0.015, 0.010, 0.005, 0.005, 0.012],
+        "landmarks": [0.01, 0.01, 0.1]
+    },
+    "outliers": {
+        "seed":15,
+        "out_of_bounds": {
+            "odometry": 20,
+            "landmarks": 20
+        },
+        "false_matching": {
+            "landmarks": 20
+        }
     }
 }
