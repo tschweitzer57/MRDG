@@ -3,21 +3,25 @@ import numpy as np
 import os
 import glob
 
-def get_config_paths(config_folder):
-    # List all entries in the parent folder
-    entries = os.listdir(config_folder)
-
-    # Filter out the entries that are directories
-    folder_paths = [os.path.join(config_folder, entry) for entry in entries if os.path.isdir(os.path.join(config_folder, entry))]
+def get_config_paths(config_folders):
+    """Return all JSON config file paths from the given folder list."""
+    if isinstance(config_folders, str):
+        config_folders = [config_folders]
 
     file_paths = []
-    jrl_files = glob.glob(os.path.join(config_folder, '*.json'))
-    file_paths += jrl_files
 
-    # Print the path of each folder
-    for folder_path in folder_paths:
-        jrl_files = glob.glob(os.path.join(folder_path, '*.json'))
-        file_paths += jrl_files
+    for config_folder in config_folders:
+        if not os.path.isdir(config_folder):
+            continue
+
+        # Add JSON files directly in the current folder
+        file_paths.extend(glob.glob(os.path.join(config_folder, '*.json')))
+
+        # Add JSON files inside each subfolder of the current folder
+        for entry in os.listdir(config_folder):
+            entry_path = os.path.join(config_folder, entry)
+            if os.path.isdir(entry_path):
+                file_paths.extend(glob.glob(os.path.join(entry_path, '*.json')))
 
     return file_paths
 
