@@ -448,11 +448,28 @@ class DatasetGenerator(jrl.DatasetBuilder):
         fg.add(gtsam.BetweenFactorPose3(k1, k2, measure, noise_model))
         return fg
     
-    def make_false_matching_factor(self, k1, k2, fk2, noise):
+    def make_lc_false_matching_factor(self, k1, k2, fk2, noise):
         fg = gtsam.NonlinearFactorGraph()
         if noise is None:
             noise = self.loop_noise_gen()
         noise_model = self.loop_noise_model
+
+        measure = self.gt_poses.atPose3(k1).inverse().compose(self.gt_poses.atPose3(k2)).compose(noise)
+        fg.add(gtsam.BetweenFactorPose3(k1, fk2, measure, noise_model))
+        return fg
+
+    def make_pose_false_matching_factor(self, k1, k2, fk2, noise):
+    """
+    Generate a false matching pose detection factor
+
+    :k1: Key of robot making the detection
+    :k2: Key of the robot detected (truth)
+    :fk2: Fake Key of the robot detected (measurement)
+    """
+        fg = gtsam.NonlinearFactorGraph()
+        if noise is None:
+            noise = self.pose_loop_noise_gen()
+        noise_model = self.pose_loop_noise_model
 
         measure = self.gt_poses.atPose3(k1).inverse().compose(self.gt_poses.atPose3(k2)).compose(noise)
         fg.add(gtsam.BetweenFactorPose3(k1, fk2, measure, noise_model))
@@ -720,49 +737,53 @@ class DatasetGenerator(jrl.DatasetBuilder):
             self.addGroundTruth(rid, jrl.TypedValues(gt_val_lk, {l_key: jrl.Point3Tag}))
             self.addInitialization(rid, jrl.TypedValues(est_val_lk, {l_key: jrl.Point3Tag}))
 
-    # def add_lk_old(self, lid, rid, pose_number, outlier=(False, None)):
+
+    def add_fm_lk(self, lid, rid, pose_number, noise=None):
+
+        def pick_wrong_lid(lid):
+            candidates = [k for k in self.landmarks.keys() if k != lid]
+            return np.random.choice(candidates)
         
-    #     r_key = gtsam.symbol(rid, pose_number)
-    #     l_key = lid
+        r_key = gtsam.symbol(rid, pose_number)
+        l_key = lid
+        fl_key = pick_wrong_lid(l_key)
 
-    #     # Initialize noise and fg
-    #     fg = gtsam.NonlinearFactorGraph()
-    #     gt_val_lk = gtsam.Values()
-    #     est_val_lk = gtsam.Values()
-    #     if outlier[0]:
-    #         noise = self.bearing_range_noise_gen(force_outlier=outlier[1])
-    #     else:
-    #         noise = self.bearing_range_noise_gen()
-    #     noise_model = self.bearing_range_noise_model
+        # Initialize noise and fg
+        fg = gtsam.NonlinearFactorGraph()
+        gt_val_lk = gtsam.Values()
+        est_val_lk = gtsam.Values()
+        if noise is None:
+            noise = self.bearing_range_noise_gen()
+        noise_model = self.bearing_range_noise_model
 
-    #     # Get robot pose and landmark
-    #     pose_r = self.gt_poses.atPose3(r_key)
-    #     point_l = self.landmarks.atPoint3(l_key)
+        # Get robot pose and landmark
+        pose_r = self.gt_poses.atPose3(r_key)
+        point_l = self.landmarks.atPoint3(l_key)
 
-    #     # Compute measurement
-    #     t_br = gtsam.BearingRange3D.Measure(pose_r, point_l)
-    #     noise_rot = gtsam.Rot3.Ypr(noise[0], noise[1], 0)
-    #     m_bearing = noise_rot.rotate(t_br.bearing())
-    #     m_range = t_br.range() + noise[2]
-    #     fg.add(gtsam.BearingRangeFactor3D(r_key, l_key, m_bearing, m_range, noise_model))
+        # Compute measurement
+        t_br = gtsam.BearingRange3D.Measure(pose_r, point_l)
+        noise_rot = gtsam.Rot3.Ypr(noise[0], noise[1], 0)
+        m_bearing = noise_rot.rotate(t_br.bearing())
+        m_range = t_br.range() + t_br.range() * noise[2]
+        fg.add(gtsam.BearingRangeFactor3D(r_key, fl_key, m_bearing, m_range, noise_model))
 
-    #     # init gt and init vals
-    #     odom_pose_r = self.init_values.atPose3(r_key)
-    #     m_lk = odom_pose_r.transformFrom(m_range * m_bearing.point3())
-    #     gt_val_lk.insert(l_key, point_l)
-    #     est_val_lk.insert(l_key, m_lk)
+        # init gt and init vals
+        odom_pose_r = self.init_values.atPose3(r_key)
+        m_lk = odom_pose_r.transformFrom(m_range * m_bearing.point3())
+        gt_val_lk.insert(l_key, point_l)
+        est_val_lk.insert(fl_key, m_lk)
 
-    #     self.addEntry(
-    #         rid,
-    #         self.stamp,
-    #         fg,
-    #         [jrl.BearingRangeFactor3DTag],
-    #         {},
-    #     )
+        self.addEntry(
+            rid,
+            self.stamp,
+            fg,
+            [jrl.BearingRangeFactor3DTag],
+            {},
+        )
 
-    #     if not self.is_key_in(rid, l_key):
-    #         self.addGroundTruth(rid, jrl.TypedValues(gt_val_lk, {l_key: jrl.Point3Tag}))
-    #         self.addInitialization(rid, jrl.TypedValues(est_val_lk, {l_key: jrl.Point3Tag}))
+        if not self.is_key_in(rid, l_key):
+            self.addGroundTruth(rid, jrl.TypedValues(gt_val_lk, {l_key: jrl.Point3Tag}))
+            self.addInitialization(rid, jrl.TypedValues(est_val_lk, {l_key: jrl.Point3Tag}))
     
     #--------------------------------------------
     #   Generation functions
@@ -985,6 +1006,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
             lks_ids = pack_lid_per_rid(group_type=self.config.landmarks['pack'])
         else: 
             lks_ids = pack_lid_per_rid() # shared by default
+        
+        # give data to all functions (ugly but functional)
+            self.lks_ids = lks_ids
             
         # Landmark measurements -> risque de double détections
         for rid in self.robots:
@@ -1493,6 +1517,11 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     data = self.lk_measurements[(rid, pose_num)]
                     for lid, noise in data:
                         self.add_lk(lid, rid, pose_num, noise=noise)
+
+                if bool(self.outliers_lk_fm) and (rid, pose_num) in self.outliers_lk_fm.keys():
+                    data = self.outliers_lk_fm[(rid, pose_num)]
+                    for lid, noise in data:
+                        self.add_fm_lk(lid, rid, pose_num, noise=noise)
                          
             self.incr_stamp()
 
