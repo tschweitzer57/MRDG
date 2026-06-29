@@ -1008,7 +1008,7 @@ class DatasetGenerator(jrl.DatasetBuilder):
             lks_ids = pack_lid_per_rid() # shared by default
         
         # give data to all functions (ugly but functional)
-            self.lks_ids = lks_ids
+        self.lks_ids = lks_ids
             
         # Landmark measurements -> risque de double détections
         for rid in self.robots:
@@ -1475,6 +1475,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
         # Generate outliers
         if self.config.outliers is not None:
             self.gen_outliers()
+
+        # Seed initialization noise for determinism (Phase 2)
+        np.random.seed(self.config.trajectory.get('seed', 0) + 1337)
 
         # Add priors
         for rid in self.robots:
