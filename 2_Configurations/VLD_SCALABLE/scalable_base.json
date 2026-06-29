@@ -1,0 +1,30 @@
+{
+    "name": "vld_scalable_N",
+    "output_dir": "/home/workspace/output/validation/scalable",
+    "dataset-options": {
+        "repeats": 1,
+        "initialization_type": "noisy_gt"
+    },
+    "trajectory": {
+        "seed": 42,
+        "robots": 4,
+        "poses": 200,
+        "traj_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
+        "x_lim": [-30, 30],
+        "y_lim": [-30, 30],
+        "z_lim": [-15, 15]
+    },
+    "inter-direct-loop-closure": {
+        "range": {
+            "seed": 42,
+            "number": 10
+        }
+    },
+    "sigmas": {
+        "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],
+        "prior": [0.05, 0.05, 0.05, 0.1, 0.1, 0.1],
+        "odom": [0.05, 0.05, 0.05, 0.03, 0.03, 0.03],
+        "lc_inter_direct_range": 0.10,
+        "landmarks": [0.03, 0.03, 0.15]
+    }
+}
