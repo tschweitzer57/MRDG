@@ -1,0 +1,29 @@
+{
+    "name": "ro",
+    "output_dir": "/home/workspace/output",
+    "dataset-options": {
+        "repeats": 1,
+        "initialization_type": "noisy_gt"
+    },
+    "trajectory":{
+        "seed": 42,
+        "robots": 25,
+        "poses": 250,
+        "traj_probs": [0.7, 0.05, 0.05, 0.05, 0.05, 0.05, 0.05],
+        "x_lim": [-40, 40],
+        "y_lim": [-40, 40],
+        "z_lim": [-40, 40]
+    },
+    "landmarks": {
+        "seed": 43,
+        "number": 30,
+        "pack": "shared",
+        "detection_num": 50
+    },
+    "sigmas": {
+        "initialization": [0.3, 0.3, 0.3, 0.15, 0.15, 0.15],
+        "prior": [0.05, 0.05, 0.05, 0.1, 0.1, 0.1],
+        "odom": [0.05, 0.05, 0.05, 0.03, 0.03, 0.03],
+        "landmarks": [0.03, 0.03, 0.15]
+    }
+}
