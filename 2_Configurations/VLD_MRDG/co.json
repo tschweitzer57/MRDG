@@ -31,6 +31,7 @@
         "size": 20
     },
     "inter-direct-loop-closure": {
+        "seed": 46,
         "pose": {
             "seed": 46,
             "number": 20

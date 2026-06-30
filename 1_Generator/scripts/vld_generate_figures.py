@@ -262,7 +262,7 @@ print("\n" + "═"*60)
 print("6. BENCHMARK SCALABILITÉ (fig:ch3-scalability)")
 print("═"*60)
 
-N_vals = [2, 5, 10, 20, 50, 100]
+N_vals = [2, 5, 10, 20, 50, 90]
 K_FIXED = 200
 times_gen  = []
 mems_peak  = []

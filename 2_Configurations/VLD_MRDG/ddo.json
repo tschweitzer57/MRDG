@@ -15,6 +15,7 @@
         "z_lim": [-40, 40]
     },
     "inter-direct-loop-closure": {
+        "seed": 46,
         "pose": {
             "seed": 46,
             "number": 30
