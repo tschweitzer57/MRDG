@@ -4,7 +4,7 @@ import gtsam
 from gtsam import Rot3, Pose3
 import numpy as np
 from collections import defaultdict
-from string import ascii_letters
+import string
 from collections import defaultdict
 from copy import copy
 import random
@@ -61,8 +61,11 @@ class DatasetGenerator(jrl.DatasetBuilder):
         
         # Setup ID's for each robot (max 52 robots)
         # string.printable (max 100 robots)
+        # n = self.config.trajectory['robots']
+        # self.robots = list(ascii_letters[:n])
+        ascii_chars = ''.join(c for c in string.printable if c not in '#\t\n\r\f\v ')
         n = self.config.trajectory['robots']
-        self.robots = list(ascii_letters[:n])
+        self.robots = list(ascii_chars[:n])
         
         # Add robot to handle landmarks
         if self.config.landmarks is not None:
@@ -83,8 +86,9 @@ class DatasetGenerator(jrl.DatasetBuilder):
         if 'lc_inter_direct_range' in self.config.sigmas:
             self.range_loop_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
                 [self.config.sigmas['lc_inter_direct_range']])
-        self.bearing_range_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
-            self.config.sigmas['landmarks'])
+        if self.config.landmarks is not None:
+            self.bearing_range_noise_model = gtsam.noiseModel.Diagonal.Sigmas(
+                self.config.sigmas['landmarks'])
 
         # Define if dataset include outliers
         if self.config.outliers is not None:
@@ -319,8 +323,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     )
 
             # avoid outliers
-            noise = np.minimum(noise, np.array(sigma))
-            noise = np.maximum(noise, -np.array(sigma))
+            # noise = np.minimum(noise, np.array(sigma))
+            # noise = np.maximum(noise, -np.array(sigma))
         
         return Pose3.Expmap(noise)
 
@@ -337,8 +341,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
                 )
 
             # avoid outliers
-            noise = np.minimum(noise, np.array(sigma))
-            noise = np.maximum(noise, -np.array(sigma))
+            # noise = np.minimum(noise, np.array(sigma))
+            # noise = np.maximum(noise, -np.array(sigma))
 
         return Pose3.Expmap(noise)
 
@@ -355,8 +359,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     )
 
             # avoid outliers
-            noise = np.minimum(noise, np.array(sigma))
-            noise = np.maximum(noise, -np.array(sigma))
+            # noise = np.minimum(noise, np.array(sigma))
+            # noise = np.maximum(noise, -np.array(sigma))
 
         return Pose3.Expmap(noise)
 
@@ -371,8 +375,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
             noise = np.random.normal(0, sigma)
 
             # avoid outliers
-            noise = np.minimum(noise, np.array(sigma))
-            noise = np.maximum(noise, -np.array(sigma))
+            # noise = np.minimum(noise, np.array(sigma))
+            # noise = np.maximum(noise, -np.array(sigma))
 
         return noise
     
@@ -389,8 +393,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
                     )
             
             # avoid outliers
-            noise = np.minimum(noise, np.array(sigma))
-            noise = np.maximum(noise, -np.array(sigma))
+            # noise = np.minimum(noise, np.array(sigma))
+            # noise = np.maximum(noise, -np.array(sigma))
 
         return Pose3.Expmap(noise)
     
@@ -405,8 +409,8 @@ class DatasetGenerator(jrl.DatasetBuilder):
             noise = np.random.normal(np.zeros(3,),np.array(sigma))
             
             # avoid outliers
-            noise = np.minimum(noise, np.array(sigma))
-            noise = np.maximum(noise, -np.array(sigma))
+            # noise = np.minimum(noise, np.array(sigma))
+            # noise = np.maximum(noise, -np.array(sigma))
 
         return noise
     
