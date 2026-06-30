@@ -1,5 +1,5 @@
 {
-    "name": "dvo",
+    "name": "RVO",
     "output_dir": "/home/workspace/output",
     "dataset-options": {
         "repeats": 1,
@@ -33,10 +33,6 @@
     "inter-direct-loop-closure": {
         "pose": {
             "seed": 46,
-            "number": 20
-        },
-        "range": {
-            "seed": 47,
             "number": 20
         }
     },
